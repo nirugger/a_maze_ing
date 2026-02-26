@@ -1,5 +1,6 @@
 from src.requirement_parser import Parser
 from src.maze import Maze
+from src.cell import Cell
 
 
 def main():
@@ -12,7 +13,7 @@ def main():
         return
 
     maze = Maze(d)
-
+    print(maze)
 
 
 if __name__ == "__main__":

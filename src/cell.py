@@ -18,10 +18,10 @@ class Cell:
     Initialized as a full-closed cell (1111)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes the cell as a full-closed cell (1111)"""
 
-        self.walls = 0b1111
+        self.walls = 0xf
 
     def is_wall_closed(self, direction: int) -> bool:
         """Checks if a specific wall is close or open
@@ -51,3 +51,6 @@ class Cell:
         """
 
         self.walls |= 1 << direction
+
+    def __repr__(self) -> str:
+        return hex(self.walls)[2].upper()
