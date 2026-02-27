@@ -18,6 +18,7 @@ def main():
     # except Exception as e:
     #     print(repr(e))
     print(maze)
+    maze.print_maze()
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 from src.cell import Cell
 from src.cell import Direction
 import random
+import time
 from typing import Any
 
 
@@ -26,6 +27,7 @@ class Maze:
             Direction.west
             ]
         random.shuffle(directions)
+        self.print_maze()
 
         for direction in directions:
             match direction:
@@ -57,13 +59,60 @@ class Maze:
 
         maze: list[list[Cell]] = []
 
-        for _ in range(self.height):
-            row = []
-            for _ in range(self.width):
+        for i in range(self.height):
+            row: list[Cell] = []
+
+            for j in range(self.width):
                 row.append(Cell())
+
+                if i == self.entry[1] and j == self.entry[0]:
+                    row[j].is_entry = True
+                elif i == self.exit[1] and j == self.exit[0]:
+                    row[j].is_exit = True
+
             maze.append(row)
 
         self.maze = maze
+
+    def print_maze(self):
+        print("\033[2J\033[H")
+        WALL_COLOR = '\033[48;2;1;155;156m  \033[0m'
+        START_COLOR = '\033[48;2;3;12;142m  \033[0m'
+        END_COLOR = '\033[48;2;200;3;101m  \033[0m'
+        PATH_COLOR = '\033[40m  \033[0m'
+
+        print(WALL_COLOR * (self.width * 2 + 1))
+
+        for row in self.maze:
+            line_str = WALL_COLOR
+
+            for cell in row:
+                if cell.is_entry:
+                    line_str += START_COLOR
+                elif cell.is_exit:
+                    line_str += END_COLOR
+                else:
+                    line_str += PATH_COLOR
+
+                if cell.is_wall_closed(Direction.east):
+                    line_str += WALL_COLOR
+                else:
+                    line_str += PATH_COLOR
+
+            print(line_str)
+
+            bottom_str = WALL_COLOR
+
+            for cell in row:
+                if cell.is_wall_closed(Direction.south):
+                    bottom_str += WALL_COLOR
+                else:
+                    bottom_str += PATH_COLOR
+
+                bottom_str += WALL_COLOR
+
+            print(bottom_str)
+        time.sleep(0.1)
 
     def __str__(self) -> str:
 

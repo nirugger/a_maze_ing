@@ -22,6 +22,8 @@ class Cell:
         """Initializes the cell as a full-closed cell (1111)"""
 
         self.walls = 0xf
+        self.is_entry = False
+        self.is_exit = False
         self.visited = False
 
     def is_wall_closed(self, direction: Direction) -> bool:
