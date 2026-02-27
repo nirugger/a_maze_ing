@@ -48,6 +48,7 @@ class Parser(ABC):
         val_config['HEIGHT'] = int(config['HEIGHT'])
         val_config['ENTRY'] = (int(entry_point[0]), int(entry_point[1]))
         val_config['EXIT'] = (int(exit_point[0]), int(exit_point[1]))
+        val_config['OUTPUT_FILE'] = config['OUTPUT_FILE']
         val_config['PERFECT'] = str_to_bool[config['PERFECT'].strip().lower()]
 
-        return config
+        return val_config

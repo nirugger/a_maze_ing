@@ -22,8 +22,9 @@ class Cell:
         """Initializes the cell as a full-closed cell (1111)"""
 
         self.walls = 0xf
+        self.visited = False
 
-    def is_wall_closed(self, direction: int) -> bool:
+    def is_wall_closed(self, direction: Direction) -> bool:
         """Checks if a specific wall is close or open
         Args:
             direction (Direction): The wall to be checked
@@ -32,25 +33,25 @@ class Cell:
             0 (falsy) if the wall is open
         """
 
-        return self.walls & (1 << direction) == 1 << direction
+        return self.walls & (1 << direction.value) == 1 << direction.value
 
-    def open_wall(self, direction: int) -> None:
+    def open_wall(self, direction: Direction) -> None:
         """Opens one wall of the cell
         Do nothing if the wall is already open
         Args:
             direction (Direction): The wall to be opened
         """
 
-        self.walls &= ~ (1 << direction)
+        self.walls &= ~ (1 << direction.value)
 
-    def close_wall(self, direction: int) -> None:
+    def close_wall(self, direction: Direction) -> None:
         """Closes one wall of the cell
         Do nothing if the wall is already closed
         Args:
             direction (Direction): The wall to be closed
         """
 
-        self.walls |= 1 << direction
+        self.walls |= 1 << direction.value
 
     def __repr__(self) -> str:
         return hex(self.walls)[2].upper()

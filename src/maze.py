@@ -1,4 +1,6 @@
 from src.cell import Cell
+from src.cell import Direction
+import random
 from typing import Any
 
 
@@ -14,12 +16,46 @@ class Maze:
         self.perfect: bool = config["PERFECT"]
         self.initialize_maze()
 
-    def create_maze(self) -> None:
-        pass
+    def create_maze(self, col: int, row: int) -> None:
+
+        self.maze[row][col].visited = True
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+        random.shuffle(directions)
+
+        for direction in directions:
+            match direction:
+                case Direction.north:
+                    if row > 0 and not self.maze[row - 1][col].visited:
+                        self.maze[row][col].open_wall(Direction.north)
+                        self.maze[row - 1][col].open_wall(Direction.south)
+                        self.create_maze(row=(row - 1), col=col)
+
+                case Direction.south:
+                    if row < self.height - 1 and not self.maze[row + 1][col].visited:
+                        self.maze[row][col].open_wall(Direction.south)
+                        self.maze[row + 1][col].open_wall(Direction.north)
+                        self.create_maze(row=(row + 1), col=col)
+
+                case Direction.east:
+                    if col < self.width - 1 and not self.maze[row][col + 1].visited:
+                        self.maze[row][col].open_wall(Direction.east)
+                        self.maze[row][col + 1].open_wall(Direction.west)
+                        self.create_maze(row=row, col=(col + 1))
+
+                case Direction.west:
+                    if col > 0 and not self.maze[row][col - 1].visited:
+                        self.maze[row][col].open_wall(Direction.west)
+                        self.maze[row][col - 1].open_wall(Direction.east)
+                        self.create_maze(row=row, col=(col - 1))
 
     def initialize_maze(self) -> None:
 
-        maze = []
+        maze: list[list[Cell]] = []
 
         for _ in range(self.height):
             row = []
