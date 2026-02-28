@@ -15,9 +15,70 @@ class Maze:
         self.exit: tuple[int] = config["EXIT"]
         self.output: str = config["OUTPUT_FILE"]
         self.perfect: bool = config["PERFECT"]
+        self.path = ""
         self.initialize_maze()
 
-    def create_maze(self, col: int, row: int) -> None:
+    def backtrack(self, col: int, row: int, path: str) -> None:
+
+        self.maze[row][col].visited = True
+        if self.maze[row][col].is_exit:
+            self.path = path
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+        random.shuffle(directions)
+        self.print_maze()
+
+
+        i = 0
+        for direction in directions:
+            match direction:
+                case Direction.north:
+                    if row > 0 and not self.maze[row - 1][col].visited:
+                        self.maze[row][col].open_wall(Direction.north)
+                        self.maze[row - 1][col].open_wall(Direction.south)
+                        if i:
+                            path = path[:-i]
+                        path += 'N'
+                        i += 1
+                        self.backtrack(row=(row - 1), col=col, path=path)
+
+                case Direction.south:
+                    if row < self.height - 1 and not self.maze[row + 1][col].visited:
+                        self.maze[row][col].open_wall(Direction.south)
+                        self.maze[row + 1][col].open_wall(Direction.north)
+                        if i:
+                            path = path[:-i]
+
+                        path += 'S'
+                        i += 1
+                        self.backtrack(row=(row + 1), col=col, path=path)
+
+                case Direction.east:
+                    if col < self.width - 1 and not self.maze[row][col + 1].visited:
+                        self.maze[row][col].open_wall(Direction.east)
+                        self.maze[row][col + 1].open_wall(Direction.west)
+                        if i:
+                            path = path[:-i]
+                        path += 'E'
+                        i += 1
+                        self.backtrack(row=row, col=(col + 1), path=path)
+
+                case Direction.west:
+                    if col > 0 and not self.maze[row][col - 1].visited:
+                        self.maze[row][col].open_wall(Direction.west)
+                        self.maze[row][col - 1].open_wall(Direction.east)
+                        if i:
+                            path = path[:-i]
+                        path += 'W'
+                        i += 1
+    
+                        self.backtrack(row=row, col=(col - 1), path=path)
+
+    def prim(self, col: int, row: int, frontiera: list[tuple]) -> None:
 
         self.maze[row][col].visited = True
         directions = [
@@ -35,25 +96,51 @@ class Maze:
                     if row > 0 and not self.maze[row - 1][col].visited:
                         self.maze[row][col].open_wall(Direction.north)
                         self.maze[row - 1][col].open_wall(Direction.south)
-                        self.create_maze(row=(row - 1), col=col)
+                        frontiera.append((col, row-1))
+
+                        self.maze[row - 1][col].visited = True
+                        
+                        item = random.choice(frontiera)
+                        self.prim(row=item[1], col=item[0], frontiera=frontiera)
 
                 case Direction.south:
                     if row < self.height - 1 and not self.maze[row + 1][col].visited:
                         self.maze[row][col].open_wall(Direction.south)
                         self.maze[row + 1][col].open_wall(Direction.north)
-                        self.create_maze(row=(row + 1), col=col)
+                        frontiera.append((col, row+1))
+                        self.maze[row + 1][col].visited = True
+
+                        item = random.choice(frontiera)
+
+                        self.prim(row=item[1], col=item[0], frontiera=frontiera)
 
                 case Direction.east:
                     if col < self.width - 1 and not self.maze[row][col + 1].visited:
                         self.maze[row][col].open_wall(Direction.east)
                         self.maze[row][col + 1].open_wall(Direction.west)
-                        self.create_maze(row=row, col=(col + 1))
+                        self.maze[row][col + 1].visited = True
+
+                        frontiera.append((col+1, row))
+                        item = random.choice(frontiera)
+
+                        self.prim(row=item[1], col=item[0], frontiera=frontiera)
 
                 case Direction.west:
                     if col > 0 and not self.maze[row][col - 1].visited:
                         self.maze[row][col].open_wall(Direction.west)
                         self.maze[row][col - 1].open_wall(Direction.east)
-                        self.create_maze(row=row, col=(col - 1))
+                        frontiera.append((col-1, row))
+                        self.maze[row][col-1].visited = True
+
+                        item = random.choice(frontiera)
+                        self.prim(row=item[1], col=item[0], frontiera=frontiera)
+            
+        print(frontiera)
+        print(col, row)
+        frontiera.remove((col, row))
+        if frontiera:
+            item = random.choice(frontiera)
+            self.prim(col=item[0], row=item[1], frontiera=frontiera)
 
     def initialize_maze(self) -> None:
 
@@ -112,7 +199,7 @@ class Maze:
                 bottom_str += WALL_COLOR
 
             print(bottom_str)
-        time.sleep(0.1)
+        time.sleep(0.01)
 
     def __str__(self) -> str:
 
