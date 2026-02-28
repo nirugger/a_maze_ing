@@ -7,10 +7,10 @@ class Direction(Enum):
     value from LSB (0) to MSB (3)
     """
 
-    north = 0
-    east = 1
-    south = 2
-    west = 3
+    north = 1
+    east = 2
+    south = 4
+    west = 8
 
 
 class Cell:
@@ -24,7 +24,7 @@ class Cell:
         self.walls = 0xf
         self.is_entry = False
         self.is_exit = False
-        self.visited = False
+        self.visited = 0
 
     def is_wall_closed(self, direction: Direction) -> bool:
         """Checks if a specific wall is close or open
@@ -35,7 +35,7 @@ class Cell:
             0 (falsy) if the wall is open
         """
 
-        return self.walls & (1 << direction.value) == 1 << direction.value
+        return self.walls & direction.value
 
     def open_wall(self, direction: Direction) -> None:
         """Opens one wall of the cell
@@ -44,7 +44,7 @@ class Cell:
             direction (Direction): The wall to be opened
         """
 
-        self.walls &= ~ (1 << direction.value)
+        self.walls &= ~ direction.value
 
     def close_wall(self, direction: Direction) -> None:
         """Closes one wall of the cell
@@ -53,7 +53,7 @@ class Cell:
             direction (Direction): The wall to be closed
         """
 
-        self.walls |= 1 << direction.value
+        self.walls |= direction.value
 
     def __repr__(self) -> str:
         return hex(self.walls)[2].upper()

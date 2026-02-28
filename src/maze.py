@@ -2,7 +2,16 @@ from src.cell import Cell
 from src.cell import Direction
 import random
 import time
+import subprocess
+import platform
 from typing import Any
+
+
+def clear_screen():
+    if platform.system() == "Windows":
+        print("\033[2J\033[H")
+    else:
+        subprocess.run("clear", shell=True)
 
 
 class Maze:
@@ -15,8 +24,81 @@ class Maze:
         self.exit: tuple[int] = config["EXIT"]
         self.output: str = config["OUTPUT_FILE"]
         self.perfect: bool = config["PERFECT"]
+        self.algo: str = config.get("ALGORITHM", None)
         self.path = ""
-        self.initialize_maze()
+        self.error_message = ""
+        self.init_maze()
+
+    def init_maze(self) -> None:
+
+        maze: list[list[Cell]] = []
+
+        for i in range(self.height):
+            row: list[Cell] = []
+
+            for j in range(self.width):
+                row.append(Cell())
+
+                if i == self.entry[1] and j == self.entry[0]:
+                    row[j].is_entry = True
+                elif i == self.exit[1] and j == self.exit[0]:
+                    row[j].is_exit = True
+
+            maze.append(row)
+
+        self.maze = maze
+        if self.width < 9 or self.height < 7:
+            self.error_message = "Maze too small for containing '42'"
+        else:
+            self.forty_two()
+            if (self.maze[self.entry[1]][self.entry[0]].visited == 42 or
+                    self.maze[self.exit[1]][self.exit[0]].visited == 42):
+                raise ValueError("[ERR] Keypoints inside the 42!")
+
+    def forget_visit(self) -> None:
+
+        for row in self.maze:
+            for cell in row:
+                cell.visited = False
+
+    def forty_two(self):
+
+        center_x = int((self.width - 1) / 2)
+        center_y = int((self.height - 1) / 2)
+
+        for i in range(center_x - 3, center_x + 4):
+            if i != center_x - 2 and i != center_x - 1 and i != center_x:
+                self.maze[center_y - 2][i].visited = 42
+
+        self.maze[center_y - 1][center_x - 3].visited = 42
+        self.maze[center_y - 1][center_x + 3].visited = 42
+
+        for i in range(center_x - 3, center_x + 4):
+            if i != center_x:
+                self.maze[center_y][i].visited = 42
+
+        self.maze[center_y + 1][center_x - 1].visited = 42
+        self.maze[center_y + 1][center_x + 1].visited = 42
+
+        for i in range(center_x - 3, center_x + 4):
+            if i != center_x - 3 and i != center_x - 2 and i != center_x:
+                self.maze[center_y + 2][i].visited = 42
+
+    def create_maze(self):
+
+        algos: dict[str, callable] = {
+            "backtrack": self.backtrack,
+            "prim": self.prim
+            }
+
+        match self.algo:
+
+            case "backtrack":
+                algos['backtrack'](self.entry[1], self.entry[0], "")
+
+            case "prim":
+                algos['prim'](self.entry[1], self.entry[0],
+                              [(self.entry[1], self.entry[0])])
 
     def backtrack(self, col: int, row: int, path: str) -> None:
 
@@ -30,8 +112,7 @@ class Maze:
             Direction.west
             ]
         random.shuffle(directions)
-        self.print_maze()
-
+        # self.print_maze()
 
         i = 0
         for direction in directions:
@@ -50,6 +131,7 @@ class Maze:
                     if row < self.height - 1 and not self.maze[row + 1][col].visited:
                         self.maze[row][col].open_wall(Direction.south)
                         self.maze[row + 1][col].open_wall(Direction.north)
+                        i += 1
                         if i:
                             path = path[:-i]
 
@@ -75,7 +157,6 @@ class Maze:
                             path = path[:-i]
                         path += 'W'
                         i += 1
-    
                         self.backtrack(row=row, col=(col - 1), path=path)
 
     def prim(self, col: int, row: int, frontiera: list[tuple]) -> None:
@@ -99,7 +180,7 @@ class Maze:
                         frontiera.append((col, row-1))
 
                         self.maze[row - 1][col].visited = True
-                        
+
                         item = random.choice(frontiera)
                         self.prim(row=item[1], col=item[0], frontiera=frontiera)
 
@@ -134,40 +215,25 @@ class Maze:
 
                         item = random.choice(frontiera)
                         self.prim(row=item[1], col=item[0], frontiera=frontiera)
-            
+
         print(frontiera)
         print(col, row)
-        frontiera.remove((col, row))
+        if (col, row) in frontiera:
+            frontiera.remove((col, row))
         if frontiera:
             item = random.choice(frontiera)
             self.prim(col=item[0], row=item[1], frontiera=frontiera)
 
-    def initialize_maze(self) -> None:
-
-        maze: list[list[Cell]] = []
-
-        for i in range(self.height):
-            row: list[Cell] = []
-
-            for j in range(self.width):
-                row.append(Cell())
-
-                if i == self.entry[1] and j == self.entry[0]:
-                    row[j].is_entry = True
-                elif i == self.exit[1] and j == self.exit[0]:
-                    row[j].is_exit = True
-
-            maze.append(row)
-
-        self.maze = maze
-
     def print_maze(self):
-        print("\033[2J\033[H")
-        WALL_COLOR = '\033[48;2;1;155;156m  \033[0m'
-        START_COLOR = '\033[48;2;3;12;142m  \033[0m'
-        END_COLOR = '\033[48;2;200;3;101m  \033[0m'
-        PATH_COLOR = '\033[40m  \033[0m'
 
+        clear_screen()
+
+        WALL_COLOR = '\033[48;2;216;143;148m  \033[0m'
+        ft_COLOR = '\033[48;2;49;73;126m  \033[0m'
+        START_COLOR = '\033[48;2;102;187;106m  \033[0m'
+        END_COLOR = '\033[48;2;239;83;80m  \033[0m'
+        PATH_COLOR = '\033[48;2;30;30;30m  \033[0m'
+# 216 143 148
         print(WALL_COLOR * (self.width * 2 + 1))
 
         for row in self.maze:
@@ -178,6 +244,8 @@ class Maze:
                     line_str += START_COLOR
                 elif cell.is_exit:
                     line_str += END_COLOR
+                elif cell.visited == 42:
+                    line_str += ft_COLOR
                 else:
                     line_str += PATH_COLOR
 
@@ -199,7 +267,7 @@ class Maze:
                 bottom_str += WALL_COLOR
 
             print(bottom_str)
-        time.sleep(0.01)
+        time.sleep(0.02)
 
     def __str__(self) -> str:
 
