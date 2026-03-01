@@ -24,9 +24,10 @@ class Cell:
         self.walls = 0xf
         self.is_entry = False
         self.is_exit = False
+        self.is_solved = False
         self.visited = 0
 
-    def is_wall_closed(self, direction: Direction) -> bool:
+    def is_closed(self, direction: Direction) -> bool:
         """Checks if a specific wall is close or open
         Args:
             direction (Direction): The wall to be checked

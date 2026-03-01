@@ -55,11 +55,12 @@ class Maze:
                     self.maze[self.exit[1]][self.exit[0]].visited == 42):
                 raise ValueError("[ERR] Keypoints inside the 42!")
 
-    def forget_visit(self) -> None:
+    def never_been_there(self) -> None:
 
         for row in self.maze:
             for cell in row:
-                cell.visited = False
+                if cell.visited != 42:
+                    cell.visited = False
 
     def forty_two(self):
 
@@ -95,20 +96,18 @@ class Maze:
         match self.algo:
 
             case "backtrack":
-                algos['backtrack'](self.entry[1], self.entry[0], "")
+                algos['backtrack'](self.entry[1], self.entry[0])
 
             case "prim":
                 algos['prim'](self.entry[1], self.entry[0],
                               [(self.entry[1], self.entry[0])])
-            
+
             case "kruskal":
                 algos['kruskal']()
 
-    def backtrack(self, col: int, row: int, path: str) -> None:
+    def backtrack(self, col: int, row: int) -> None:
 
-        self.maze[row][col].visited = True
-        if self.maze[row][col].is_exit:
-            self.path = path
+        self.maze[row][col].visited = 1
         directions = [
             Direction.north,
             Direction.east,
@@ -125,43 +124,88 @@ class Maze:
                     if row > 0 and not self.maze[row - 1][col].visited:
                         self.maze[row][col].open_wall(Direction.north)
                         self.maze[row - 1][col].open_wall(Direction.south)
-                        if i:
-                            path = path[:-i]
-                        path += 'N'
-                        i += 1
-                        self.backtrack(row=(row - 1), col=col, path=path)
+                        self.backtrack(row=(row - 1), col=col)
 
                 case Direction.south:
                     if row < self.height - 1 and not self.maze[row + 1][col].visited:
                         self.maze[row][col].open_wall(Direction.south)
                         self.maze[row + 1][col].open_wall(Direction.north)
                         i += 1
-                        if i:
-                            path = path[:-i]
-
-                        path += 'S'
-                        i += 1
-                        self.backtrack(row=(row + 1), col=col, path=path)
+                        self.backtrack(row=(row + 1), col=col)
 
                 case Direction.east:
                     if col < self.width - 1 and not self.maze[row][col + 1].visited:
                         self.maze[row][col].open_wall(Direction.east)
                         self.maze[row][col + 1].open_wall(Direction.west)
-                        if i:
-                            path = path[:-i]
-                        path += 'E'
-                        i += 1
-                        self.backtrack(row=row, col=(col + 1), path=path)
+                        self.backtrack(row=row, col=(col + 1))
 
                 case Direction.west:
                     if col > 0 and not self.maze[row][col - 1].visited:
                         self.maze[row][col].open_wall(Direction.west)
                         self.maze[row][col - 1].open_wall(Direction.east)
-                        if i:
-                            path = path[:-i]
-                        path += 'W'
-                        i += 1
-                        self.backtrack(row=row, col=(col - 1), path=path)
+                        self.backtrack(row=row, col=(col - 1))
+
+    def backtrack_solver(self, col: int, row: int, path: str) -> None:
+
+        self.maze[row][col].visited = 1
+        if self.maze[row][col].is_exit:
+            self.path = path
+            return
+
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+        random.shuffle(directions)
+
+        for direction in directions:
+            if self.path:
+                break
+            match direction:
+
+                case Direction.north:
+                    if (row > 0 and not
+                            self.maze[row - 1][col].visited and not
+                            self.maze[row][col].is_closed(Direction.north)):
+                        self.backtrack_solver(row=(row - 1), col=col, path=path + 'N')
+
+                case Direction.south:
+                    if (row < self.height - 1 and not
+                            self.maze[row + 1][col].visited and not
+                            self.maze[row][col].is_closed(Direction.south)):
+                        self.backtrack_solver(row=(row + 1), col=col, path=path + 'S')
+
+                case Direction.east:
+                    if (col < self.width - 1 and not
+                            self.maze[row][col + 1].visited and not
+                            self.maze[row][col].is_closed(Direction.east)):
+                        self.backtrack_solver(row=row, col=(col + 1), path=path + 'E')
+
+                case Direction.west:
+                    if (col > 0 and not
+                            self.maze[row][col - 1].visited and not
+                            self.maze[row][col].is_closed(Direction.west)):
+                        self.backtrack_solver(row=row, col=(col - 1), path=path + 'W')
+
+        self.maze[row][col].visited = 0
+
+    def assign_solution(self) -> None:
+        col, row = self.entry[0], self.entry[1]
+        path = self.path
+        for char in path:
+            self.print_maze()
+            match char:
+                case 'N':
+                    row, col = row - 1, col
+                case 'S':
+                    row, col = row + 1, col
+                case 'E':
+                    row, col = row, col + 1
+                case 'W':
+                    row, col = row, col - 1
+            self.maze[row][col].is_solved = True
 
     def prim(self, col: int, row: int, frontiera: list[tuple]) -> None:
 
@@ -242,96 +286,115 @@ class Maze:
                     krusk_list.append({(row, col)})
 
         while len(krusk_list) > 1:
+
             flag = False
             self.print_maze()
-            choosen_set = random.choice(krusk_list)
-            row, col = random.choice(tuple(choosen_set))
+            this_set = random.choice(krusk_list)
+            row, col = random.choice(tuple(this_set))
             random.shuffle(directions)
+
             for direction in directions:
                 match direction:
+
                     case Direction.north:
-                        if row > 0 and (row - 1, col) not in choosen_set and not self.maze[row - 1][col].visited:
+                        if (row > 0
+                                and (row - 1, col) not in this_set
+                                and not self.maze[row - 1][col].visited):
                             flag = True
                             self.maze[row][col].open_wall(Direction.north)
                             self.maze[row - 1][col].open_wall(Direction.south)
                             for i in krusk_list:
                                 if (row - 1, col) in i:
-                                    choosen_set.update(i)
+                                    this_set.update(i)
                                     krusk_list.remove(i)
                                     break
                         if flag:
                             break
+
                     case Direction.south:
-                        if row < self.height - 1 and (row + 1, col) not in choosen_set and not self.maze[row + 1][col].visited:
+                        if (row < self.height - 1
+                                and (row + 1, col) not in this_set
+                                and not self.maze[row + 1][col].visited):
                             flag = True
-        
                             self.maze[row][col].open_wall(Direction.south)
                             self.maze[row + 1][col].open_wall(Direction.north)
                             for i in krusk_list:
                                 if (row + 1, col) in i:
-                                    choosen_set.update(i)
+                                    this_set.update(i)
                                     krusk_list.remove(i)
                                     break
-
                         if flag:
                             break
+
                     case Direction.east:
-                        if col < self.width - 1 and (row, col + 1) not in choosen_set and not self.maze[row][col + 1].visited:
+                        if (col < self.width - 1
+                                and (row, col + 1) not in this_set
+                                and not self.maze[row][col + 1].visited):
                             flag = True
                             self.maze[row][col].open_wall(Direction.east)
                             self.maze[row][col + 1].open_wall(Direction.west)
                             for i in krusk_list:
                                 if (row, col + 1) in i:
-                                    choosen_set.update(i)
+                                    this_set.update(i)
                                     krusk_list.remove(i)
                                     break
-
                         if flag:
                             break
+
                     case Direction.west:
-                        if col > 0 and (row, col - 1) not in choosen_set and not self.maze[row][col - 1].visited:
+                        if (col > 0
+                                and (row, col - 1) not in this_set
+                                and not self.maze[row][col - 1].visited):
                             flag = True
                             self.maze[row][col].open_wall(Direction.west)
                             self.maze[row][col - 1].open_wall(Direction.east)
                             for i in krusk_list:
                                 if (row, col - 1) in i:
-                                    choosen_set.update(i)
+                                    this_set.update(i)
                                     krusk_list.remove(i)
                                     break
-
                         if flag:
                             break
-        self.print_maze()
-        print(len(krusk_list))
-
 
     def print_maze(self):
 
         clear_screen()
 
         WALL_COLOR = '\033[48;2;216;143;148m  \033[0m'
-        FT_COLOR = '\033[48;2;49;73;126m  \033[0m'
+        FT_COLOR = '\033[48;2;35;60;105m  \033[0m'
+        FT_WALL_COLOR = '\033[48;2;35;60;105m  \033[0m'
         START_COLOR = '\033[48;2;102;187;106m  \033[0m'
         END_COLOR = '\033[48;2;239;83;80m  \033[0m'
         PATH_COLOR = '\033[48;2;30;30;30m  \033[0m'
-# 216 143 148
+        SOLVED_COLOR = '\033[48;2;253;253;100m  \033[0m'
+
         print(WALL_COLOR * (self.width * 2 + 1))
 
-        for row in self.maze:
+        for row in range(len(self.maze)):
             line_str = WALL_COLOR
 
-            for cell in row:
-                if cell.is_entry:
+            for col in range(len(self.maze[row])):
+                if self.maze[row][col].is_entry:
                     line_str += START_COLOR
-                elif cell.is_exit:
+                elif self.maze[row][col].is_exit:
                     line_str += END_COLOR
-                elif cell.visited == 42:
+                elif self.maze[row][col].is_solved:
+                    line_str += SOLVED_COLOR
+                elif self.maze[row][col].visited == 42:
                     line_str += FT_COLOR
                 else:
                     line_str += PATH_COLOR
 
-                if cell.is_wall_closed(Direction.east):
+                if (col < self.width - 1 and
+                    (self.maze[row][col].visited == 42 and
+                     self.maze[row][col + 1].visited == 42)):
+                    line_str += FT_WALL_COLOR
+                elif self.maze[row][col].is_closed(Direction.east):
                     line_str += WALL_COLOR
+                elif ((self.maze[row][col].is_entry or
+                      self.maze[row][col].is_solved) and
+                      self.maze[row][col + 1].is_solved):
+                    line_str += SOLVED_COLOR
                 else:
                     line_str += PATH_COLOR
 
@@ -339,9 +402,17 @@ class Maze:
 
             bottom_str = WALL_COLOR
 
-            for cell in row:
-                if cell.is_wall_closed(Direction.south):
+            for col in range(len(self.maze[row])):
+                if (row < self.height - 1 and
+                    (self.maze[row][col].visited == 42 and
+                     self.maze[row + 1][col].visited == 42)):
+                    bottom_str += FT_WALL_COLOR
+                elif self.maze[row][col].is_closed(Direction.south):
                     bottom_str += WALL_COLOR
+                elif ((self.maze[row][col].is_entry or
+                      self.maze[row][col].is_solved) and
+                      self.maze[row + 1][col].is_solved):
+                    bottom_str += SOLVED_COLOR
                 else:
                     bottom_str += PATH_COLOR
 

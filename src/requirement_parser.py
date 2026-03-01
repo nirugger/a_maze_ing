@@ -1,13 +1,13 @@
 from pydantic import BaseModel
-from pydantic import Field, field_validator, ValidationError, model_validator
+from pydantic import Field, field_validator, model_validator, ValidationError
 from abc import ABC
 from typing import Any, Tuple, Optional
 
 
 class MazeConfig(BaseModel):
 
-    WIDTH: int = Field(gt=0, le=42)
-    HEIGHT: int = Field(gt=0, le=42)
+    WIDTH: int = Field(ge=2, le=41)
+    HEIGHT: int = Field(ge=2, le=21)
     ENTRY: Tuple[int, int] = Field(min_length=2, max_length=2)
     EXIT: Tuple[int, int] = Field(min_length=2, max_length=2)
     OUTPUT_FILE: str
@@ -68,7 +68,7 @@ class Parser(ABC):
             model = MazeConfig(**config)
             return model.model_dump()
         except ValidationError as e:
-            raise KeyError(f"Validation error: {e}")
+            raise KeyError(f"Validation error: {str(e)}")
 
     # mandatory_keys = [
     #     'WIDTH',
