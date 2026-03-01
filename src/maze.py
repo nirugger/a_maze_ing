@@ -5,7 +5,7 @@ import time
 import subprocess
 import platform
 from typing import Any
-
+from src.themes import THEMES
 
 def clear_screen():
     if platform.system() == "Windows":
@@ -25,6 +25,7 @@ class Maze:
         self.output: str = config["OUTPUT_FILE"]
         self.perfect: bool = config["PERFECT"]
         self.algo: str = config.get("ALGORITHM", None)
+        self.theme: dict = THEMES['default']
         self.path = ""
         self.error_message = ""
         self.init_maze()
@@ -360,13 +361,21 @@ class Maze:
 
         clear_screen()
 
-        WALL_COLOR = '\033[48;2;216;143;148m  \033[0m'
-        FT_COLOR = '\033[48;2;35;60;105m  \033[0m'
-        FT_WALL_COLOR = '\033[48;2;35;60;105m  \033[0m'
-        START_COLOR = '\033[48;2;102;187;106m  \033[0m'
-        END_COLOR = '\033[48;2;239;83;80m  \033[0m'
-        PATH_COLOR = '\033[48;2;30;30;30m  \033[0m'
-        SOLVED_COLOR = '\033[48;2;253;253;100m  \033[0m'
+        WALL_COLOR = self.theme['wall']
+        FT_COLOR = self.theme['ft']
+        FT_WALL_COLOR = self.theme['ft_wall']
+        START_COLOR = self.theme['start']
+        END_COLOR = self.theme['end']
+        PATH_COLOR = self.theme['path']
+        SOLVED_COLOR = self.theme['solved']
+
+        # WALL_COLOR = '\033[48;2;216;143;148m  \033[0m'
+        # FT_COLOR = '\033[48;2;35;60;105m  \033[0m'
+        # FT_WALL_COLOR = '\033[48;2;35;60;105m  \033[0m'
+        # START_COLOR = '\033[48;2;102;187;106m  \033[0m'
+        # END_COLOR = '\033[48;2;239;83;80m  \033[0m'
+        # PATH_COLOR = '\033[48;2;30;30;30m  \033[0m'
+        # SOLVED_COLOR = '\033[48;2;253;253;100m  \033[0m'
 
         print(WALL_COLOR * (self.width * 2 + 1))
 
