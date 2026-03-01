@@ -1,3 +1,9 @@
 ./vscode
 ./mypy_cache
+
+# Python stuff nobody asked for
 ./src/__pycache__
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/

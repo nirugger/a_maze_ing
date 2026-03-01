@@ -18,9 +18,9 @@ class Menu:
             exit(1)
         try:
             cls.maze.create_maze()
-            cls.maze.print_maze()
-            print(cls.maze)
-            print(f"\n\n{cls.maze.path}\n\n")
+            # cls.maze.print_maze()
+            # print(cls.maze)
+            # print(f"\n\n{cls.maze.path}\n\n")
             if cls.maze.error_message:
                 print(cls.maze.error_message)
         except Exception as e:

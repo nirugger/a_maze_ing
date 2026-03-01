@@ -7,6 +7,7 @@ import sys
 
 def main():
 
+    sys.setrecursionlimit(2000)
     Menu.maze_generator(sys.argv[1])
     # while True:
 
