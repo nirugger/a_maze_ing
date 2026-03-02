@@ -49,6 +49,7 @@ class MazeConfig(BaseModel):
         if self.ENTRY == self.EXIT:
             raise ValueError(f"ENTRY POINT {self.ENTRY} must be different "
                              f"from EXIT POINT {self.EXIT}")
+        return self
 
     @field_validator('PERFECT', mode='before')
     @classmethod
@@ -68,8 +69,7 @@ class Parser(ABC):
 
         lines = content.split('\n')
         split_lines = [line.split('=') for line in lines
-                       if not (line.strip().startswith('#') or
-                       not line.strip())]
+                       if len(line.split('=')) == 2 and not line.strip().startswith('#')]
         config = {k.strip(' '): v.strip(' ') for k, v in split_lines}
 
         config = cls.config_validator(config)
