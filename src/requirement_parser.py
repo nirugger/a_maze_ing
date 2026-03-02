@@ -10,12 +10,15 @@ class MazeConfig(BaseModel):
     HEIGHT: int = Field(ge=2, le=21)
     ENTRY: Tuple[int, int] = Field(min_length=2, max_length=2)
     EXIT: Tuple[int, int] = Field(min_length=2, max_length=2)
-    STARTING_POINT: Optional[Tuple[int, int]] = Field(default=None, min_length=2, max_length=2)
+    START: Optional[Tuple[int, int]] = Field(default=None,
+                                             min_length=2,
+                                             max_length=2)
     OUTPUT_FILE: str
     PERFECT: bool
     ALGORITHM: Optional[str] = None
+    SEED: Optional[str] = None
 
-    @field_validator('ENTRY', 'EXIT', 'STARTING_POINT', mode='before')
+    @field_validator('ENTRY', 'EXIT', 'START', mode='before')
     @classmethod
     def parse_coordinates(cls, v: Any) -> Tuple[int, int]:
         if isinstance(v, str):
@@ -30,12 +33,22 @@ class MazeConfig(BaseModel):
 
     @model_validator(mode='after')
     def check_coordinates_in_bounds(self) -> 'MazeConfig':
-        for point_name, point in [('ENTRY', self.ENTRY), ('EXIT', self.EXIT)]:
+        if self.START is None:
+            self.START = self.ENTRY
+        for point_name, point in [('ENTRY', self.ENTRY),
+                                  ('EXIT', self.EXIT),
+                                  ('START', self.START)]:
             x, y = point
             if x >= self.WIDTH or y >= self.HEIGHT:
                 raise ValueError(f"{point_name} {point} must be inside grid "
                                  f"dimensions ({self.WIDTH}x{self.HEIGHT})")
         return self
+
+    @model_validator(mode='after')
+    def check_coordinates_overlap(self) -> 'MazeConfig':
+        if self.ENTRY == self.EXIT:
+            raise ValueError(f"ENTRY POINT {self.ENTRY} must be different "
+                             f"from EXIT POINT {self.EXIT}")
 
     @field_validator('PERFECT', mode='before')
     @classmethod
@@ -57,7 +70,7 @@ class Parser(ABC):
         split_lines = [line.split('=') for line in lines
                        if not (line.strip().startswith('#') or
                        not line.strip())]
-        config = {k: v for k, v in split_lines}
+        config = {k.strip(' '): v.strip(' ') for k, v in split_lines}
 
         config = cls.config_validator(config)
         return config

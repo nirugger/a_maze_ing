@@ -1,5 +1,3 @@
-from random import randint as r
-
 THEMES: dict[str, dict[str, str]] = {
     "default": {
         "wall":    "\033[48;2;216;143;148m  \033[0m",

@@ -1,6 +1,6 @@
-from .cell import Cell
-from .maze import Maze
-from .requirement_parser import Parser
+# from src.cell import Cell
+# from src.maze import Maze
+# from src.requirement_parser import Parser
 
 
-__all__ = ['Cell', 'Maze', 'Parser']
+# __all__ = ['Cell', 'Maze', 'Parser']

@@ -1,0 +1,30 @@
+
+#entry point inside 42
+
+#WIDTH=10
+#HEIGHT=10
+#ENTRY=1,2
+#EXIT= 9,9
+#OUTPUT_FILE=maze.txt
+#PERFECT=true
+#
+#ALGORITHM=prim
+# SEED=42
+# STARTING_POINT=0,0
+
+
+
+
+
+## Valid standard config
+
+#WIDTH=15
+#HEIGHT=15
+#ENTRY=0,0
+#EXIT= 14,14
+#OUTPUT_FILE=maze.txt
+#PERFECT=true
+#
+#STARTING_POINT=7,7
+#ALGORITHM=prim
+# SEED=42
