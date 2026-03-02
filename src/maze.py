@@ -7,6 +7,7 @@ import platform
 from typing import Any
 from src.themes import THEMES
 
+
 def clear_screen():
     if platform.system() == "Windows":
         print("\033[2J\033[H")
@@ -22,13 +23,16 @@ class Maze:
         self.height: int = config["HEIGHT"]
         self.entry: tuple[int] = config["ENTRY"]
         self.exit: tuple[int] = config["EXIT"]
+        self.start: tuple[int] = (config["STARTING_POINT"]
+                                  if config["STARTING_POINT"]
+                                  else config["ENTRY"])
         self.output: str = config["OUTPUT_FILE"]
         self.perfect: bool = config["PERFECT"]
         self.algo: str = config.get("ALGORITHM", None)
         self.theme: dict = THEMES['default']
         self.path = ""
         self.error_message = ""
-        self.init_maze()
+        self.maze = None
 
     def init_maze(self) -> None:
 
@@ -49,7 +53,7 @@ class Maze:
 
         self.maze = maze
         if self.width < 9 or self.height < 7:
-            self.error_message = "Maze too small for containing '42'"
+            self.error_message = "Maze too small to contain '42'"
         else:
             self.forty_two()
             if (self.maze[self.entry[1]][self.entry[0]].visited == 42 or
@@ -62,6 +66,13 @@ class Maze:
             for cell in row:
                 if cell.visited != 42:
                     cell.visited = False
+        self.path = ""
+
+    def unsolve(self):
+
+        for row in self.maze:
+            for cell in row:
+                cell.is_solved = False
 
     def forty_two(self):
 
@@ -88,6 +99,8 @@ class Maze:
 
     def create_maze(self):
 
+        self.init_maze()
+
         algos: dict[str, callable] = {
             "backtrack": self.backtrack,
             "prim": self.prim,
@@ -97,11 +110,11 @@ class Maze:
         match self.algo:
 
             case "backtrack":
-                algos['backtrack'](self.entry[1], self.entry[0])
+                algos['backtrack'](self.start[1], self.start[0])
 
             case "prim":
-                algos['prim'](self.entry[1], self.entry[0],
-                              [(self.entry[1], self.entry[0])])
+                algos['prim'](self.start[1], self.start[0],
+                              [(self.start[1], self.start[0])])
 
             case "kruskal":
                 algos['kruskal']()
@@ -145,68 +158,6 @@ class Maze:
                         self.maze[row][col].open_wall(Direction.west)
                         self.maze[row][col - 1].open_wall(Direction.east)
                         self.backtrack(row=row, col=(col - 1))
-
-    def backtrack_solver(self, col: int, row: int, path: str) -> None:
-
-        self.maze[row][col].visited = 1
-        if self.maze[row][col].is_exit:
-            self.path = path
-            return
-
-        directions = [
-            Direction.north,
-            Direction.east,
-            Direction.south,
-            Direction.west
-            ]
-        random.shuffle(directions)
-
-        for direction in directions:
-            if self.path:
-                break
-            match direction:
-
-                case Direction.north:
-                    if (row > 0 and not
-                            self.maze[row - 1][col].visited and not
-                            self.maze[row][col].is_closed(Direction.north)):
-                        self.backtrack_solver(row=(row - 1), col=col, path=path + 'N')
-
-                case Direction.south:
-                    if (row < self.height - 1 and not
-                            self.maze[row + 1][col].visited and not
-                            self.maze[row][col].is_closed(Direction.south)):
-                        self.backtrack_solver(row=(row + 1), col=col, path=path + 'S')
-
-                case Direction.east:
-                    if (col < self.width - 1 and not
-                            self.maze[row][col + 1].visited and not
-                            self.maze[row][col].is_closed(Direction.east)):
-                        self.backtrack_solver(row=row, col=(col + 1), path=path + 'E')
-
-                case Direction.west:
-                    if (col > 0 and not
-                            self.maze[row][col - 1].visited and not
-                            self.maze[row][col].is_closed(Direction.west)):
-                        self.backtrack_solver(row=row, col=(col - 1), path=path + 'W')
-
-        self.maze[row][col].visited = 0
-
-    def assign_solution(self) -> None:
-        col, row = self.entry[0], self.entry[1]
-        path = self.path
-        for char in path:
-            self.print_maze()
-            match char:
-                case 'N':
-                    row, col = row - 1, col
-                case 'S':
-                    row, col = row + 1, col
-                case 'E':
-                    row, col = row, col + 1
-                case 'W':
-                    row, col = row, col - 1
-            self.maze[row][col].is_solved = True
 
     def prim(self, col: int, row: int, frontiera: list[tuple]) -> None:
 
@@ -357,8 +308,72 @@ class Maze:
                         if flag:
                             break
 
+    def backtrack_solver(self, col: int, row: int, path: str) -> None:
+
+        self.maze[row][col].visited = 1
+        if self.maze[row][col].is_exit:
+            self.path = path
+            return
+
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+        random.shuffle(directions)
+
+        for direction in directions:
+            if self.path:
+                break
+            match direction:
+
+                case Direction.north:
+                    if (row > 0 and not
+                            self.maze[row - 1][col].visited and not
+                            self.maze[row][col].is_closed(Direction.north)):
+                        self.backtrack_solver(row=(row - 1), col=col, path=path + 'N')
+
+                case Direction.south:
+                    if (row < self.height - 1 and not
+                            self.maze[row + 1][col].visited and not
+                            self.maze[row][col].is_closed(Direction.south)):
+                        self.backtrack_solver(row=(row + 1), col=col, path=path + 'S')
+
+                case Direction.east:
+                    if (col < self.width - 1 and not
+                            self.maze[row][col + 1].visited and not
+                            self.maze[row][col].is_closed(Direction.east)):
+                        self.backtrack_solver(row=row, col=(col + 1), path=path + 'E')
+
+                case Direction.west:
+                    if (col > 0 and not
+                            self.maze[row][col - 1].visited and not
+                            self.maze[row][col].is_closed(Direction.west)):
+                        self.backtrack_solver(row=row, col=(col - 1), path=path + 'W')
+
+        self.maze[row][col].visited = 0
+
+    def assign_solution(self) -> None:
+        col, row = self.entry[0], self.entry[1]
+        path = self.path
+        for char in path:
+            self.print_maze()
+            match char:
+                case 'N':
+                    row, col = row - 1, col
+                case 'S':
+                    row, col = row + 1, col
+                case 'E':
+                    row, col = row, col + 1
+                case 'W':
+                    row, col = row, col - 1
+            self.maze[row][col].is_solved = True
+
     def print_maze(self):
 
+        if not self or not self.maze:
+            return
         clear_screen()
 
         WALL_COLOR = self.theme['wall']
@@ -368,14 +383,6 @@ class Maze:
         END_COLOR = self.theme['end']
         PATH_COLOR = self.theme['path']
         SOLVED_COLOR = self.theme['solved']
-
-        # WALL_COLOR = '\033[48;2;216;143;148m  \033[0m'
-        # FT_COLOR = '\033[48;2;35;60;105m  \033[0m'
-        # FT_WALL_COLOR = '\033[48;2;35;60;105m  \033[0m'
-        # START_COLOR = '\033[48;2;102;187;106m  \033[0m'
-        # END_COLOR = '\033[48;2;239;83;80m  \033[0m'
-        # PATH_COLOR = '\033[48;2;30;30;30m  \033[0m'
-        # SOLVED_COLOR = '\033[48;2;253;253;100m  \033[0m'
 
         print(WALL_COLOR * (self.width * 2 + 1))
 
@@ -428,7 +435,7 @@ class Maze:
                 bottom_str += WALL_COLOR
 
             print(bottom_str)
-        time.sleep(0.01)
+        time.sleep(0.0)
 
     def __str__(self) -> str:
 

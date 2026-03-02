@@ -5,6 +5,6 @@ EXIT= 14,14
 OUTPUT_FILE=maze.txt
 PERFECT=true
 
-ALGORITHM=backtrack
+ALGORITHM=prim
 # SEED=42
 # STARTING_POINT=0,0

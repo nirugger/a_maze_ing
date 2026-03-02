@@ -1,4 +1,4 @@
-
+from random import randint as r
 
 THEMES: dict[str, dict[str, str]] = {
     "default": {
@@ -27,5 +27,34 @@ THEMES: dict[str, dict[str, str]] = {
         "start":   "\033[48;2;144;238;144m  \033[0m",
         "end":     "\033[48;2;180;50;50m  \033[0m",
         "solved":  "\033[48;2;255;215;0m  \033[0m",
+    },
+    "desert": {
+        "wall":    "\033[48;2;194;154;108m  \033[0m",  # sand dune
+        "path":    "\033[48;2;92;64;51m  \033[0m",     # dry earth
+        "ft":      "\033[48;2;160;120;80m  \033[0m",   # dusty trail
+        "ft_wall": "\033[48;2;160;120;80m  \033[0m",   # dusty trail
+        "start":   "\033[48;2;120;200;120m  \033[0m",  # oasis green
+        "end":     "\033[48;2;220;70;40m  \033[0m",    # sunset red
+        "solved":  "\033[48;2;255;220;120m  \033[0m",  # golden sun
+    },
+
+    "volcanic": {
+        "wall":    "\033[48;2;45;45;45m  \033[0m",     # cooled lava rock
+        "path":    "\033[48;2;20;20;20m  \033[0m",     # obsidian
+        "ft":      "\033[48;2;90;0;0m  \033[0m",       # dark magma
+        "ft_wall": "\033[48;2;90;0;0m  \033[0m",       # dark magma
+        "start":   "\033[48;2;255;140;0m  \033[0m",    # molten orange
+        "end":     "\033[48;2;255;40;0m  \033[0m",     # lava red
+        "solved":  "\033[48;2;255;215;0m  \033[0m",    # glowing core
+    },
+
+    "cyberpunk": {
+        "wall":    "\033[48;2;255;20;147m  \033[0m",   # neon pink
+        "path":    "\033[48;2;10;10;30m  \033[0m",     # dark void
+        "ft":      "\033[48;2;0;255;255m  \033[0m",    # neon cyan
+        "ft_wall": "\033[48;2;0;255;255m  \033[0m",    # neon cyan
+        "start":   "\033[48;2;57;255;20m  \033[0m",    # electric green
+        "end":     "\033[48;2;255;69;0m  \033[0m",     # neon orange
+        "solved":  "\033[48;2;255;255;0m  \033[0m",    # bright highlight
     },
 }

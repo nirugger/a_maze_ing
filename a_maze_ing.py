@@ -8,9 +8,13 @@ import sys
 def main():
 
     sys.setrecursionlimit(2000)
-    Menu.main_menu("src/config.txt")
+    Menu.amazinit("src/config.txt")
+    Menu.main_menu()
     # Menu.maze_generator(sys.argv[1])
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print(Menu.closure())

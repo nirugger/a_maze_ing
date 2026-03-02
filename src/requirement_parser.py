@@ -10,11 +10,12 @@ class MazeConfig(BaseModel):
     HEIGHT: int = Field(ge=2, le=21)
     ENTRY: Tuple[int, int] = Field(min_length=2, max_length=2)
     EXIT: Tuple[int, int] = Field(min_length=2, max_length=2)
+    STARTING_POINT: Optional[Tuple[int, int]] = Field(default=None, min_length=2, max_length=2)
     OUTPUT_FILE: str
     PERFECT: bool
-    ALGORITHM: Optional[str]
+    ALGORITHM: Optional[str] = None
 
-    @field_validator('ENTRY', 'EXIT', mode='before')
+    @field_validator('ENTRY', 'EXIT', 'STARTING_POINT', mode='before')
     @classmethod
     def parse_coordinates(cls, v: Any) -> Tuple[int, int]:
         if isinstance(v, str):
