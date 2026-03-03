@@ -55,4 +55,14 @@ THEMES: dict[str, dict[str, str]] = {
         "end":     "\033[48;2;255;69;0m  \033[0m",     # neon orange
         "solved":  "\033[48;2;255;255;0m  \033[0m",    # bright highlight
     },
+
+    "white": {
+        "wall":    "\033[48;2;255;255;255m  \033[0m",   # neon pink
+        "path":    "\033[48;2;255;255;255m  \033[0m",     # dark void
+        "ft":      "\033[48;2;255;255;255m  \033[0m",    # neon cyan
+        "ft_wall": "\033[48;2;255;255;255m  \033[0m",    # neon cyan
+        "start":   "\033[48;2;255;255;255m  \033[0m",    # electric green
+        "end":     "\033[48;2;255;255;255m  \033[0m",     # neon orange
+        "solved":  "\033[48;2;255;255;255m  \033[0m",    # bright highlight
+    },
 }

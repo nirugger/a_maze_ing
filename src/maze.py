@@ -35,8 +35,9 @@ class Maze:
         self.path = ""
         self.error_message = ""
         self.maze = None
-        self.animation = False
+        self.animation = True
         self.solution = True
+        self.two_forty = True
 
     def init_maze(self) -> None:
 
@@ -57,34 +58,31 @@ class Maze:
             maze.append(row)
 
         self.maze = maze
-        if self.width < 9 or self.height < 7:
-            self.error_message = "Maze too small to contain '42'"
-        else:
-            self.error_message = ""
-            self.forty_two()
+        if self.two_forty:
+            if self.width < 9 or self.height < 7:
+                self.error_message = "Maze too small to contain '42'"
+            else:
+                self.error_message = ""
+                self.forty_two()
 
-            if self.maze[self.entry[1]][self.entry[0]].visited == 42:
-                raise ValueError("[ERR] ENTRY inside the 42!\n")
+                if self.maze[self.entry[1]][self.entry[0]].visited == 42:
+                    raise ValueError("[ERR] ENTRY inside the 42!\n")
 
-            if self.maze[self.exit[1]][self.exit[0]].visited == 42:
-                raise ValueError("[ERR] EXIT inside the 42!\n")
+                if self.maze[self.exit[1]][self.exit[0]].visited == 42:
+                    raise ValueError("[ERR] EXIT inside the 42!\n")
 
-            if self.maze[self.start[1]][self.start[0]].visited == 42:
-                raise ValueError("[ERR] STARTING POINT inside the 42!\n")
+                if self.maze[self.start[1]][self.start[0]].visited == 42:
+                    raise ValueError("[ERR] STARTING POINT inside the 42!\n")
 
     def never_been_there(self) -> None:
 
         for row in self.maze:
             for cell in row:
+                cell.is_solved = False
+                cell.steps = 0
                 if cell.visited != 42:
                     cell.visited = 0
         self.path = ""
-
-    def unsolve(self) -> None:
-
-        for row in self.maze:
-            for cell in row:
-                cell.is_solved = False
 
     def forty_two(self) -> None:
 
@@ -365,8 +363,9 @@ class Maze:
             for cell in row:
                 for direction in directions:
                     open_walls += cell.is_open(direction)
+
         i = 0
-        while i < round(open_walls / random.randint(27, 33)):
+        while i < round(open_walls / 42):
 
             r = random.randint(0, self.height - 1)
             c = random.randint(0, self.width - 1)
@@ -412,6 +411,46 @@ class Maze:
                         self.maze[r][c].open_wall(dir)
                         self.maze[r][c - 1].open_wall(Direction.east)
                         i += 1
+            if self.animation:
+                self.print_maze()
+        self.make_it_valid()
+
+    def valid_helper(self, row: int, col: int) -> bool:
+
+        cell_n = self.maze[row - 1][col]
+        cell_s = self.maze[row + 1][col]
+        cell_e = self.maze[row][col + 1]
+        cell_w = self.maze[row][col - 1]
+
+        walls_n = (cell_n.is_open(Direction.east) and
+                   cell_n.is_open(Direction.west))
+        walls_s = (cell_s.is_open(Direction.east) and
+                   cell_s.is_open(Direction.west))
+        walls_e = (cell_e.is_open(Direction.north) and
+                   cell_e.is_open(Direction.south))
+        walls_w = (cell_w.is_open(Direction.north) and
+                   cell_w.is_open(Direction.south))
+
+        return all([walls_n, walls_s, walls_e, walls_w])
+
+    def make_it_valid(self) -> None:
+
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+
+        random.shuffle(directions)
+        for row in range(1, self.height - 1):
+            for col in range(1, self.width - 1):
+                if self.maze[row][col].walls == 0:
+                    if self.valid_helper(row, col):
+                        self.maze[row][col].close_wall(directions[0])
+                        self.maze[row][col].close_wall(directions[1])
+                        if self.animation:
+                            self.print_maze()
 
     def backtrack_solver(self, col: int, row: int, path: str) -> None:
 
@@ -519,28 +558,24 @@ class Maze:
                     self.maze[r][c].is_open(Direction.north) and
                     self.maze[r - 1][c].steps == self.maze[r][c].steps - 1):
                 htap += 'S'
-                print("ciao")
                 r = r - 1
 
             elif (r < self.height - 1 and
                   self.maze[r][c].is_open(Direction.south) and
                   self.maze[r + 1][c].steps == self.maze[r][c].steps - 1):
                 htap += 'N'
-                print("ciao")
                 r = r + 1
 
             elif (c < self.width - 1 and
                   self.maze[r][c].is_open(Direction.east) and
                   self.maze[r][c + 1].steps == self.maze[r][c].steps - 1):
                 htap += 'W'
-                print("ciao")
                 c = c + 1
 
             elif (c > 0 and
                   self.maze[r][c].is_open(Direction.west) and
                   self.maze[r][c - 1].steps == self.maze[r][c].steps - 1):
                 htap += 'E'
-                print("ciao")
                 c = c - 1
 
         self.path = htap[::-1]
@@ -571,7 +606,7 @@ class Maze:
             self.maze[row][col].is_solved = True
 
     def hide_corner(self, r: int, c: int) -> bool:
-        if r >= self.height - 1 or c >= self.width - 1:
+        if r >= len(self.maze) - 1 or c >= len(self.maze[0]) - 1:
             return False
         se = (self.maze[r][c].is_open(Direction.south) and
               self.maze[r][c].is_open(Direction.east))

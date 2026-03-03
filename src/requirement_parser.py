@@ -68,8 +68,10 @@ class Parser(ABC):
             content = f.read()
 
         lines = content.split('\n')
-        split_lines = [line.split('=') for line in lines
-                       if len(line.split('=')) == 2 and not line.strip().startswith('#')]
+        split_lines = [
+            line.split('=') for line in lines
+            if len(line.split('=')) == 2 and not line.strip().startswith('#')
+            ]
         config = {k.strip(' '): v.strip(' ') for k, v in split_lines}
 
         config = cls.config_validator(config)
