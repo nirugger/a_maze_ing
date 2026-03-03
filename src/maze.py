@@ -111,7 +111,7 @@ class Maze:
 
     def create_maze(self) -> None:
 
-        self.init_maze()
+        # self.init_maze()
 
         algos: dict[str, callable] = {
             "backtrack": self.backtrack,
@@ -351,29 +351,87 @@ class Maze:
                         if flag:
                             break
 
-    def backtrack_solver(self, col: int, row: int, path: str) -> None:
+    def make_it_wrong(self) -> None:
 
-        self.maze[row][col].visited = 2
-        if self.maze[row][col].is_exit:
-            self.path = path
-            return
-        print("ciao")
         directions = [
             Direction.north,
             Direction.east,
             Direction.south,
             Direction.west
             ]
-        random.shuffle(directions)
 
+        open_walls = 0
+        for row in self.maze:
+            for cell in row:
+                for direction in directions:
+                    open_walls += cell.is_open(direction)
+        i = 0
+        while i < round(open_walls / random.randint(8, 12)):
+
+            r = random.randint(0, self.height - 1)
+            c = random.randint(0, self.width - 1)
+            dir = random.choice(directions)
+
+            match dir:
+                case Direction.north:
+                    if (r > 0 and
+                            self.maze[r][c].visited != 42 and
+                            self.maze[r - 1][c].visited != 42 and
+                            self.maze[r][c].is_closed(dir)):
+                        self.maze[r][c].open_wall(dir)
+                        self.maze[r - 1][c].open_wall(Direction.south)
+                        i += 1
+
+                case Direction.south:
+                    if (r < self.height - 1 and
+                            self.maze[r][c].visited != 42 and
+                            self.maze[r + 1][c].visited != 42 and
+                            self.maze[r][c].is_closed(dir)):
+                        self.maze[r][c].open_wall(dir)
+                        self.maze[r + 1][c].open_wall(Direction.north)
+                        i += 1
+
+                case Direction.east:
+                    if (c < self.width - 1 and
+                            self.maze[r][c].visited != 42 and
+                            self.maze[r][c + 1].visited != 42 and
+                            self.maze[r][c].is_closed(dir)):
+                        self.maze[r][c].open_wall(dir)
+                        self.maze[r][c + 1].open_wall(Direction.west)
+                        i += 1
+
+                case Direction.west:
+                    if (c > 0 and
+                            self.maze[r][c].visited != 42 and
+                            self.maze[r][c - 1].visited != 42 and
+                            self.maze[r][c].is_closed(dir)):
+                        self.maze[r][c].open_wall(dir)
+                        self.maze[r][c - 1].open_wall(Direction.east)
+                        i += 1
+
+    def backtrack_solver(self, col: int, row: int, path: str) -> None:
+
+        self.maze[row][col].visited = 1
+        if self.maze[row][col].is_exit:
+            self.path = path
+            return
+
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+
+        random.shuffle(directions)
         for direction in directions:
             if self.path:
                 break
             match direction:
 
                 case Direction.north:
-                    if (row > 0 and
-                            self.maze[row - 1][col].visited == 1 and not
+                    if (row > 0 and not
+                            self.maze[row - 1][col].visited and not
                             self.maze[row][col].is_closed(Direction.north)):
 
                         self.backtrack_solver(row=(row - 1),
@@ -381,8 +439,8 @@ class Maze:
                                               path=path + 'N')
 
                 case Direction.south:
-                    if (row < self.height - 1 and
-                            self.maze[row + 1][col].visited == 1 and not
+                    if (row < self.height - 1 and not
+                            self.maze[row + 1][col].visited and not
                             self.maze[row][col].is_closed(Direction.south)):
 
                         self.backtrack_solver(row=(row + 1),
@@ -390,8 +448,8 @@ class Maze:
                                               path=path + 'S')
 
                 case Direction.east:
-                    if (col < self.width - 1 and
-                            self.maze[row][col + 1].visited == 1 and not
+                    if (col < self.width - 1 and not
+                            self.maze[row][col + 1].visited and not
                             self.maze[row][col].is_closed(Direction.east)):
 
                         self.backtrack_solver(row=row,
@@ -399,52 +457,89 @@ class Maze:
                                               path=path + 'E')
 
                 case Direction.west:
-                    if (col > 0 and
-                            self.maze[row][col - 1].visited == 1 and not
+                    if (col > 0 and not
+                            self.maze[row][col - 1].visited and not
                             self.maze[row][col].is_closed(Direction.west)):
 
                         self.backtrack_solver(row=row,
                                               col=(col - 1),
                                               path=path + 'W')
 
-        self.maze[row][col].visited = 1
+        self.maze[row][col].visited = 0
 
-    def breadth_fs(self) -> None:
+    def breadth_first_search_solver(self) -> None:
 
-        col, row = self.entry
-        queue: deque[tuple[int]] = deque([(row, col)])
-        print(queue)
-        self.maze[row][col].visited = 1
+        c, r = self.entry
+        queue: deque[tuple[int]] = deque([(r, c)])
+        self.maze[r][c].visited = 1
+        self.maze[r][c].steps = 0
 
         while queue:
 
-            row, col = queue.popleft()
-            if (row, col) == self.exit:
+            r, c = queue.popleft()
+            if (r, c) == self.exit:
                 break
 
-            if (row > 0 and
-                    self.maze[row][col].is_open(Direction.north) and not
-                    self.maze[row - 1][col].visited):
-                queue.append((row - 1, col))
-                self.maze[row - 1][col].visited = 1
+            if (r > 0 and
+                    self.maze[r][c].is_open(Direction.north) and not
+                    self.maze[r - 1][c].visited):
+                queue.append((r - 1, c))
+                self.maze[r - 1][c].visited = 1
+                self.maze[r - 1][c].steps = self.maze[r][c].steps + 1
 
-            if (row < self.height - 1 and
-                    self.maze[row][col].is_open(Direction.south) and not
-                    self.maze[row + 1][col].visited):
-                queue.append((row + 1, col))
-                self.maze[row + 1][col].visited = 1
+            if (r < self.height - 1 and
+                    self.maze[r][c].is_open(Direction.south) and not
+                    self.maze[r + 1][c].visited):
+                queue.append((r + 1, c))
+                self.maze[r + 1][c].visited = 1
+                self.maze[r + 1][c].steps = self.maze[r][c].steps + 1
 
-            if (col < self.width - 1 and
-                    self.maze[row][col].is_open(Direction.east) and not
-                    self.maze[row][col + 1].visited):
-                queue.append((row, col + 1))
-                self.maze[row][col + 1].visited = 1
+            if (c < self.width - 1 and
+                    self.maze[r][c].is_open(Direction.east) and not
+                    self.maze[r][c + 1].visited):
+                queue.append((r, c + 1))
+                self.maze[r][c + 1].visited = 1
+                self.maze[r][c + 1].steps = self.maze[r][c].steps + 1
 
-            if (col > 0 and
-                    self.maze[row][col].is_open(Direction.west) and not
-                    self.maze[row][col - 1].visited):
-                queue.append((row, col - 1))
-                self.maze[row][col - 1].visited = 1
+            if (c > 0 and
+                    self.maze[r][c].is_open(Direction.west) and not
+                    self.maze[r][c - 1].visited):
+                queue.append((r, c - 1))
+                self.maze[r][c - 1].visited = 1
+                self.maze[r][c - 1].steps = self.maze[r][c].steps + 1
+
+        htap: str = ""
+        while (c, r) != self.entry:
+
+            if (r > 0 and
+                    self.maze[r][c].is_open(Direction.north) and
+                    self.maze[r - 1][c].steps == self.maze[r][c].steps - 1):
+                htap += 'S'
+                print("ciao")
+                r = r - 1
+
+            elif (r < self.height - 1 and
+                  self.maze[r][c].is_open(Direction.south) and
+                  self.maze[r + 1][c].steps == self.maze[r][c].steps - 1):
+                htap += 'N'
+                print("ciao")
+                r = r + 1
+
+            elif (c < self.width - 1 and
+                  self.maze[r][c].is_open(Direction.east) and
+                  self.maze[r][c + 1].steps == self.maze[r][c].steps - 1):
+                htap += 'W'
+                print("ciao")
+                c = c + 1
+
+            elif (c > 0 and
+                  self.maze[r][c].is_open(Direction.west) and
+                  self.maze[r][c - 1].steps == self.maze[r][c].steps - 1):
+                htap += 'E'
+                print("ciao")
+                c = c - 1
+
+        self.path = htap[::-1]
 
     def assign_solution(self) -> None:
 

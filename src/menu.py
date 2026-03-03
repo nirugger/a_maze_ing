@@ -3,7 +3,7 @@ from src.maze import clear_screen
 from src.requirement_parser import Parser
 from src.requirement_parser import MazeConfig
 from src.themes import THEMES
-from typing import Optional
+from typing import Optional, Any
 from random import randint as r
 from random import seed
 from pydantic import ValidationError
@@ -13,12 +13,13 @@ import copy
 class Menu:
 
     maze: Optional[Maze] = None
+    config: Optional[dict[str, Any]] = None
 
     @classmethod
     def a_maze_init(cls, file: str) -> None:
         try:
-            config = Parser.parse_config(file)
-            cls.maze = Maze(config)
+            cls.config = Parser.parse_config(file)
+            cls.maze = Maze(cls.config)
         except (EOFError, Exception) as e:
             print(repr(e))
             exit(1)
@@ -26,14 +27,14 @@ class Menu:
     @classmethod
     def maze_generator(cls) -> None:
 
+        cls.maze.init_maze()
         cls.maze.create_maze()
+        # cls.maze.never_been_there()
+        # cls.maze.create_maze()
         cls.maze.print_maze()
         cls.maze.never_been_there()
         cls.maze.unsolve()
-        cls.maze.breadth_fs()
-        cls.maze.backtrack_solver(cls.maze.entry[0],
-                                  cls.maze.entry[1],
-                                  path="")
+        cls.maze.breadth_first_search_solver()
         cls.maze.assign_solution()
         if cls.maze.error_message:
             print(cls.maze.error_message)
@@ -203,16 +204,6 @@ class Menu:
     @classmethod
     def config_menu(cls):
 
-        og_config = {
-            "WIDTH": cls.maze.width,
-            "HEIGHT": cls.maze.height,
-            "ENTRY": cls.maze.entry,
-            "EXIT": cls.maze.exit,
-            "START": cls.maze.start,
-            "PERFECT": cls.maze.perfect,
-            "ALGORITHM": cls.maze.algo,
-            "OUTPUT_FILE": cls.maze.output
-            }
         mod_config = {
             "WIDTH": cls.maze.width,
             "HEIGHT": cls.maze.height,
@@ -244,11 +235,11 @@ class Menu:
                 case "2":
                     height = int(input("Choose the height of the maze "
                                  "(>=2, <=21): "))
-                    if 1 < height < 21:
+                    if 1 < height < 22:
                         mod_config['HEIGHT'] = height
                         msg = f"HEIGHT value set to {height}\n"
                     else:
-                        msg = "HEIGHT value unacceptable (2 <= HEIGHT <= 41)\n"
+                        msg = "HEIGHT value unacceptable (2 <= HEIGHT <= 21)\n"
 
                 case "3":
                     x = int(input("Choose the x (>=0): "))
@@ -301,7 +292,7 @@ class Menu:
                     msg = f"SEED set to {seed}\n"
 
                 case "9":
-                    mod_config = copy.deepcopy(og_config)
+                    mod_config = copy.deepcopy(cls.config)
                     msg = "CONFIG set to 'DEFAULT'\n"
 
                 case "q":
