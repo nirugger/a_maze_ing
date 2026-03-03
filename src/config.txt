@@ -6,10 +6,10 @@ OUTPUT_FILE=maze.txt
 PERFECT=true
 
 STARTING_POINT=7,7
-ALGORITHM=prim
-SEED=42
+ALGORITHM=kruskal
+#SEED=42
 
- 
+hello=ciao
 
 #WIDTH=10
 #HEIGHT=10
@@ -21,3 +21,5 @@ SEED=42
 #ALGORITHM=backtrack
 ##SEED=42
 #STARTING_POINT=0,0
+#opzione play (extra flag player pos in Cell)
+#flag UNPERFECT (if TRUE maze must be unperfect, if both PERFECT and UNPERFECT are ture PERFECT has priority)

@@ -5,10 +5,11 @@ import time
 import subprocess
 import platform
 from typing import Any
+from collections import deque
 from src.themes import THEMES
 
 
-def clear_screen():
+def clear_screen() -> None:
     if platform.system() == "Windows":
         print("\033[2J\033[H")
     else:
@@ -34,6 +35,8 @@ class Maze:
         self.path = ""
         self.error_message = ""
         self.maze = None
+        self.animation = False
+        self.solution = True
 
     def init_maze(self) -> None:
 
@@ -74,16 +77,16 @@ class Maze:
         for row in self.maze:
             for cell in row:
                 if cell.visited != 42:
-                    cell.visited = False
+                    cell.visited = 0
         self.path = ""
 
-    def unsolve(self):
+    def unsolve(self) -> None:
 
         for row in self.maze:
             for cell in row:
                 cell.is_solved = False
 
-    def forty_two(self):
+    def forty_two(self) -> None:
 
         center_x = int((self.width - 1) / 2)
         center_y = int((self.height - 1) / 2)
@@ -106,7 +109,7 @@ class Maze:
             if i != center_x - 3 and i != center_x - 2 and i != center_x:
                 self.maze[center_y + 2][i].visited = 42
 
-    def create_maze(self):
+    def create_maze(self) -> None:
 
         self.init_maze()
 
@@ -138,7 +141,8 @@ class Maze:
             Direction.west
             ]
         random.shuffle(directions)
-        self.print_maze()
+        if (self.animation):
+            self.print_maze()
 
         i = 0
         for direction in directions:
@@ -187,7 +191,8 @@ class Maze:
             Direction.west
             ]
         random.shuffle(directions)
-        self.print_maze()
+        if (self.animation):
+            self.print_maze()
 
         for direction in directions:
             match direction:
@@ -277,7 +282,8 @@ class Maze:
         while len(krusk_list) > 1:
 
             flag = False
-            self.print_maze()
+            if (self.animation):
+                self.print_maze()
             this_set = random.choice(krusk_list)
             row, col = random.choice(tuple(this_set))
             random.shuffle(directions)
@@ -347,11 +353,11 @@ class Maze:
 
     def backtrack_solver(self, col: int, row: int, path: str) -> None:
 
-        self.maze[row][col].visited = 1
+        self.maze[row][col].visited = 2
         if self.maze[row][col].is_exit:
             self.path = path
             return
-
+        print("ciao")
         directions = [
             Direction.north,
             Direction.east,
@@ -366,8 +372,8 @@ class Maze:
             match direction:
 
                 case Direction.north:
-                    if (row > 0 and not
-                            self.maze[row - 1][col].visited and not
+                    if (row > 0 and
+                            self.maze[row - 1][col].visited == 1 and not
                             self.maze[row][col].is_closed(Direction.north)):
 
                         self.backtrack_solver(row=(row - 1),
@@ -375,8 +381,8 @@ class Maze:
                                               path=path + 'N')
 
                 case Direction.south:
-                    if (row < self.height - 1 and not
-                            self.maze[row + 1][col].visited and not
+                    if (row < self.height - 1 and
+                            self.maze[row + 1][col].visited == 1 and not
                             self.maze[row][col].is_closed(Direction.south)):
 
                         self.backtrack_solver(row=(row + 1),
@@ -384,8 +390,8 @@ class Maze:
                                               path=path + 'S')
 
                 case Direction.east:
-                    if (col < self.width - 1 and not
-                            self.maze[row][col + 1].visited and not
+                    if (col < self.width - 1 and
+                            self.maze[row][col + 1].visited == 1 and not
                             self.maze[row][col].is_closed(Direction.east)):
 
                         self.backtrack_solver(row=row,
@@ -393,15 +399,52 @@ class Maze:
                                               path=path + 'E')
 
                 case Direction.west:
-                    if (col > 0 and not
-                            self.maze[row][col - 1].visited and not
+                    if (col > 0 and
+                            self.maze[row][col - 1].visited == 1 and not
                             self.maze[row][col].is_closed(Direction.west)):
 
                         self.backtrack_solver(row=row,
                                               col=(col - 1),
                                               path=path + 'W')
 
-        self.maze[row][col].visited = 0
+        self.maze[row][col].visited = 1
+
+    def breadth_fs(self) -> None:
+
+        col, row = self.entry
+        queue: deque[tuple[int]] = deque([(row, col)])
+        print(queue)
+        self.maze[row][col].visited = 1
+
+        while queue:
+
+            row, col = queue.popleft()
+            if (row, col) == self.exit:
+                break
+
+            if (row > 0 and
+                    self.maze[row][col].is_open(Direction.north) and not
+                    self.maze[row - 1][col].visited):
+                queue.append((row - 1, col))
+                self.maze[row - 1][col].visited = 1
+
+            if (row < self.height - 1 and
+                    self.maze[row][col].is_open(Direction.south) and not
+                    self.maze[row + 1][col].visited):
+                queue.append((row + 1, col))
+                self.maze[row + 1][col].visited = 1
+
+            if (col < self.width - 1 and
+                    self.maze[row][col].is_open(Direction.east) and not
+                    self.maze[row][col + 1].visited):
+                queue.append((row, col + 1))
+                self.maze[row][col + 1].visited = 1
+
+            if (col > 0 and
+                    self.maze[row][col].is_open(Direction.west) and not
+                    self.maze[row][col - 1].visited):
+                queue.append((row, col - 1))
+                self.maze[row][col - 1].visited = 1
 
     def assign_solution(self) -> None:
 
@@ -409,7 +452,8 @@ class Maze:
         path = self.path
 
         for char in path:
-            self.print_maze()
+            if self.animation:
+                self.print_maze()
             match char:
 
                 case 'N':
@@ -426,7 +470,7 @@ class Maze:
 
             self.maze[row][col].is_solved = True
 
-    def print_maze(self):
+    def print_maze(self) -> None:
 
         if not self or not self.maze:
             return
@@ -448,7 +492,10 @@ class Maze:
                     line_str += self.theme['end']
 
                 elif self.maze[row][col].is_solved:
-                    line_str += self.theme['solved']
+                    if self.solution:
+                        line_str += self.theme['solved']
+                    else:
+                        line_str += self.theme['path']
 
                 elif self.maze[row][col].visited == 42:
                     line_str += self.theme['ft']
@@ -467,7 +514,10 @@ class Maze:
                 elif ((self.maze[row][col].is_entry or
                       self.maze[row][col].is_solved) and
                       self.maze[row][col + 1].is_solved):
-                    line_str += self.theme['solved']
+                    if self.solution:
+                        line_str += self.theme['solved']
+                    else:
+                        line_str += self.theme['path']
 
                 else:
                     line_str += self.theme['path']
@@ -489,7 +539,10 @@ class Maze:
                 elif ((self.maze[row][col].is_entry or
                       self.maze[row][col].is_solved) and
                       self.maze[row + 1][col].is_solved):
-                    bottom_str += self.theme['solved']
+                    if self.solution:
+                        bottom_str += self.theme['solved']
+                    else:
+                        bottom_str += self.theme['path']
 
                 else:
                     bottom_str += self.theme['path']

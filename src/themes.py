@@ -41,9 +41,9 @@ THEMES: dict[str, dict[str, str]] = {
         "path":    "\033[48;2;20;20;20m  \033[0m",     # obsidian
         "ft":      "\033[48;2;90;0;0m  \033[0m",       # dark magma
         "ft_wall": "\033[48;2;90;0;0m  \033[0m",       # dark magma
-        "start":   "\033[48;2;255;140;0m  \033[0m",    # molten orange
+        "start":   "\033[48;2;255;215;0m  \033[0m",    # molten orange
         "end":     "\033[48;2;255;40;0m  \033[0m",     # lava red
-        "solved":  "\033[48;2;255;215;0m  \033[0m",    # glowing core
+        "solved":  "\033[48;2;255;140;0m  \033[0m",    # glowing core
     },
 
     "cyberpunk": {

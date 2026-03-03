@@ -30,6 +30,7 @@ class Menu:
         cls.maze.print_maze()
         cls.maze.never_been_there()
         cls.maze.unsolve()
+        cls.maze.breadth_fs()
         cls.maze.backtrack_solver(cls.maze.entry[0],
                                   cls.maze.entry[1],
                                   path="")
@@ -55,8 +56,10 @@ class Menu:
         print()
         print("╔══════════════════════════╗╔═════════════════════╗")
         print("║  1: Generate Maze        ║║   coded by:         ║")
-        print("║  2: Configure Maze       ║║      tvanni &       ║")
-        print("║  3: Colors!              ║║      nirugger       ║")
+        print("║  2: Configure Maze       ║║                     ║")
+        print("║  3: Colors!              ║║      tvanni &       ║")
+        print("║  4: animation            ║║      nirugger       ║")
+        print("║  5: solution             ║║                     ║")
         print("║  q: Exit                 ║║  (aka Tom & Gerru)  ║")
         print("╚══════════════════════════╝╚═════════════════════╝")
         print()
@@ -91,6 +94,12 @@ class Menu:
                     cls.color_menu()
                     clear_screen()
                     msg = "\n"
+                case "4":
+                    cls.maze.animation = not cls.maze.animation
+                    msg = "\n"
+                case "5":
+                    cls.maze.solution = not cls.maze.solution
+                    msg = "\n"
                 case "q":
                     cls.closure()
                 case _:
@@ -113,8 +122,10 @@ class Menu:
         print()
         print("╔══════════════════════════╗╔═════════════════════╗")
         print("║  1: Re-Generate Maze     ║║   coded by:         ║")
-        print("║  2: Configure Maze       ║║      tvanni &       ║")
-        print("║  3: Colors!              ║║      nirugger       ║")
+        print("║  2: Configure Maze       ║║                     ║")
+        print("║  3: Colors!              ║║      tvanni &       ║")
+        print("║  4: animation            ║║      nirugger       ║")
+        print("║  5: solution             ║║                     ║")
         print("║  q: Exit                 ║║  (aka Tom & Gerru)  ║")
         print("╚══════════════════════════╝╚═════════════════════╝")
 
@@ -145,6 +156,12 @@ class Menu:
                 case "3":
                     cls.color_menu()
                     clear_screen()
+                    msg = "\n"
+                case "4":
+                    cls.maze.animation = not cls.maze.animation
+                    msg = "\n"
+                case "5":
+                    cls.maze.solution = not cls.maze.solution
                     msg = "\n"
                 case "q":
                     cls.closure()
@@ -332,8 +349,8 @@ class Menu:
                     msg = ("You choose 'PRIM'. "
                            "Overall, just another backtrack.\n")
                 case "3":
-                    MazeConfig.ALGORITHM = 'krusal'
-                    cls.maze.algo = 'krusal'
+                    MazeConfig.ALGORITHM = 'kruskal'
+                    cls.maze.algo = 'kruskal'
                     msg = "You choose 'KRUSKAL'. Slow but steady.\n"
                 case "q":
                     return

@@ -28,7 +28,7 @@ class Cell:
         self.visited = 0
 
     def is_closed(self, direction: Direction) -> bool:
-        """Checks if a specific wall is close or open
+        """Checks if a specific wall is closed
         Args:
             direction (Direction): The wall to be checked
         Returns:
@@ -37,6 +37,17 @@ class Cell:
         """
 
         return self.walls & direction.value
+
+    def is_open(self, direction: Direction) -> bool:
+        """Checks if a specific wall is open
+        Args:
+            direction (Direction): The wall to be checked
+        Returns:
+            1 (truthy) if the wall is open
+            0 (falsy) if the wall is closed
+        """
+
+        return ~ self.walls & direction.value
 
     def open_wall(self, direction: Direction) -> None:
         """Opens one wall of the cell
