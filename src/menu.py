@@ -29,9 +29,9 @@ class Menu:
 
         cls.maze.init_maze()
         cls.maze.create_maze()
-        # cls.maze.never_been_there()
-        # cls.maze.create_maze()
         cls.maze.print_maze()
+        if not cls.maze.perfect:
+            cls.maze.make_it_wrong()
         cls.maze.never_been_there()
         cls.maze.unsolve()
         cls.maze.breadth_first_search_solver()
@@ -97,9 +97,11 @@ class Menu:
                     msg = "\n"
                 case "4":
                     cls.maze.animation = not cls.maze.animation
-                    msg = "\n"
+                    msg = f"Maze animation changed to {cls.maze.animation}\n"
                 case "5":
                     cls.maze.solution = not cls.maze.solution
+                    state = "VISIBLE" if cls.maze.solution else "INVISIBLE"
+                    msg = f"Maze solution changed to '{state}'\n"
                     msg = "\n"
                 case "q":
                     cls.closure()
@@ -125,8 +127,8 @@ class Menu:
         print("║  1: Re-Generate Maze     ║║   coded by:         ║")
         print("║  2: Configure Maze       ║║                     ║")
         print("║  3: Colors!              ║║      tvanni &       ║")
-        print("║  4: animation            ║║      nirugger       ║")
-        print("║  5: solution             ║║                     ║")
+        print("║  4: Animation            ║║      nirugger       ║")
+        print("║  5: Solution             ║║                     ║")
         print("║  q: Exit                 ║║  (aka Tom & Gerru)  ║")
         print("╚══════════════════════════╝╚═════════════════════╝")
 
@@ -160,10 +162,11 @@ class Menu:
                     msg = "\n"
                 case "4":
                     cls.maze.animation = not cls.maze.animation
-                    msg = "\n"
+                    msg = f"Maze animation changed to {cls.maze.animation}\n"
                 case "5":
                     cls.maze.solution = not cls.maze.solution
-                    msg = "\n"
+                    state = "VISIBLE" if cls.maze.solution else "INVISIBLE"
+                    msg = f"Maze solution changed to '{state}'\n"
                 case "q":
                     cls.closure()
                 case _:

@@ -366,7 +366,7 @@ class Maze:
                 for direction in directions:
                     open_walls += cell.is_open(direction)
         i = 0
-        while i < round(open_walls / random.randint(8, 12)):
+        while i < round(open_walls / random.randint(27, 33)):
 
             r = random.randint(0, self.height - 1)
             c = random.randint(0, self.width - 1)
@@ -378,6 +378,7 @@ class Maze:
                             self.maze[r][c].visited != 42 and
                             self.maze[r - 1][c].visited != 42 and
                             self.maze[r][c].is_closed(dir)):
+
                         self.maze[r][c].open_wall(dir)
                         self.maze[r - 1][c].open_wall(Direction.south)
                         i += 1
@@ -387,6 +388,7 @@ class Maze:
                             self.maze[r][c].visited != 42 and
                             self.maze[r + 1][c].visited != 42 and
                             self.maze[r][c].is_closed(dir)):
+
                         self.maze[r][c].open_wall(dir)
                         self.maze[r + 1][c].open_wall(Direction.north)
                         i += 1
@@ -396,6 +398,7 @@ class Maze:
                             self.maze[r][c].visited != 42 and
                             self.maze[r][c + 1].visited != 42 and
                             self.maze[r][c].is_closed(dir)):
+
                         self.maze[r][c].open_wall(dir)
                         self.maze[r][c + 1].open_wall(Direction.west)
                         i += 1
@@ -405,6 +408,7 @@ class Maze:
                             self.maze[r][c].visited != 42 and
                             self.maze[r][c - 1].visited != 42 and
                             self.maze[r][c].is_closed(dir)):
+
                         self.maze[r][c].open_wall(dir)
                         self.maze[r][c - 1].open_wall(Direction.east)
                         i += 1
@@ -477,7 +481,7 @@ class Maze:
         while queue:
 
             r, c = queue.popleft()
-            if (r, c) == self.exit:
+            if (c, r) == self.exit:
                 break
 
             if (r > 0 and
@@ -544,6 +548,7 @@ class Maze:
     def assign_solution(self) -> None:
 
         col, row = self.entry[0], self.entry[1]
+        self.maze[row][col].is_solved = True
         path = self.path
 
         for char in path:
@@ -564,6 +569,15 @@ class Maze:
                     col = col - 1
 
             self.maze[row][col].is_solved = True
+
+    def hide_corner(self, r: int, c: int) -> bool:
+        if r >= self.height - 1 or c >= self.width - 1:
+            return False
+        se = (self.maze[r][c].is_open(Direction.south) and
+              self.maze[r][c].is_open(Direction.east))
+        nw = (self.maze[r + 1][c + 1].is_open(Direction.north) and
+              self.maze[r + 1][c + 1].is_open(Direction.west))
+        return se and nw
 
     def print_maze(self) -> None:
 
@@ -642,7 +656,10 @@ class Maze:
                 else:
                     bottom_str += self.theme['path']
 
-                bottom_str += self.theme['wall']
+                if (self.hide_corner(row, col)):
+                    bottom_str += self.theme['path']
+                else:
+                    bottom_str += self.theme['wall']
             print(bottom_str)
             # maze_str += bottom_str + "\n"
         # print(maze_str)
