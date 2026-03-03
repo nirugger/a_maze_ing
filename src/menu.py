@@ -53,54 +53,53 @@ class Menu:
 
     @classmethod
     def display_main_menu(cls) -> None:
-        print()
-        print()
-        print()
-        print("╔═════════════════════════════════════════════════╗")
-        print("║                    W31C0M3 2                    ║")
-        print("║    ▗▄▖ ▗▖  ▗▖ ▗▄▖ ▗▄▄▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖   ║")
-        print("║   ▐▌ ▐▌▐▛▚▞▜▌▐▌ ▐▌   ▗▞▘▐▌     █  ▐▛▚▖▐▌▐▌      ║")
-        print("║   ▐▛▀▜▌▐▌  ▐▌▐▛▀▜▌ ▗▞▘  ▐▛▀▀▘  █  ▐▌ ▝▜▌▐▌▝▜▌   ║")
-        print("║   ▐▌ ▐▌▐▌  ▐▌▐▌ ▐▌▐▙▄▄▄▖▐▙▄▄▖▗▄█▄▖▐▌  ▐▌▝▚▄▞▘   ║")
-        print("║                                                 ║")
-        print("║            a  wond_err_full  project            ║")
-        print("╚═════════════════════════════════════════════════╝")
-        print()
-        print()
-        print("╔══════════════════════════╗╔═════════════════════╗")
-        print("║  1: Generate Maze        ║║   coded by:         ║")
-        print("║  2: Configure Maze       ║║                     ║")
-        print("║  3: Colors!              ║║      tvanni &       ║")
-        print("║  4: Animation            ║║      nirugger       ║")
-        print("║  5: Solution             ║║                     ║")
-        print("║  q: Exit                 ║║  (aka Tom & Gerru)  ║")
-        print("╚══════════════════════════╝╚═════════════════════╝")
-        print()
-        print()
-        print()
+
+        print("\n" * 10)
+        print("    ╔═════════════════════════════════════════════════╗    ")
+        print("    ║                    W31C0M3 2                    ║    ")
+        print("    ║    ▗▄▖ ▗▖  ▗▖ ▗▄▖ ▗▄▄▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖   ║    ")
+        print("    ║   ▐▌ ▐▌▐▛▚▞▜▌▐▌ ▐▌   ▗▞▘▐▌     █  ▐▛▚▖▐▌▐▌      ║    ")
+        print("    ║   ▐▛▀▜▌▐▌  ▐▌▐▛▀▜▌ ▗▞▘  ▐▛▀▀▘  █  ▐▌ ▝▜▌▐▌▝▜▌   ║    ")
+        print("    ║   ▐▌ ▐▌▐▌  ▐▌▐▌ ▐▌▐▙▄▄▄▖▐▙▄▄▖▗▄█▄▖▐▌  ▐▌▝▚▄▞▘   ║    ")
+        print("    ║                                                 ║    ")
+        print("    ║            a  wond_err_full  project            ║    ")
+        print("    ╚═════════════════════════════════════════════════╝    ")
+        print("                                                           ")
+        print("                                                           ")
+        print("    ╔══════════════════════════╗╔═════════════════════╗    ")
+        print("    ║  1: Generate Maze        ║║   coded by:         ║    ")
+        print("    ║  2: Configure Maze       ║║                     ║    ")
+        print("    ║  3: Colors!              ║║      tvanni &       ║    ")
+        print("    ║  4: Animation            ║║      nirugger       ║    ")
+        print("    ║  5: Solution             ║║                     ║    ")
+        print("    ║                          ║║                     ║    ")
+        print("    ║  q: Exit                 ║║  (aka Tom & Gerru)  ║    ")
+        print("    ╚══════════════════════════╝╚═════════════════════╝    ")
+        print("\n" * 3)
 
     @classmethod
     def display_maze_menu(cls) -> None:
 
-        print("╔═════════════════════════════════════════════════╗")
-        print("║                    7H47  W45                    ║")
-        print("║    ▗▄▖ ▗▖  ▗▖ ▗▄▖ ▗▄▄▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖   ║")
-        print("║   ▐▌ ▐▌▐▛▚▞▜▌▐▌ ▐▌   ▗▞▘▐▌     █  ▐▛▚▖▐▌▐▌      ║")
-        print("║   ▐▛▀▜▌▐▌  ▐▌▐▛▀▜▌ ▗▞▘  ▐▛▀▀▘  █  ▐▌ ▝▜▌▐▌▝▜▌   ║")
-        print("║   ▐▌ ▐▌▐▌  ▐▌▐▌ ▐▌▐▙▄▄▄▖▐▙▄▄▖▗▄█▄▖▐▌  ▐▌▝▚▄▞▘   ║")
-        print("║                                                 ║")
-        print("║             H0W 480U7 4N07H3R 7RY ?             ║")
-        print("╚═════════════════════════════════════════════════╝")
-        print()
-        print()
-        print("╔══════════════════════════╗╔═════════════════════╗")
-        print("║  1: Re-Generate Maze     ║║   coded by:         ║")
-        print("║  2: Configure Maze       ║║                     ║")
-        print("║  3: Colors!              ║║      tvanni &       ║")
-        print("║  4: Animation            ║║      nirugger       ║")
-        print("║  5: Solution             ║║                     ║")
-        print("║  q: Exit                 ║║  (aka Tom & Gerru)  ║")
-        print("╚══════════════════════════╝╚═════════════════════╝")
+        print("    ╔═════════════════════════════════════════════════╗    ")
+        print("    ║                    THAT  WAS                    ║    ")
+        print("    ║    ▗▄▖ ▗▖  ▗▖ ▗▄▖ ▗▄▄▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖   ║    ")
+        print("    ║   ▐▌ ▐▌▐▛▚▞▜▌▐▌ ▐▌   ▗▞▘▐▌     █  ▐▛▚▖▐▌▐▌      ║    ")
+        print("    ║   ▐▛▀▜▌▐▌  ▐▌▐▛▀▜▌ ▗▞▘  ▐▛▀▀▘  █  ▐▌ ▝▜▌▐▌▝▜▌   ║    ")
+        print("    ║   ▐▌ ▐▌▐▌  ▐▌▐▌ ▐▌▐▙▄▄▄▖▐▙▄▄▖▗▄█▄▖▐▌  ▐▌▝▚▄▞▘   ║    ")
+        print("    ║                                                 ║    ")
+        print("    ║             HOW ABOUT ANOTHER TRY ?             ║    ")
+        print("    ╚═════════════════════════════════════════════════╝    ")
+        print("                                                           ")
+        print("                                                           ")
+        print("    ╔══════════════════════════╗╔═════════════════════╗    ")
+        print("    ║  1: Re-Generate Maze     ║║   coded by:         ║    ")
+        print("    ║  2: Configure Maze       ║║                     ║    ")
+        print("    ║  3: Colors!              ║║      tvanni &       ║    ")
+        print("    ║  4: Animation            ║║      nirugger       ║    ")
+        print("    ║  5: Solution             ║║                     ║    ")
+        print("    ║                          ║║                     ║    ")
+        print("    ║  q: Exit                 ║║  (aka Tom & Gerru)  ║    ")
+        print("    ╚══════════════════════════╝╚═════════════════════╝    ")
 
     @classmethod
     def main_menu(cls) -> None:
@@ -150,7 +149,12 @@ class Menu:
                     msg = f"Maze solution changed to '{state}'\n"
 
                 case "q":
-                    cls.closure()
+                    choice = input("Are you sure you want to quit? [y/n]")
+                    match choice:
+                        case "y":
+                            cls.closure()
+                        case _:
+                            msg = "\n"
 
                 case _:
                     msg = "error: invalid input\n"
@@ -169,21 +173,34 @@ class Menu:
 
     def display_config_menu():
 
+        print("\n" * 10)
+        print("    ╔══════════════════════════════════════════╗    ")
+        print("    ║  1: WIDTH                                ║    ")
+        print("    ║  2: HEIGHT                               ║    ")
+        print("    ║  3: ENTRY                                ║    ")
+        print("    ║  4: EXIT                                 ║    ")
+        print("    ║  5: STARTING POINT                       ║    ")
+        print("    ║  6: PERFECT                              ║    ")
+        print("    ║  7: ALGORITHM                            ║    ")
+        print("    ║  8: SEED                                 ║    ")
+        print("    ║  9: RESET                                ║    ")
+        print("    ║                                          ║    ")
+        print("    ║  q: back to Main Menu                    ║    ")
+        print("    ╚══════════════════════════════════════════╝    ")
         print()
-        print()
-        print()
-        print("╔══════════════════════════════════════════╗")
-        print("║  1: WIDTH                                ║")
-        print("║  2: HEIGHT                               ║")
-        print("║  3: ENTRY                                ║")
-        print("║  4: EXIT                                 ║")
-        print("║  5: STARTING POINT                       ║")
-        print("║  6: PERFECT                              ║")
-        print("║  7: ALGORITHM                            ║")
-        print("║  8: SEED                                 ║")
-        print("║  9: Reset to Default                     ║")
-        print("║  q: Back to Main Menu                    ║")
-        print("╚══════════════════════════════════════════╝")
+
+    def display_error_menu():
+
+        print("\n" * 10)
+        print("    ╔═════════════════════════════════════════════════╗    ")
+        print("    ║  !!!  WARNING  !!!  WARNING  !!!  WARNING  !!!  ║    ")
+        print("    ║                                                 ║    ")
+        print("    ║  ---------------------------------------------  ║    ")
+        print("    ║   YOUR  CONFIGURATION  HAS  BEEN  INVALIDATED   ║    ")
+        print("    ║  ---------------------------------------------  ║    ")
+        print("    ║                                                 ║    ")
+        print("    ║  !!!  WARNING  !!!  WARNING  !!!  WARNING  !!!  ║    ")
+        print("    ╚═════════════════════════════════════════════════╝    ")
         print()
 
     @classmethod
@@ -279,18 +296,43 @@ class Menu:
 
                 case "9":
                     mod_config = copy.deepcopy(cls.config)
-                    msg = "CONFIG set to 'DEFAULT'\n"
+                    msg = "Configuration set to 'DEFAULT'\n"
 
                 case "q":
-                    mod_config = MazeConfig(**mod_config).model_dump()
-                    cls.maze.width = mod_config['WIDTH']
-                    cls.maze.height = mod_config['HEIGHT']
-                    cls.maze.entry = mod_config['ENTRY']
-                    cls.maze.exit = mod_config['EXIT']
-                    cls.maze.start = mod_config['START']
-                    cls.maze.perfect = mod_config['PERFECT']
-                    msg = "\n"
-                    return
+
+                    try:
+                        mod_config = MazeConfig(**mod_config).model_dump()
+                        cls.maze.width = mod_config['WIDTH']
+                        cls.maze.height = mod_config['HEIGHT']
+                        cls.maze.entry = mod_config['ENTRY']
+                        cls.maze.exit = mod_config['EXIT']
+                        cls.maze.start = mod_config['START']
+                        cls.maze.perfect = mod_config['PERFECT']
+                        msg = "\n"
+                        return
+
+                    except ValidationError as e:
+                        clear_screen()
+                        cls.display_error_menu()
+                        print("The following error(s) have been detected:\n")
+                        i = 1
+                        for err in e.errors():
+                            print(f"{i}) {err['msg']} \n")
+                            i += 1
+                            print()
+
+                        while True:
+                            choice = input("press '1' to reconfigure\n"
+                                           "press '2' to go back to menu\n")
+                            match choice:
+                                case "1":
+                                    msg = "\n"
+                                    break
+                                case "2":
+                                    return
+                                case _:
+                                    continue
+                        continue
 
                 case "42":
                     cls.maze.two_forty = not cls.maze.two_forty
@@ -300,15 +342,15 @@ class Menu:
                     msg = "error: invalid input\n"
 
     def display_algorithm_menu():
-        print()
-        print()
-        print()
-        print("╔══════════════════════════════════════════╗")
-        print("║  1: BACKTRACK                            ║")
-        print("║  2: PRIM                                 ║")
-        print("║  3: KRUSKAL                              ║")
-        print("║  q: back to configuration menu           ║")
-        print("╚══════════════════════════════════════════╝")
+
+        print("\n" * 10)
+        print("    ╔══════════════════════════════════════════╗    ")
+        print("    ║  1: BACKTRACK                            ║    ")
+        print("    ║  2: PRIM                                 ║    ")
+        print("    ║  3: KRUSKAL                              ║    ")
+        print("    ║                                          ║    ")
+        print("    ║  q: back to configuration menu           ║    ")
+        print("    ╚══════════════════════════════════════════╝    ")
         print()
 
     @classmethod
@@ -357,7 +399,11 @@ class Menu:
         print("║  4: DESERT                               ║")
         print("║  5: VOLCANIC                             ║")
         print("║  6: CYBERPUNK                            ║")
+        print("║  7: SPACE                                ║")
+        print("║  8: COLORBLIND FRIENDLY :)               ║")
+        print("║  9: COLORBLIND UN-FRIENDLY (:            ║")
         print("║  0: R4ND0M                               ║")
+        print("║                                          ║")
         print("║  q: Back to Menu                         ║")
         print("╚══════════════════════════════════════════╝")
         print()
@@ -411,8 +457,14 @@ class Menu:
                     cls.maze.theme = THEMES['cyberpunk']
                     msg = "THEME set to 'CYBERPUNK'\n"
                 case "7":
-                    cls.maze.theme = THEMES['white']
-                    msg = "THEME set to 'WHITE'\n"
+                    cls.maze.theme = THEMES['space']
+                    msg = "THEME set to 'SPACE'\n"
+                case "8":
+                    cls.maze.theme = THEMES['colorblind_friendly']
+                    msg = "THEME set to 'COLORBLIND FRIENDLY :)'\n"
+                case "9":
+                    cls.maze.theme = THEMES['colorblind_unfriendly']
+                    msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
                 case "0":
                     cls.maze.theme = random
                     msg = "THEME set to 'R4ND0M' (warning!)\n"
