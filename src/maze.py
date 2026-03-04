@@ -4,7 +4,7 @@ import random
 import time
 import subprocess
 import platform
-from typing import Any
+from typing import Any, Optional
 from collections import deque
 from src.themes import THEMES
 
@@ -31,7 +31,8 @@ class Maze:
         self.perfect: bool = config["PERFECT"]
         self.algo: str = config.get("ALGORITHM", None)
         self.theme: dict = THEMES['default']
-        self.seed: Any = config.get('SEED', None)
+        self.seed: Optional[str] = config.get('SEED', None)
+        self.random = False if config.get('SEED', None) else True
         self.path = ""
         self.error_message = ""
         self.maze = None
@@ -39,9 +40,22 @@ class Maze:
         self.solution = True
         self.two_forty = True
 
+    @staticmethod
+    def get_random_seed() -> str:
+
+        alpha: str = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
+        digit: str = "0123456789"
+        symbol: str = "?!@#$%^&*()_-+={}[]:;|/<>,.\\"
+        pool: str = alpha + digit + symbol
+        seed: str = "".join([random.choice(pool)
+                             for _ in range(random.randint(21, 42))])
+        return seed
+
     def init_maze(self) -> None:
 
         maze: list[list[Cell]] = []
+        if self.random:
+            self.seed = self.get_random_seed()
         random.seed(self.seed)
 
         for i in range(self.height):

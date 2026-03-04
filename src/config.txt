@@ -7,7 +7,7 @@ PERFECT=true
 
 START=7,7
 ALGORITHM=backtrack
-#SEED=42
+SEED=42
 
 hello=ciao
 
@@ -22,4 +22,4 @@ hello=ciao
 ##SEED=42
 #STARTING_POINT=0,0
 #opzione play (extra flag player pos in Cell)
-#STARTING POINT NON FUNZIONA!
+#SEED se None mettere Random.randint(minint, maxint) e salvarlo

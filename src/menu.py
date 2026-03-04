@@ -30,8 +30,10 @@ class Menu:
         try:
             with open(cls.maze.output, 'w') as f:
                 f.write(str(cls.maze) + "\n")
-                f.write(str(cls.maze.entry) + "\n")
-                f.write(str(cls.maze.exit) + "\n")
+                f.write(str(cls.maze.entry[0]) + "," +
+                        str(cls.maze.entry[1]) + "\n")
+                f.write(str(cls.maze.exit[0]) + "," +
+                        str(cls.maze.exit[1]) + "\n")
                 f.write(str(cls.maze.path) + "\n")
         except Exception as e:
             print(str(e))
@@ -288,11 +290,17 @@ class Menu:
                     msg = "\n"
 
                 case "8":
-                    seed = input("Choose the seed (leave empty for None): ")
-                    if not seed:
-                        seed = None
-                    cls.maze.seed = seed
-                    msg = f"SEED set to {seed}\n"
+                    new = input("Choose the seed (leave empty for RANDOM): ")
+                    if not new:
+                        seed()
+                        cls.maze.random = True
+                        new = Maze.get_random_seed()
+                        msg = ("SEED set to RANDOM\n"
+                               f"for next run will be: << {new} >>'\n")
+                    else:
+                        cls.maze.random = False
+                        msg = f"SEED set to << {new} >>'\n"
+                    cls.maze.seed = new
 
                 case "9":
                     mod_config = copy.deepcopy(cls.config)
@@ -312,16 +320,19 @@ class Menu:
                         return
 
                     except ValidationError as e:
-                        clear_screen()
-                        cls.display_error_menu()
-                        print("The following error(s) have been detected:\n")
-                        i = 1
-                        for err in e.errors():
-                            print(f"{i}) {err['msg']} \n")
-                            i += 1
-                            print()
 
                         while True:
+
+                            clear_screen()
+                            cls.display_error_menu()
+                            print("The following error(s) "
+                                  "have been detected:\n")
+                            i = 1
+                            for err in e.errors():
+                                print(f"{i}) {err['msg']} \n")
+                                i += 1
+                                print()
+
                             choice = input("press '1' to reconfigure\n"
                                            "press '2' to go back to menu\n")
                             match choice:
@@ -438,38 +449,50 @@ class Menu:
             print(msg)
             choice = input("choose your style: ")
             match choice:
+
                 case "1":
                     cls.maze.theme = THEMES['default']
                     msg = "THEME set to 'DEFAULT'\n"
+
                 case "2":
                     cls.maze.theme = THEMES['ocean']
                     msg = "THEME set to 'OCEAN'\n"
+
                 case "3":
                     cls.maze.theme = THEMES['forest']
                     msg = "THEME set to 'FOREST'\n"
+
                 case "4":
                     cls.maze.theme = THEMES['desert']
                     msg = "THEME set to 'DESERT'\n"
+
                 case "5":
                     cls.maze.theme = THEMES['volcanic']
                     msg = "THEME set to 'VOLCANIC'\n"
+
                 case "6":
                     cls.maze.theme = THEMES['cyberpunk']
                     msg = "THEME set to 'CYBERPUNK'\n"
+
                 case "7":
                     cls.maze.theme = THEMES['space']
                     msg = "THEME set to 'SPACE'\n"
+
                 case "8":
                     cls.maze.theme = THEMES['colorblind_friendly']
                     msg = "THEME set to 'COLORBLIND FRIENDLY :)'\n"
+
                 case "9":
                     cls.maze.theme = THEMES['colorblind_unfriendly']
                     msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
+
                 case "0":
                     cls.maze.theme = random
                     msg = "THEME set to 'R4ND0M' (warning!)\n"
+
                 case "q":
                     seed(cls.maze.seed)
                     return
+
                 case _:
                     msg = "error: invalid input\n"

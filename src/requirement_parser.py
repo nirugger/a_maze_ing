@@ -40,8 +40,9 @@ class MazeConfig(BaseModel):
                                   ('START', self.START)]:
             x, y = point
             if x >= self.WIDTH or y >= self.HEIGHT:
-                raise ValueError(f"{point_name} {point} must be inside grid "
-                                 f"dimensions ({self.WIDTH}x{self.HEIGHT})")
+                raise ValueError(f"{point_name} {point} "
+                                 "must be inside grid dimensions "
+                                 f"({self.WIDTH - 1} x {self.HEIGHT - 1})")
         return self
 
     @model_validator(mode='after')

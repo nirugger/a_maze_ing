@@ -1,5 +1,6 @@
 ./vscode
 ./mypy_cache
+maze.txt
 
 # Python stuff nobody asked for
 ./src/__pycache__
