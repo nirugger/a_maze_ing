@@ -1,4 +1,7 @@
+"""Color palettes for the visual repr of the Maze."""
+
 THEMES: dict[str, dict[str, str]] = {
+
     "default": {
         "wall":    "\033[48;2;216;143;148m  \033[0m",  # dusty rose
         "path":    "\033[48;2;30;30;30m  \033[0m",     # charcoal
@@ -8,6 +11,7 @@ THEMES: dict[str, dict[str, str]] = {
         "end":     "\033[48;2;239;83;80m  \033[0m",    # coral red
         "solved":  "\033[48;2;253;253;100m  \033[0m",  # canary yellow
     },
+
     "ocean": {
         "wall":    "\033[48;2;0;105;148m  \033[0m",    # ocean blue
         "path":    "\033[48;2;10;20;40m  \033[0m",     # abyss blue
@@ -17,6 +21,7 @@ THEMES: dict[str, dict[str, str]] = {
         "end":     "\033[48;2;255;100;0m  \033[0m",    # burnt orange
         "solved":  "\033[48;2;180;230;255m  \033[0m",  # ice blue
     },
+
     "forest": {
         "wall":    "\033[48;2;34;85;34m  \033[0m",     # forest green
         "path":    "\033[48;2;15;30;15m  \033[0m",     # dark forest
@@ -26,6 +31,7 @@ THEMES: dict[str, dict[str, str]] = {
         "end":     "\033[48;2;180;50;50m  \033[0m",    # dark red
         "solved":  "\033[48;2;255;215;0m  \033[0m",    # gold
     },
+
     "desert": {
         "wall":    "\033[48;2;194;154;108m  \033[0m",  # sand dune
         "path":    "\033[48;2;92;64;51m  \033[0m",     # dry earth
@@ -64,6 +70,26 @@ THEMES: dict[str, dict[str, str]] = {
         "start":   "\033[48;2;100;220;255m  \033[0m",   # pulsar blue
         "end":     "\033[48;2;255;100;200m  \033[0m",   # nebula pink
         "solved":  "\033[48;2;255;240;180m  \033[0m",   # starlight
+    },
+
+    "mauritius": {
+        "wall":    "\033[48;2;230;166;55m  \033[0m",    # 
+        "path":    "\033[48;2;32;102;12m  \033[0m",     # 
+        "ft":      "\033[48;2;107;72;192m  \033[0m",    # 
+        "ft_wall": "\033[48;2;107;72;192m  \033[0m",    # 
+        "start":   "\033[48;2;5;111;223m  \033[0m",     # 
+        "end":     "\033[48;2;216;183;116m  \033[0m",   # 
+        "solved":  "\033[48;2;35;87;201m  \033[0m",     # 
+    },
+
+    "baugigi": {
+        "wall":    "\033[48;2;104;52;208m  \033[0m",    # 
+        "path":    "\033[48;2;208;52;104m  \033[0m",    # 
+        "ft":      "\033[48;2;104;208;52m  \033[0m",    # 
+        "ft_wall": "\033[48;2;104;208;52m  \033[0m",    # 
+        "start":   "\033[48;2;208;104;52m  \033[0m",    # 
+        "end":     "\033[48;2;52;104;208m  \033[0m",    # 
+        "solved":  "\033[48;2;52;208;104m  \033[0m",    # 
     },
 
     "colorblind_friendly": {

@@ -3,7 +3,7 @@ from mazegen.maze import clear_screen
 from mazegen.requirement_parser import Parser
 from mazegen.requirement_parser import MazeConfig
 from mazegen.themes import THEMES
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 from random import randint as r
 from random import seed
 from pydantic import ValidationError
@@ -13,14 +13,15 @@ import copy
 class Menu:
 
     maze: Optional[Maze] = None
-    config: Optional[dict[str, Any]] = None
+    model_config: Optional[MazeConfig] = None
+    config: Optional[Dict[str, Any]] = None
     first: bool = True
 
     @classmethod
     def a_maze_init(cls, file: str) -> None:
         try:
-            cls.config = Parser.parse_config(file)
-            cls.maze = Maze(cls.config)
+            cls.model_config = Parser.parse_config(file)
+            cls.maze = Maze(cls.model_config)
         except (EOFError, Exception) as e:
             print(repr(e))
             exit(1)
@@ -28,30 +29,38 @@ class Menu:
     @classmethod
     def output(cls) -> None:
         try:
-            with open(cls.maze.output, 'w') as f:
-                f.write(str(cls.maze) + "\n")
-                f.write(str(cls.maze.entry[0]) + "," +
-                        str(cls.maze.entry[1]) + "\n")
-                f.write(str(cls.maze.exit[0]) + "," +
-                        str(cls.maze.exit[1]) + "\n")
-                f.write(str(cls.maze.path) + "\n")
+            if cls.maze:
+                with open(cls.maze.output, 'w') as f:
+                    f.write(str(cls.maze) + "\n")
+                    if (len(cls.maze.entry) == 2 and len(cls.maze.exit) == 2):
+                        f.write(str(cls.maze.entry[0]) + "," +
+                                str(cls.maze.entry[1]) + "\n")
+                        f.write(str(cls.maze.exit[0]) + "," +
+                                str(cls.maze.exit[1]) + "\n")
+                        f.write(str(cls.maze.path) + "\n")
+            else:
+                print("[ERROR] MAZE NOT INITIALIZED")
         except Exception as e:
             print(str(e))
 
     @classmethod
     def maze_generator(cls) -> None:
 
-        cls.maze.init_maze()
-        cls.maze.create_maze()
-        cls.maze.print_maze()
-        if not cls.maze.perfect:
-            cls.maze.make_it_wrong()
-        cls.maze.never_been_there()
-        cls.maze.breadth_first_search_solver()
-        cls.maze.assign_solution()
-        cls.output()
-        if cls.maze.error_message:
-            print(cls.maze.error_message)
+        if cls.maze:
+            cls.maze.init_maze()
+            cls.maze.create_maze()
+            cls.maze.print_maze()
+            if not cls.maze.perfect:
+                cls.maze.make_it_wrong()
+            cls.maze.never_been_there()
+            cls.maze.breadth_first_search_solver()
+            cls.maze.assign_solution()
+            cls.output()
+            if cls.maze.error_message:
+                print(cls.maze.error_message)
+        else:
+            print("[ERROR] MAZE OBJ NOT INITIALIZED")
+            exit(1)
 
     @classmethod
     def display_main_menu(cls) -> None:
@@ -112,9 +121,10 @@ class Menu:
                 clear_screen()
                 cls.display_main_menu()
             else:
-                cls.maze.print_maze()
-                print(cls.maze.error_message)
-                cls.display_maze_menu()
+                if cls.maze:
+                    cls.maze.print_maze()
+                    print(cls.maze.error_message)
+                    cls.display_maze_menu()
             print(msg)
             quest = "" if cls.first else "Re-"
             choice = input(f"{quest}Choose your path: ").strip().lower()
@@ -142,13 +152,15 @@ class Menu:
                     msg = "\n"
 
                 case "4":
-                    cls.maze.animation = not cls.maze.animation
-                    msg = f"Maze animation changed to {cls.maze.animation}\n"
+                    if cls.maze:
+                        cls.maze.animation = not cls.maze.animation
+                        msg = f"Maze animation changed to {cls.maze.animation}\n"
 
                 case "5":
-                    cls.maze.solution = not cls.maze.solution
-                    state = "VISIBLE" if cls.maze.solution else "INVISIBLE"
-                    msg = f"Maze solution changed to '{state}'\n"
+                    if cls.maze:
+                        cls.maze.solution = not cls.maze.solution
+                        state = "VISIBLE" if cls.maze.solution else "INVISIBLE"
+                        msg = f"Maze solution changed to '{state}'\n"
 
                 case "q":
                     choice = input("Are you sure you want to quit? [y/n]")
@@ -162,7 +174,7 @@ class Menu:
                     msg = "error: invalid input\n"
 
     @staticmethod
-    def closure():
+    def closure() -> None:
         print("\n" * 3)
         print("“A labyrinth is not a place to be lost, "
               "but a path to be found.”"
@@ -173,7 +185,8 @@ class Menu:
         print("\n" * 6)
         exit(1)
 
-    def display_config_menu():
+    @staticmethod
+    def display_config_menu() -> None:
 
         print("\n" * 10)
         print("    ╔══════════════════════════════════════════╗    ")
@@ -191,7 +204,8 @@ class Menu:
         print("    ╚══════════════════════════════════════════╝    ")
         print()
 
-    def display_error_menu():
+    @staticmethod
+    def display_error_menu() -> None:
 
         print("\n" * 10)
         print("    ╔═════════════════════════════════════════════════╗    ")
@@ -206,166 +220,174 @@ class Menu:
         print()
 
     @classmethod
-    def config_menu(cls):
+    def config_menu(cls) -> None:
 
-        mod_config = {
-            "WIDTH": cls.maze.width,
-            "HEIGHT": cls.maze.height,
-            "ENTRY": cls.maze.entry,
-            "EXIT": cls.maze.exit,
-            "START": cls.maze.start,
-            "PERFECT": cls.maze.perfect,
-            "ALGORITHM": cls.maze.algo,
-            "OUTPUT_FILE": cls.maze.output
-            }
+        if cls.maze:
 
-        msg = "\n"
-        while True:
-            clear_screen()
-            cls.display_config_menu()
-            print(msg)
+            mod_config: dict[str, Any] = {
+                "WIDTH": cls.maze.width,
+                "HEIGHT": cls.maze.height,
+                "ENTRY": cls.maze.entry,
+                "EXIT": cls.maze.exit,
+                "START": cls.maze.start,
+                "PERFECT": cls.maze.perfect,
+                "ALGORITHM": cls.maze.algo,
+                "OUTPUT_FILE": cls.maze.output
+                }
 
-            choice = input("choose an option: ")
-            match choice:
+            msg = "\n"
+            while True:
+                clear_screen()
+                cls.display_config_menu()
+                print(msg)
 
-                case "1":
-                    width = int(input("Choose the width of the maze "
-                                "(>=2, <=41): "))
-                    if 1 < width < 42:
-                        mod_config['WIDTH'] = width
-                        msg = f"WIDTH value set to {width}\n"
-                    else:
-                        msg = "WIDTH value unacceptable (2 <= WIDTH <= 41)\n"
+                choice = input("choose an option: ")
+                match choice:
 
-                case "2":
-                    height = int(input("Choose the height of the maze "
-                                 "(>=2, <=21): "))
-                    if 1 < height < 22:
-                        mod_config['HEIGHT'] = height
-                        msg = f"HEIGHT value set to {height}\n"
-                    else:
-                        msg = "HEIGHT value unacceptable (2 <= HEIGHT <= 21)\n"
+                    case "1":
+                        width = int(input("Choose the width of the maze "
+                                    "(>=2, <=41): "))
+                        if 1 < width < 42:
+                            mod_config['WIDTH'] = width
+                            msg = f"WIDTH value set to {width}\n"
+                        else:
+                            msg = "WIDTH value unacceptable (2 <= WIDTH <= 41)\n"
 
-                case "3":
-                    x = int(input("Choose the x (>=0): "))
-                    y = int(input("Choose the y (>=0): "))
-                    if x >= 0 and y >= 0:
-                        mod_config['ENTRY'] = f"{x},{y}"
-                        msg = f"ENTRY set to ({x}, {y})\n"
-                    else:
-                        msg = "ENTRY value unacceptable (x,y >= 0)\n"
+                    case "2":
+                        height = int(input("Choose the height of the maze "
+                                     "(>=2, <=21): "))
+                        if 1 < height < 22:
+                            mod_config['HEIGHT'] = height
+                            msg = f"HEIGHT value set to {height}\n"
+                        else:
+                            msg = "HEIGHT value unacceptable (2 <= HEIGHT <= 21)\n"
 
-                case "4":
-                    x = int(input("Choose the x (>=0): "))
-                    y = int(input("Choose the y (>=0): "))
-                    if x >= 0 and y >= 0:
-                        mod_config['EXIT'] = f"{x},{y}"
-                        msg = f"EXIT set to ({x}, {y})\n"
-                    else:
-                        msg = "EXIT value unacceptable (x,y >= 0)\n"
+                    case "3":
+                        x = int(input("Choose the x (>=0): "))
+                        y = int(input("Choose the y (>=0): "))
+                        if x >= 0 and y >= 0:
+                            mod_config['ENTRY'] = f"{x},{y}"
+                            msg = f"ENTRY set to ({x}, {y})\n"
+                        else:
+                            msg = "ENTRY value unacceptable (x,y >= 0)\n"
 
-                case "5":
-                    x = int(input("Choose the x (>=0): "))
-                    y = int(input("Choose the y (>=0): "))
-                    if x >= 0 and y >= 0:
-                        mod_config['START'] = f"{x},{y}"
-                        msg = f"STARTING POINT set to ({x}, {y})\n"
-                    else:
-                        msg = "STARTING POINT value unacceptable (x,y >= 0)\n"
+                    case "4":
+                        x = int(input("Choose the x (>=0): "))
+                        y = int(input("Choose the y (>=0): "))
+                        if x >= 0 and y >= 0:
+                            mod_config['EXIT'] = f"{x},{y}"
+                            msg = f"EXIT set to ({x}, {y})\n"
+                        else:
+                            msg = "EXIT value unacceptable (x,y >= 0)\n"
 
-                case "6":
-                    choice = input("Must thy maze be PERFECT? [y/n]: ")
-                    match choice:
-                        case "y":
-                            mod_config['PERFECT'] = "true"
-                            msg = "PERFECT set to 'TRUE'\n"
-                        case "n":
-                            mod_config['PERFECT'] = "false"
-                            msg = "PERFECT set to 'FALSE'\n"
-                        case _:
-                            msg = "error: invalid input\n"
+                    case "5":
+                        x = int(input("Choose the x (>=0): "))
+                        y = int(input("Choose the y (>=0): "))
+                        if x >= 0 and y >= 0:
+                            mod_config['START'] = f"{x},{y}"
+                            msg = f"STARTING POINT set to ({x}, {y})\n"
+                        else:
+                            msg = "STARTING POINT value unacceptable (x,y >= 0)\n"
 
-                case "7":
-                    cls.algorithm_menu()
-                    msg = "\n"
+                    case "6":
+                        choice = input("Must thy maze be PERFECT? [y/n]: ")
+                        match choice:
+                            case "y":
+                                mod_config['PERFECT'] = "true"
+                                msg = "PERFECT set to 'TRUE'\n"
+                            case "n":
+                                mod_config['PERFECT'] = "false"
+                                msg = "PERFECT set to 'FALSE'\n"
+                            case _:
+                                msg = "error: invalid input\n"
 
-                case "8":
-                    new = input("Choose the seed (leave empty for RANDOM): ")
-                    if not new:
-                        seed()
-                        cls.maze.random = True
-                        new = Maze.get_random_seed()
-                        msg = ("SEED set to RANDOM\n"
-                               f"for next run will be: << {new} >>'\n")
-                    else:
-                        cls.maze.random = False
-                        msg = f"SEED set to << {new} >>'\n"
-                    cls.maze.seed = new
-
-                case "9":
-                    mod_config = copy.deepcopy(cls.config)
-                    msg = "Configuration set to 'DEFAULT'\n"
-
-                case "q":
-
-                    try:
-                        mod_config = MazeConfig(**mod_config).model_dump()
-                        cls.maze.width = mod_config['WIDTH']
-                        cls.maze.height = mod_config['HEIGHT']
-                        cls.maze.entry = mod_config['ENTRY']
-                        cls.maze.exit = mod_config['EXIT']
-                        cls.maze.start = mod_config['START']
-                        cls.maze.perfect = mod_config['PERFECT']
+                    case "7":
+                        cls.algorithm_menu()
                         msg = "\n"
-                        return
 
-                    except ValidationError as e:
+                    case "8":
+                        new = input("Choose the seed (leave empty for RANDOM): ")
+                        if not new:
+                            seed()
+                            cls.maze.random = True
+                            new = Maze.get_random_seed()
+                            msg = ("SEED set to RANDOM\n"
+                                   f"for next run will be: << {new} >>'\n")
+                        else:
+                            cls.maze.random = False
+                            msg = f"SEED set to << {new} >>'\n"
+                        cls.maze.seed = new
 
-                        while True:
+                    case "9":
+                        if cls.config:
+                            mod_config = copy.deepcopy(cls.config)
+                            msg = "Configuration set to 'DEFAULT'\n"
+                        else:
+                            msg = "[ERROR] CONFIGURATION FILE NOT FOUND"
+                            exit(1)
 
-                            clear_screen()
-                            cls.display_error_menu()
-                            print("The following error(s) "
-                                  "have been detected:\n")
-                            i = 1
-                            for err in e.errors():
-                                print(f"{i}) {err['msg']} \n")
-                                i += 1
-                                print()
+                    case "q":
 
-                            choice = input("press '1' to reconfigure\n"
-                                           "press '2' to go back to menu\n")
-                            match choice:
-                                case "1":
-                                    msg = "\n"
-                                    break
-                                case "2":
-                                    return
-                                case _:
-                                    continue
-                        continue
+                        try:
+                            mod_config = MazeConfig(**mod_config).model_dump()
+                            cls.maze.width = mod_config['WIDTH']
+                            cls.maze.height = mod_config['HEIGHT']
+                            cls.maze.entry = mod_config['ENTRY']
+                            cls.maze.exit = mod_config['EXIT']
+                            cls.maze.start = mod_config['START']
+                            cls.maze.perfect = mod_config['PERFECT']
+                            msg = "\n"
+                            return
 
-                case "42":
-                    cls.maze.two_forty = not cls.maze.two_forty
-                    msg = "error: invalid input\n"
+                        except ValidationError as e:
 
-                case _:
-                    msg = "error: invalid input\n"
+                            while True:
 
-    def display_algorithm_menu():
+                                clear_screen()
+                                cls.display_error_menu()
+                                print("The following error(s) "
+                                      "have been detected:\n")
+                                i = 1
+                                for err in e.errors():
+                                    print(f"{i}) {err['msg']} \n")
+                                    i += 1
+                                    print()
+
+                                choice = input("press '1' to reconfigure\n"
+                                               "press '2' to go back to menu\n")
+                                match choice:
+                                    case "1":
+                                        msg = "\n"
+                                        break
+                                    case "2":
+                                        return
+                                    case _:
+                                        continue
+                            continue
+
+                    case "42":
+                        cls.maze.two_forty = not cls.maze.two_forty
+                        msg = "error: invalid input\n"
+
+                    case _:
+                        msg = "error: invalid input\n"
+
+    @staticmethod
+    def display_algorithm_menu() -> None:
 
         print("\n" * 10)
         print("    ╔══════════════════════════════════════════╗    ")
         print("    ║  1: BACKTRACK                            ║    ")
         print("    ║  2: PRIM                                 ║    ")
         print("    ║  3: KRUSKAL                              ║    ")
+        print("    ║  4: NIRUGGER                             ║    ")
         print("    ║                                          ║    ")
         print("    ║  q: back to configuration menu           ║    ")
         print("    ╚══════════════════════════════════════════╝    ")
         print()
 
     @classmethod
-    def algorithm_menu(cls):
+    def algorithm_menu(cls) -> None:
 
         msg = "\n"
         while True:
@@ -374,38 +396,46 @@ class Menu:
             print(msg)
 
             choice = input("choose an option: ")
-            match choice:
+            if cls.maze:
 
-                case "1":
-                    MazeConfig.ALGORITHM = 'backtrack'
-                    cls.maze.algo = 'backtrack'
-                    msg = "You choose 'BACKTRACK'. Truly original.\n"
+                match choice:
 
-                case "2":
-                    MazeConfig.ALGORITHM = 'prim'
-                    cls.maze.algo = 'prim'
-                    msg = ("You choose 'PRIM'. "
-                           "Overall, just another backtrack.\n")
+                    case "1":
+                        MazeConfig.ALGORITHM = 'backtrack'
+                        cls.maze.algo = 'backtrack'
+                        msg = "You choose 'BACKTRACK'. Truly original.\n"
 
-                case "3":
-                    MazeConfig.ALGORITHM = 'kruskal'
-                    cls.maze.algo = 'kruskal'
-                    msg = "You choose 'KRUSKAL'. Slow but steady.\n"
+                    case "2":
+                        MazeConfig.ALGORITHM = 'prim'
+                        cls.maze.algo = 'prim'
+                        msg = ("You choose 'PRIM'. "
+                               "Overall, just another backtrack.\n")
 
-                case "q":
-                    return
+                    case "3":
+                        MazeConfig.ALGORITHM = 'kruskal'
+                        cls.maze.algo = 'kruskal'
+                        msg = "You choose 'KRUSKAL'. Slow but steady.\n"
 
-                case _:
-                    msg = "error: invalid input\n"
+                    case "4":
+                        MazeConfig.ALGORITHM = 'nirugger'
+                        cls.maze.algo = 'nirugger'
+                        msg = "You choose 'NIRUGGER'. I'm flattered!.\n"
 
-    def display_color_menu():
+                    case "q":
+                        return
+
+                    case _:
+                        msg = "error: invalid input\n"
+
+    @staticmethod
+    def display_color_menu() -> None:
 
         print()
         print()
         print()
         print("╔══════════════════════════════════════════╗")
-        print("║  1: DEFAULT                              ║")
-        print("║  2: OCEAN                                ║")
+        print("║  1: DEFAULT          m: MAURITIUS        ║")
+        print("║  2: OCEAN            b: BAUGIGI          ║")
         print("║  3: FOREST                               ║")
         print("║  4: DESERT                               ║")
         print("║  5: VOLCANIC                             ║")
@@ -420,7 +450,7 @@ class Menu:
         print()
 
     @classmethod
-    def color_menu(cls):
+    def color_menu(cls) -> None:
 
         seed()
         msg = ''
@@ -442,57 +472,66 @@ class Menu:
                 "solved":
                     f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m"
             }
+            if cls.maze:
 
-            clear_screen()
-            cls.maze.print_maze()
-            cls.display_color_menu()
-            print(msg)
-            choice = input("choose your style: ")
-            match choice:
-
-                case "1":
-                    cls.maze.theme = THEMES['default']
-                    msg = "THEME set to 'DEFAULT'\n"
-
-                case "2":
-                    cls.maze.theme = THEMES['ocean']
-                    msg = "THEME set to 'OCEAN'\n"
-
-                case "3":
-                    cls.maze.theme = THEMES['forest']
-                    msg = "THEME set to 'FOREST'\n"
-
-                case "4":
-                    cls.maze.theme = THEMES['desert']
-                    msg = "THEME set to 'DESERT'\n"
-
-                case "5":
-                    cls.maze.theme = THEMES['volcanic']
-                    msg = "THEME set to 'VOLCANIC'\n"
-
-                case "6":
-                    cls.maze.theme = THEMES['cyberpunk']
-                    msg = "THEME set to 'CYBERPUNK'\n"
-
-                case "7":
-                    cls.maze.theme = THEMES['space']
-                    msg = "THEME set to 'SPACE'\n"
-
-                case "8":
-                    cls.maze.theme = THEMES['colorblind_friendly']
-                    msg = "THEME set to 'COLORBLIND FRIENDLY :)'\n"
-
-                case "9":
-                    cls.maze.theme = THEMES['colorblind_unfriendly']
-                    msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
-
-                case "0":
-                    cls.maze.theme = random
-                    msg = "THEME set to 'R4ND0M' (warning!)\n"
-
-                case "q":
-                    seed(cls.maze.seed)
-                    return
-
-                case _:
-                    msg = "error: invalid input\n"
+                clear_screen()
+                cls.maze.print_maze()
+                cls.display_color_menu()
+                print(msg)
+                choice = input("choose your style: ")
+                match choice:
+                
+                    case "1":
+                        cls.maze.theme = THEMES['default']
+                        msg = "THEME set to 'DEFAULT'\n"
+    
+                    case "2":
+                        cls.maze.theme = THEMES['ocean']
+                        msg = "THEME set to 'OCEAN'\n"
+    
+                    case "3":
+                        cls.maze.theme = THEMES['forest']
+                        msg = "THEME set to 'FOREST'\n"
+    
+                    case "4":
+                        cls.maze.theme = THEMES['desert']
+                        msg = "THEME set to 'DESERT'\n"
+    
+                    case "5":
+                        cls.maze.theme = THEMES['volcanic']
+                        msg = "THEME set to 'VOLCANIC'\n"
+    
+                    case "6":
+                        cls.maze.theme = THEMES['cyberpunk']
+                        msg = "THEME set to 'CYBERPUNK'\n"
+    
+                    case "7":
+                        cls.maze.theme = THEMES['space']
+                        msg = "THEME set to 'SPACE'\n"
+    
+                    case "8":
+                        cls.maze.theme = THEMES['colorblind_friendly']
+                        msg = "THEME set to 'COLORBLIND FRIENDLY :)'\n"
+    
+                    case "9":
+                        cls.maze.theme = THEMES['colorblind_unfriendly']
+                        msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
+    
+                    case "0":
+                        cls.maze.theme = random
+                        msg = "THEME set to 'R4ND0M' (warning!)\n"
+    
+                    case "m":
+                        cls.maze.theme = THEMES['mauritius']
+                        msg = "THEME set to 'MAURITIUS'\n"
+    
+                    case "b":
+                        cls.maze.theme = THEMES['baugigi']
+                        msg = "THEME set to 'BAUGIGI'\n"
+    
+                    case "q":
+                        seed(cls.maze.seed)
+                        return
+    
+                    case _:
+                        msg = "error: invalid input\n"

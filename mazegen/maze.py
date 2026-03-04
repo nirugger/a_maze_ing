@@ -1,15 +1,19 @@
+"""Module for manage the Maze and relative methods."""
+
 from mazegen.cell import Cell
 from mazegen.cell import Direction
+from mazegen.requirement_parser import MazeConfig
 import random
 import time
 import subprocess
 import platform
-from typing import Any, Optional
+from typing import Optional
 from collections import deque
 from mazegen.themes import THEMES
 
 
 def clear_screen() -> None:
+    """Clear the shell window."""
     if platform.system() == "Windows":
         print("\033[2J\033[H")
     else:
@@ -17,32 +21,42 @@ def clear_screen() -> None:
 
 
 class Maze:
+    """Class representing a Maze."""
 
-    def __init__(self, config: dict[str, Any]) -> None:
+    def __init__(self, model: MazeConfig) -> None:
+        """Initialize the object Maze.
 
+        Args:
+            model: Pydantic Base Model containing maze configuration.
+        """
+        config = model.model_dump()
         self.width: int = config["WIDTH"]
         self.height: int = config["HEIGHT"]
-        self.entry: tuple[int] = config["ENTRY"]
-        self.exit: tuple[int] = config["EXIT"]
-        self.start: tuple[int] = (config["START"]
-                                  if config["START"]
-                                  else config["ENTRY"])
+        self.entry: tuple[int, int] = config["ENTRY"]
+        self.exit: tuple[int, int] = config["EXIT"]
+        self.start: tuple[int, int] = (config["START"]
+                                       if config["START"]
+                                       else config["ENTRY"])
         self.output: str = config["OUTPUT_FILE"]
         self.perfect: bool = config["PERFECT"]
-        self.algo: str = config.get("ALGORITHM", None)
-        self.theme: dict = THEMES['default']
+        self.algo: Optional[str] = config.get("ALGORITHM", None)
+        self.theme: dict[str, str] = THEMES['default']
         self.seed: Optional[str] = config.get('SEED', None)
         self.random = False if config.get('SEED', None) else True
         self.path = ""
         self.error_message = ""
-        self.maze = None
         self.animation = True
         self.solution = True
         self.two_forty = True
+        self.maze = self.init_maze()
 
     @staticmethod
     def get_random_seed() -> str:
+        """Generate a random seed.
 
+        Returns:
+            seed: the seed generated.
+        """
         alpha: str = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
         digit: str = "0123456789"
         symbol: str = "?!@#$%^&*()_-+={}[]:;|/<>,.\\"
@@ -51,8 +65,12 @@ class Maze:
                              for _ in range(random.randint(21, 42))])
         return seed
 
-    def init_maze(self) -> None:
+    def init_maze(self) -> list[list[Cell]]:
+        """Initialize the proper maze as a list[list[Cell]].
 
+        Returns:
+            maze: the maze generated.
+        """
         maze: list[list[Cell]] = []
         if self.random:
             self.seed = self.get_random_seed()
@@ -70,8 +88,8 @@ class Maze:
                     row[j].is_exit = True
 
             maze.append(row)
-
         self.maze = maze
+
         if self.two_forty:
             if self.width < 9 or self.height < 7:
                 self.error_message = "Maze too small to contain '42'"
@@ -87,9 +105,10 @@ class Maze:
 
                 if self.maze[self.start[1]][self.start[0]].visited == 42:
                     raise ValueError("[ERR] STARTING POINT inside the 42!\n")
+        return maze
 
     def never_been_there(self) -> None:
-
+        """Set all visitable cells to <visited = 0>."""
         for row in self.maze:
             for cell in row:
                 cell.is_solved = False
@@ -99,7 +118,7 @@ class Maze:
         self.path = ""
 
     def forty_two(self) -> None:
-
+        """Put number 42 inside the maze."""
         center_x = int((self.width - 1) / 2)
         center_y = int((self.height - 1) / 2)
 
@@ -122,29 +141,29 @@ class Maze:
                 self.maze[center_y + 2][i].visited = 42
 
     def create_maze(self) -> None:
-
-        # self.init_maze()
-
-        algos: dict[str, callable] = {
-            "backtrack": self.backtrack,
-            "prim": self.prim,
-            "kruskal": self.kruskal
-            }
-
+        """Generate a maze using configuration algorithm."""
         match self.algo:
 
             case "backtrack":
-                algos['backtrack'](self.start[1], self.start[0])
+                self.backtrack(self.start[1], self.start[0])
 
             case "prim":
-                algos['prim'](self.start[1], self.start[0],
-                              [(self.start[1], self.start[0])])
+                self.prim(self.start[1], self.start[0],
+                          [(self.start[1], self.start[0])])
 
             case "kruskal":
-                algos['kruskal']()
+                self.kruskal()
+
+            case "nirugger":
+                self.make_it_empty()
 
     def backtrack(self, col: int, row: int) -> None:
+        """Backtrack algorithm for maze generation.
 
+        Args:
+            col: y-axis of the first cell.
+            row: x-axis of the first cell.
+        """
         self.maze[row][col].visited = 1
         directions = [
             Direction.north,
@@ -193,8 +212,14 @@ class Maze:
                         self.maze[row][col - 1].open_wall(Direction.east)
                         self.backtrack(row=row, col=(col - 1))
 
-    def prim(self, col: int, row: int, frontier: list[tuple]) -> None:
+    def prim(self, col: int, row: int, frontier: list[tuple[int, int]]) -> None:
+        """Prim algorithm for maze generation.
 
+        Args:
+            col: y-axis of the first cell.
+            row: x-axis of the first cell.
+            frontier: list containing the coordinates of the first cell.
+        """
         self.maze[row][col].visited = True
         directions = [
             Direction.north,
@@ -277,7 +302,7 @@ class Maze:
                       frontier=frontier)
 
     def kruskal(self) -> None:
-
+        """Kruskal algorithm for maze generation."""
         directions = [
             Direction.north,
             Direction.east,
@@ -285,7 +310,7 @@ class Maze:
             Direction.west
             ]
 
-        krusk_list: list[set] = []
+        krusk_list: list[set[tuple[int, int]]] = []
         for row in range(len(self.maze)):
             for col in range(len(self.maze[row])):
                 if not self.maze[row][col].visited:
@@ -363,8 +388,54 @@ class Maze:
                         if flag:
                             break
 
-    def make_it_wrong(self) -> None:
+    def make_it_empty(self) -> None:
+        """Open all walls of the maze except boundaries and '42' walls."""
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
 
+        for row in self.maze:
+            for cell in row:
+                for direction in directions:
+                    cell.open_wall(direction)
+
+        for r in range(len(self.maze)):
+            for c in range(len(self.maze[r])):
+
+                if r == 0:
+                    self.maze[r][c].close_wall(Direction.north)
+
+                if r == self.height - 1:
+                    self.maze[r][c].close_wall(Direction.south)
+
+                if c == 0:
+                    self.maze[r][c].close_wall(Direction.west)
+
+                if c == self.width - 1:
+                    self.maze[r][c].close_wall(Direction.east)
+
+                if self.maze[r][c].visited == 42:
+                    for dir in directions:
+                        self.maze[r][c].close_wall(dir)
+                        match dir:
+                            case Direction.north:
+                                self.maze[r - 1][c].close_wall(Direction.south)
+                            case Direction.south:
+                                self.maze[r + 1][c].close_wall(Direction.north)
+                            case Direction.east:
+                                self.maze[r][c + 1].close_wall(Direction.west)
+                            case Direction.west:
+                                self.maze[r][c - 1].close_wall(Direction.east)
+
+        if self.animation:
+            self.print_maze()
+        self.make_it_valid()
+
+    def make_it_wrong(self) -> None:
+        """Open a certain number of walls of a perfect maze."""
         directions = [
             Direction.north,
             Direction.east,
@@ -430,7 +501,15 @@ class Maze:
         self.make_it_valid()
 
     def valid_helper(self, row: int, col: int) -> bool:
+        """Check if all four walls of a cell are open.
 
+        Args:
+            row: x-axis of the cell.
+            col: y-axis of the cell.
+        Returns:
+            True if all walls are open,
+            False otherwise.
+        """
         cell_n = self.maze[row - 1][col]
         cell_s = self.maze[row + 1][col]
         cell_e = self.maze[row][col + 1]
@@ -448,7 +527,7 @@ class Maze:
         return all([walls_n, walls_s, walls_e, walls_w])
 
     def make_it_valid(self) -> None:
-
+        """Close walls if needed for validation."""
         directions = [
             Direction.north,
             Direction.east,
@@ -456,18 +535,126 @@ class Maze:
             Direction.west
             ]
 
-        random.shuffle(directions)
-        for row in range(1, self.height - 1):
-            for col in range(1, self.width - 1):
+        for row in range(0, self.height):
+            for col in range(0, self.width):
+
+                if self.algo == "nirugger":
+                    if self.maze[row][col].total_closed() >= 2:
+                        continue
+
+                    elif row == 0:
+                        dir = random.choice(directions)
+                        while dir == Direction.north:
+                            dir = random.choice(directions)
+                        if dir == Direction.south and self.maze[row + 1][col].total_closed() <= 2:
+                            self.maze[row][col].close_wall(dir)
+                            self.maze[row + 1][col].close_wall(Direction.north)
+                        if dir == Direction.east and col < self.width - 1 and self.maze[row][col + 1].total_closed() <= 2:
+                            self.maze[row][col].close_wall(dir)
+                            self.maze[row][col + 1].close_wall(Direction.west)
+                        if dir == Direction.west and col > 0 and self.maze[row][col - 1].total_closed() <= 2:
+                            self.maze[row][col].close_wall(dir)
+                            self.maze[row][col - 1].close_wall(Direction.east)
+
+                    elif row == self.height - 1:
+                        dir = random.choice(directions)
+                        while dir == Direction.south:
+                            dir = random.choice(directions)
+                        if dir == Direction.north and self.maze[row - 1][col].total_closed() <= 2:
+                            self.maze[row - 1][col].close_wall(Direction.south)
+                            self.maze[row][col].close_wall(dir)
+
+                        if dir == Direction.east and col < self.width - 1 and self.maze[row][col + 1].total_closed() <= 2:
+                            self.maze[row][col + 1].close_wall(Direction.west)
+                            self.maze[row][col].close_wall(dir)
+                        
+                        if dir == Direction.west and col > 0 and self.maze[row][col - 1].total_closed() <= 2:
+                            self.maze[row][col - 1].close_wall(Direction.east)
+                            self.maze[row][col].close_wall(dir)
+
+                    elif col == self.width - 1:
+                        dir = random.choice(directions)
+                        while dir == Direction.east:
+                            dir = random.choice(directions)
+                        if dir == Direction.north and row > 0 and self.maze[row - 1][col].total_closed() <= 2:
+                            self.maze[row - 1][col].close_wall(Direction.south)
+                            self.maze[row][col].close_wall(dir)
+                        if dir == Direction.south and row < self.height - 1 and self.maze[row + 1][col].total_closed() <= 2:
+                            self.maze[row + 1][col].close_wall(Direction.north)
+                            self.maze[row][col].close_wall(dir)
+                        if dir == Direction.west and self.maze[row][col - 1].total_closed() <= 2:
+                            self.maze[row][col - 1].close_wall(Direction.east)
+                            self.maze[row][col].close_wall(dir)
+
+                    elif col == 0:
+                        dir = random.choice(directions)
+                        while dir == Direction.west:
+                            dir = random.choice(directions)
+                        if dir == Direction.north and row > 0 and self.maze[row - 1][col].total_closed() <= 2:
+                            self.maze[row - 1][col].close_wall(Direction.south)
+                            self.maze[row][col].close_wall(dir)
+                        if dir == Direction.south and row < self.height - 1 and self.maze[row + 1][col].total_closed() <= 2:
+                            self.maze[row + 1][col].close_wall(Direction.north)
+                            self.maze[row][col].close_wall(dir)
+                        if dir == Direction.east and self.maze[row][col + 1].total_closed() <= 2:
+                            self.maze[row][col + 1].close_wall(Direction.west)
+                            self.maze[row][col].close_wall(dir)
+
                 if self.maze[row][col].walls == 0:
                     if self.valid_helper(row, col):
-                        self.maze[row][col].close_wall(directions[0])
-                        self.maze[row][col].close_wall(directions[1])
-                        if self.animation:
-                            self.print_maze()
+                        dir_1 = random.choice(directions)
+                        dir_2 = random.choice(directions)
+                        while dir_1 == dir_2:
+                            dir_2 = random.choice(directions)
+                        self.maze[row][col].close_wall(dir_1)
+                        self.maze[row][col].close_wall(dir_2)
+                        match dir_1:
+                            case Direction.north:
+                                self.maze[row - 1][col].close_wall(
+                                    Direction.south
+                                    )
+                            case Direction.south:
+                                self.maze[row + 1][col].close_wall(
+                                    Direction.north
+                                    )
+                            case Direction.east:
+                                self.maze[row][col + 1].close_wall(
+                                    Direction.west
+                                    )
+                            case Direction.west:
+                                self.maze[row][col - 1].close_wall(
+                                    Direction.east
+                                    )
+                        match dir_2:
+                            case Direction.north:
+                                self.maze[row - 1][col].close_wall(
+                                    Direction.south
+                                    )
+                            case Direction.south:
+                                self.maze[row + 1][col].close_wall(
+                                    Direction.north
+                                    )
+                            case Direction.east:
+                                self.maze[row][col + 1].close_wall(
+                                    Direction.west
+                                    )
+                            case Direction.west:
+                                self.maze[row][col - 1].close_wall(
+                                    Direction.east
+                                    )
+
+                    if self.animation:
+                        self.print_maze()
 
     def backtrack_solver(self, col: int, row: int, path: str) -> None:
+        """Backtrack algorithm for maze resolution.
 
+        Args:
+            col: y-axis of the first cell.
+            row: x-axis of the first cell.
+            path: a string with cardinal instructions (N,E,S,W) representing
+                  the solution path.
+        """
         self.maze[row][col].visited = 1
         if self.maze[row][col].is_exit:
             self.path = path
@@ -525,9 +712,12 @@ class Maze:
         self.maze[row][col].visited = 0
 
     def breadth_first_search_solver(self) -> None:
-
-        c, r = self.entry
-        queue: deque[tuple[int]] = deque([(r, c)])
+        """Breadth-First Search algorithm for maze resolution."""
+        c: int = 0
+        r: int = 0
+        if len(self.entry) == 2:
+            c, r = self.entry
+        queue: deque[tuple[int, int]] = deque([(r, c)])
         self.maze[r][c].visited = 1
         self.maze[r][c].steps = 0
 
@@ -595,8 +785,11 @@ class Maze:
         self.path = htap[::-1]
 
     def assign_solution(self) -> None:
-
-        col, row = self.entry[0], self.entry[1]
+        """Assign to cells the is_solved attribute."""
+        row: int = 0
+        col: int = 0
+        if len(self.entry) == 2:
+            col, row = self.entry[0], self.entry[1]
         self.maze[row][col].is_solved = True
         path = self.path
 
@@ -619,17 +812,26 @@ class Maze:
 
             self.maze[row][col].is_solved = True
 
-    def hide_corner(self, r: int, c: int) -> bool:
+    def hide_corner(self, r: int, c: int) -> int:
+        """Check if all the walls in between diagonal walls are open.
+
+        Args:
+            r: x-index of the cell.
+            c: y-index of the cell.
+        Returns:
+            1 (truthy) if all walls are open.
+            0 (falsy) otherwise.
+        """
         if r >= len(self.maze) - 1 or c >= len(self.maze[0]) - 1:
-            return False
-        se = (self.maze[r][c].is_open(Direction.south) and
-              self.maze[r][c].is_open(Direction.east))
-        nw = (self.maze[r + 1][c + 1].is_open(Direction.north) and
-              self.maze[r + 1][c + 1].is_open(Direction.west))
+            return 0
+        se: int = (self.maze[r][c].is_open(Direction.south) and
+                   self.maze[r][c].is_open(Direction.east))
+        nw: int = (self.maze[r + 1][c + 1].is_open(Direction.north) and
+                   self.maze[r + 1][c + 1].is_open(Direction.west))
         return se and nw
 
     def print_maze(self) -> None:
-
+        """Print strings on terminal representig the state of the maze."""
         if not self or not self.maze:
             return
 
@@ -715,7 +917,11 @@ class Maze:
         time.sleep(0.042)
 
     def __str__(self) -> str:
+        """Readable representation of the maze.
 
+        Returns:
+            result: a string containing a visual representation of the maze.
+        """
         result = ""
 
         for row in self.maze:
@@ -724,5 +930,9 @@ class Maze:
         return result
 
     def __repr__(self) -> str:
+        """Readable representation of the maze, usable to print a list.
 
+        Returns:
+            result: a string containing a visual representation of the maze.
+        """
         return '\n'.join(str(row) for row in self.maze)

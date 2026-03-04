@@ -1,7 +1,12 @@
 from pydantic import BaseModel
 from pydantic import Field, field_validator, model_validator, ValidationError
 from abc import ABC
-from typing import Any, Tuple, Optional
+from typing import (
+    Optional,
+    Tuple,
+    Any,
+    Union
+)
 
 
 class MazeConfig(BaseModel):
@@ -20,7 +25,7 @@ class MazeConfig(BaseModel):
 
     @field_validator('ENTRY', 'EXIT', 'START', mode='before')
     @classmethod
-    def parse_coordinates(cls, v: Any) -> Tuple[int, int]:
+    def parse_coordinates(cls, v: Union[str, tuple[int, int]]) -> Tuple[int, int]:
         if isinstance(v, str):
             parts = v.split(',')
             if len(parts) != 2:
@@ -63,7 +68,7 @@ class MazeConfig(BaseModel):
 class Parser(ABC):
 
     @classmethod
-    def parse_config(cls, file_name: str) -> dict[str, Any]:
+    def parse_config(cls, file_name: str) -> MazeConfig:
 
         with open(file_name, 'r') as f:
             content = f.read()
@@ -75,40 +80,39 @@ class Parser(ABC):
             ]
         config = {k.strip(' '): v.strip(' ') for k, v in split_lines}
 
-        config = cls.config_validator(config)
-        return config
+        model_config = cls.config_validator(config)
+        return model_config
 
     @staticmethod
-    def config_validator(config: dict[str, str]) -> dict[str, Any]:
+    def config_validator(config: dict[str, str]) -> MazeConfig:
+
+        mandatory_keys = [
+            'WIDTH',
+            'HEIGHT',
+            'ENTRY',
+            'EXIT',
+            'OUTPUT_FILE',
+            'PERFECT'
+            ]
+
+        val_config: dict[str, Any] = {}
+        if (not all(key in config.keys() for key in mandatory_keys)):
+            raise KeyError("one or more mandatory keys missing")
+        entry_point = config['ENTRY'].split(',')
+        exit_point = config['EXIT'].split(',')
+        val_config['WIDTH'] = int(config['WIDTH'])
+        val_config['HEIGHT'] = int(config['HEIGHT'])
+        val_config['ENTRY'] = (int(entry_point[0]), int(entry_point[1]))
+        val_config['EXIT'] = (int(exit_point[0]), int(exit_point[1]))
+        val_config['OUTPUT_FILE'] = config['OUTPUT_FILE']
+        val_config['PERFECT'] = True \
+            if config['PERFECT'].strip().lower() == 'true' else False
+        val_config['ALGORITHM'] = config['ALGORITHM']
+        val_config['SEED'] = config['SEED']
 
         try:
-            model = MazeConfig(**config)
-            return model.model_dump()
+            model = MazeConfig(**val_config)
+            return model
         except ValidationError as e:
             raise KeyError(f"Validation error: {str(e)}")
 
-    # mandatory_keys = [
-    #     'WIDTH',
-    #     'HEIGHT',
-    #     'ENTRY',
-    #     'EXIT',
-    #     'OUTPUT_FILE',
-    #     'PERFECT'
-    #     ]
-    # str_to_bool = {
-    #     'true': True,
-    #     'false': False
-    #     }
-    # val_config: dict[str, Any] = {}
-    # if (not all(key in config.keys() for key in mandatory_keys)):
-    #     raise KeyError("one or more mandatory keys missing")
-    # entry_point = config['ENTRY'].split(',')
-    # exit_point = config['EXIT'].split(',')
-    # val_config['WIDTH'] = int(config['WIDTH'])
-    # val_config['HEIGHT'] = int(config['HEIGHT'])
-    # val_config['ENTRY'] = (int(entry_point[0]), int(entry_point[1]))
-    # val_config['EXIT'] = (int(exit_point[0]), int(exit_point[1]))
-    # val_config['OUTPUT_FILE'] = config['OUTPUT_FILE']
-    # val_config['PERFECT'] = str_to_bool[config['PERFECT'].strip().lower()]
-    # val_config['ALGORITHM'] = config['ALGORITHM']
-    # return val_config

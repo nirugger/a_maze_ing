@@ -1,10 +1,13 @@
+"""Module for manage Cells of the Maze."""
+
 from enum import Enum
 
 
 class Direction(Enum):
-    """Enum class used for walls direction
+    """Enum class used for walls direction.
+
     Each number represents a cardinal direction, and also a bit
-    value from LSB (0) to MSB (3)
+    value used for bitshifting.
     """
 
     north = 1
@@ -14,13 +17,10 @@ class Direction(Enum):
 
 
 class Cell:
-    """Class of a maze cell, with walls represented by an hexadecimal number
-    Initialized as a full-closed cell (1111)
-    """
+    """Class representing a Cell of the Maze."""
 
     def __init__(self) -> None:
-        """Initializes the cell as a full-closed cell (1111)"""
-
+        """Initialize the cell as a full-closed cell (1111)."""
         self.walls = 0xf
         self.is_entry = False
         self.is_exit = False
@@ -29,44 +29,83 @@ class Cell:
         self.steps = 0
 
     def is_closed(self, direction: Direction) -> int:
-        """Checks if a specific wall is closed
-        Args:
-            direction (Direction): The wall to be checked
-        Returns:
-            1 (truthy) if the wall is closed
-            0 (falsy) if the wall is open
-        """
+        """Check if a specific wall is closed.
 
+        Args:
+            direction (Direction): The wall to be checked.
+        Returns:
+            1,2,4,8 based on direction (truthy) if the wall is closed,
+            0 (falsy) if the wall is open.
+        """
         return self.walls & direction.value
 
     def is_open(self, direction: Direction) -> int:
-        """Checks if a specific wall is open
-        Args:
-            direction (Direction): The wall to be checked
-        Returns:
-            1 (truthy) if the wall is open
-            0 (falsy) if the wall is closed
-        """
+        """Check if a specific wall is open.
 
+        Args:
+            direction (Direction): The wall to be checked.
+        Returns:
+            1,2,4,8 based on direction (truthy) if the wall is open.
+            0 (falsy) if the wall is closed.
+        """
         return ~ self.walls & direction.value
 
     def open_wall(self, direction: Direction) -> None:
-        """Opens one wall of the cell
-        Do nothing if the wall is already open
-        Args:
-            direction (Direction): The wall to be opened
-        """
+        """Open one wall of the cell.
 
+        Args:
+            direction (Direction): The wall to be opened.
+        """
         self.walls &= ~ direction.value
 
     def close_wall(self, direction: Direction) -> None:
-        """Closes one wall of the cell
-        Do nothing if the wall is already closed
-        Args:
-            direction (Direction): The wall to be closed
-        """
+        """Close one wall of the cell.
 
+        Args:
+            direction (Direction): The wall to be closed.
+        """
         self.walls |= direction.value
 
+    def total_open(self) -> int:
+        """Count how many walls are open.
+
+        Returns:
+            total: the number of open walls.
+        """
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+
+        total: int = 0
+        for direction in directions:
+            total += self.is_open(direction)
+        return total
+
+    def total_closed(self) -> int:
+        """Count how many walls are closed.
+
+        Returns:
+            total: the number of closed walls.
+        """
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+
+        total: int = 0
+        for direction in directions:
+            total += int(bool(self.is_closed(direction)))
+        return total
+
     def __repr__(self) -> str:
+        """Format a string representation of the Cell.
+
+        Returns:
+            the string of an hexadecimal number between 0 and F.
+        """
         return hex(self.walls)[2].upper()
