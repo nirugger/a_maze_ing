@@ -9,7 +9,22 @@
 4) File writer — salva il labirinto in esadecimale + coordinate + soluzione
 5) Solver — trova il percorso più breve
 6) Visualizer — mostra il labirinto graficamente
+WIDTH=15
+HEIGHT=15
+ENTRY=0,0
+EXIT= 14,14
+OUTPUT_FILE=maze.txt
+PERFECT=true
 
+START=7,7
+ALGORITHM=backtrack
+SEED=
+
+
+
+# TODO:
+
+# opzione play (extra flag player pos in Cell)
 
 ## Documentazione del Processo
 

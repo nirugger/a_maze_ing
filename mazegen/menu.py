@@ -1,16 +1,17 @@
-from mazegen.maze import Maze
-from mazegen.maze import clear_screen
-from mazegen.requirement_parser import Parser
-from mazegen.requirement_parser import MazeConfig
-from mazegen.themes import THEMES
+"""Module for menu management and program initialization."""
+
+from mazegen.requirement_parser import Parser, MazeConfig
+from mazegen.maze import Maze, clear_screen
 from typing import Optional, Any, Dict
-from random import randint as r
-from random import seed
 from pydantic import ValidationError
+from mazegen.themes import THEMES
+from random import seed, shuffle
+from random import randint as r
 import copy
 
 
 class Menu:
+    """Class representing the menu."""
 
     maze: Optional[Maze] = None
     model_config: Optional[MazeConfig] = None
@@ -19,6 +20,11 @@ class Menu:
 
     @classmethod
     def a_maze_init(cls, file: str) -> None:
+        """Initialize the maze.
+
+        Args:
+            file: the configuration file needed for initialization.
+        """
         try:
             cls.model_config = Parser.parse_config(file)
             cls.maze = Maze(cls.model_config)
@@ -28,6 +34,7 @@ class Menu:
 
     @classmethod
     def output(cls) -> None:
+        """Write an output file with maze representation and solution."""
         try:
             if cls.maze:
                 with open(cls.maze.output, 'w') as f:
@@ -45,7 +52,7 @@ class Menu:
 
     @classmethod
     def maze_generator(cls) -> None:
-
+        """Initialize, generate, print, solve the maze."""
         if cls.maze:
             cls.maze.init_maze()
             cls.maze.create_maze()
@@ -64,7 +71,7 @@ class Menu:
 
     @classmethod
     def display_main_menu(cls) -> None:
-
+        """Display of the main menu (first time launching a_maze_ing)."""
         print("\n" * 10)
         print("    ╔═════════════════════════════════════════════════╗    ")
         print("    ║                    W31C0M3 2                    ║    ")
@@ -83,14 +90,14 @@ class Menu:
         print("    ║  3: Colors!              ║║      tvanni &       ║    ")
         print("    ║  4: Animation            ║║      nirugger       ║    ")
         print("    ║  5: Solution             ║║                     ║    ")
-        print("    ║                          ║║                     ║    ")
-        print("    ║  q: Exit                 ║║  (aka Tom & Gerru)  ║    ")
+        print("    ║                          ║║  &: special guests  ║    ")
+        print("    ║  q: Exit                 ║║                     ║    ")
         print("    ╚══════════════════════════╝╚═════════════════════╝    ")
         print("\n" * 3)
 
     @classmethod
     def display_maze_menu(cls) -> None:
-
+        """Display of the main menu (from the second time on)."""
         print("    ╔═════════════════════════════════════════════════╗    ")
         print("    ║                    THAT  WAS                    ║    ")
         print("    ║    ▗▄▖ ▗▖  ▗▖ ▗▄▖ ▗▄▄▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖  ▗▖ ▗▄▄▖   ║    ")
@@ -108,13 +115,61 @@ class Menu:
         print("    ║  3: Colors!              ║║      tvanni &       ║    ")
         print("    ║  4: Animation            ║║      nirugger       ║    ")
         print("    ║  5: Solution             ║║                     ║    ")
-        print("    ║                          ║║                     ║    ")
-        print("    ║  q: Exit                 ║║  (aka Tom & Gerru)  ║    ")
+        print("    ║                          ║║  &: special guests  ║    ")
+        print("    ║  q: Exit                 ║║                     ║    ")
         print("    ╚══════════════════════════╝╚═════════════════════╝    ")
 
     @classmethod
-    def main_menu(cls) -> None:
+    def display_guest_menu(cls) -> None:
+        """Display of the guest menu - because friendship is awesome."""
+        fbertozz: str = (
+            "                                                      \n"
+            "              for topology lessons                    \n"
+            "                 late night talks                     \n"
+            "               & for making it obvious                \n"
+            "      ▄▄ ▄▄                                           \n"
+            "     ██  ██                 ██                        \n"
+            "    ▀██▀ ████▄ ▄█▀█▄ ████▄ ▀██▀▀ ▄███▄ ▀▀▀██ ▀▀▀██    \n"
+            "     ██  ██ ██ ██▄█▀ ██ ▀▀  ██   ██ ██   ▄█▀   ▄█▀    \n"
+            "     ██  ████▀ ▀█▄▄▄ ██     ██   ▀███▀ ▄██▄▄ ▄██▄▄    \n"
+            "                                                      \n"
+            "      (also, for his deep hatred for recursions)      \n"
+            "                                                      \n"
+            )
 
+        aflorea: str = (
+            "                                                      \n"
+            "                 for algorithm magic                  \n"
+            "  powerful optimization strategies (that we ignored)  \n"
+            "     & for doing everything everywhere all at once    \n"
+            "              ▄▄ ▄▄                                   \n"
+            "             ██  ██                                   \n"
+            "       ▀▀█▄ ▀██▀ ██ ▄███▄ ████▄ ▄█▀█▄  ▀▀█▄           \n"
+            "      ▄█▀██  ██  ██ ██ ██ ██ ▀▀ ██▄█▀ ▄█▀██           \n"
+            "      ▀█▄██  ██  ██ ▀███▀ ██    ▀█▄▄▄ ▀█▄██           \n"
+            "                                                      \n"
+            "         (and a ton of other important stuff)         \n"
+            "                                                      \n"
+        )
+
+        guests = [aflorea, fbertozz]
+        shuffle(guests)
+        clear_screen()
+        print("\n" * 3)
+
+        for guest in guests:
+            print(guest)
+            print("\n" * 3)
+
+        print("press ENTER for return")
+        choice = input()
+        match choice:
+            case _:
+                return
+
+    @classmethod
+    def main_menu(cls) -> None:
+        """Display the main menu and waits for user input."""
         msg = "\n"
         while True:
             if cls.first:
@@ -154,13 +209,18 @@ class Menu:
                 case "4":
                     if cls.maze:
                         cls.maze.animation = not cls.maze.animation
-                        msg = f"Maze animation changed to {cls.maze.animation}\n"
+                        msg = ("Maze animation changed to "
+                               f"{cls.maze.animation}\n")
 
                 case "5":
                     if cls.maze:
                         cls.maze.solution = not cls.maze.solution
                         state = "VISIBLE" if cls.maze.solution else "INVISIBLE"
                         msg = f"Maze solution changed to '{state}'\n"
+
+                case "&":
+                    cls.display_guest_menu()
+                    msg = "\n"
 
                 case "q":
                     choice = input("Are you sure you want to quit? [y/n]")
@@ -175,6 +235,7 @@ class Menu:
 
     @staticmethod
     def closure() -> None:
+        """Close the program gracefully with a bit of salt."""
         print("\n" * 3)
         print("“A labyrinth is not a place to be lost, "
               "but a path to be found.”"
@@ -187,7 +248,7 @@ class Menu:
 
     @staticmethod
     def display_config_menu() -> None:
-
+        """Display of the configuration menu."""
         print("\n" * 10)
         print("    ╔══════════════════════════════════════════╗    ")
         print("    ║  1: WIDTH                                ║    ")
@@ -206,7 +267,7 @@ class Menu:
 
     @staticmethod
     def display_error_menu() -> None:
-
+        """Display of the error menu."""
         print("\n" * 10)
         print("    ╔═════════════════════════════════════════════════╗    ")
         print("    ║  !!!  WARNING  !!!  WARNING  !!!  WARNING  !!!  ║    ")
@@ -221,7 +282,7 @@ class Menu:
 
     @classmethod
     def config_menu(cls) -> None:
-
+        """Display config menu and waits for user inputs."""
         if cls.maze:
 
             mod_config: dict[str, Any] = {
@@ -251,7 +312,8 @@ class Menu:
                             mod_config['WIDTH'] = width
                             msg = f"WIDTH value set to {width}\n"
                         else:
-                            msg = "WIDTH value unacceptable (2 <= WIDTH <= 41)\n"
+                            msg = ("WIDTH value unacceptable "
+                                   "(2 <= WIDTH <= 41)\n")
 
                     case "2":
                         height = int(input("Choose the height of the maze "
@@ -260,7 +322,8 @@ class Menu:
                             mod_config['HEIGHT'] = height
                             msg = f"HEIGHT value set to {height}\n"
                         else:
-                            msg = "HEIGHT value unacceptable (2 <= HEIGHT <= 21)\n"
+                            msg = ("HEIGHT value unacceptable "
+                                   "(2 <= HEIGHT <= 21)\n")
 
                     case "3":
                         x = int(input("Choose the x (>=0): "))
@@ -287,7 +350,8 @@ class Menu:
                             mod_config['START'] = f"{x},{y}"
                             msg = f"STARTING POINT set to ({x}, {y})\n"
                         else:
-                            msg = "STARTING POINT value unacceptable (x,y >= 0)\n"
+                            msg = ("STARTING POINT value unacceptable "
+                                   "(x,y >= 0)\n")
 
                     case "6":
                         choice = input("Must thy maze be PERFECT? [y/n]: ")
@@ -306,7 +370,8 @@ class Menu:
                         msg = "\n"
 
                     case "8":
-                        new = input("Choose the seed (leave empty for RANDOM): ")
+                        new = input("Choose the seed "
+                                    "(leave empty for RANDOM): ")
                         if not new:
                             seed()
                             cls.maze.random = True
@@ -349,12 +414,12 @@ class Menu:
                                       "have been detected:\n")
                                 i = 1
                                 for err in e.errors():
-                                    print(f"{i}) {err['msg']} \n")
+                                    print(f"{i}) {err['msg']}")
                                     i += 1
                                     print()
 
-                                choice = input("press '1' to reconfigure\n"
-                                               "press '2' to go back to menu\n")
+                                choice = input("1: to reconfigure\n"
+                                               "2: to go back to menu\n")
                                 match choice:
                                     case "1":
                                         msg = "\n"
@@ -374,13 +439,14 @@ class Menu:
 
     @staticmethod
     def display_algorithm_menu() -> None:
-
+        """Display of the algorithm menu."""
         print("\n" * 10)
         print("    ╔══════════════════════════════════════════╗    ")
         print("    ║  1: BACKTRACK                            ║    ")
         print("    ║  2: PRIM                                 ║    ")
         print("    ║  3: KRUSKAL                              ║    ")
         print("    ║  4: NIRUGGER                             ║    ")
+        print("    ║  5: ELLER                                ║    ")
         print("    ║                                          ║    ")
         print("    ║  q: back to configuration menu           ║    ")
         print("    ╚══════════════════════════════════════════╝    ")
@@ -388,7 +454,7 @@ class Menu:
 
     @classmethod
     def algorithm_menu(cls) -> None:
-
+        """Display the algorithm menu and wait for user input."""
         msg = "\n"
         while True:
             clear_screen()
@@ -421,6 +487,11 @@ class Menu:
                         cls.maze.algo = 'nirugger'
                         msg = "You choose 'NIRUGGER'. I'm flattered!.\n"
 
+                    case "5":
+                        MazeConfig.ALGORITHM = 'eller'
+                        cls.maze.algo = 'eller'
+                        msg = "You choose 'ELLER'. IT WON'T WORK!!.\n"
+
                     case "q":
                         return
 
@@ -429,29 +500,29 @@ class Menu:
 
     @staticmethod
     def display_color_menu() -> None:
-
+        """Display of the color menu."""
         print()
         print()
         print()
         print("╔══════════════════════════════════════════╗")
-        print("║  1: DEFAULT          m: MAURITIUS        ║")
-        print("║  2: OCEAN            b: BAUGIGI          ║")
+        print("║  1: DEFAULT                              ║")
+        print("║  2: OCEAN                                ║")
         print("║  3: FOREST                               ║")
         print("║  4: DESERT                               ║")
-        print("║  5: VOLCANIC                             ║")
-        print("║  6: CYBERPUNK                            ║")
-        print("║  7: SPACE                                ║")
-        print("║  8: COLORBLIND FRIENDLY :)               ║")
-        print("║  9: COLORBLIND UN-FRIENDLY (:            ║")
+        print("║  5: ARTIC                                ║")
+        print("║  6: VOLCANIC                             ║")
+        print("║  7: CYBERPUNK                            ║")
+        print("║  8: SPACE                                ║")
+        print("║  9: FREEDOM                              ║")
         print("║  0: R4ND0M                               ║")
         print("║                                          ║")
-        print("║  q: Back to Menu                         ║")
+        print("║  +: MORE COLORS!      q: Back to Menu    ║")
         print("╚══════════════════════════════════════════╝")
         print()
 
     @classmethod
     def color_menu(cls) -> None:
-
+        """Display the color menu and wait for user input."""
         seed()
         msg = ''
         while True:
@@ -480,58 +551,162 @@ class Menu:
                 print(msg)
                 choice = input("choose your style: ")
                 match choice:
-                
+
                     case "1":
                         cls.maze.theme = THEMES['default']
                         msg = "THEME set to 'DEFAULT'\n"
-    
+
                     case "2":
                         cls.maze.theme = THEMES['ocean']
                         msg = "THEME set to 'OCEAN'\n"
-    
+
                     case "3":
                         cls.maze.theme = THEMES['forest']
                         msg = "THEME set to 'FOREST'\n"
-    
+
                     case "4":
                         cls.maze.theme = THEMES['desert']
                         msg = "THEME set to 'DESERT'\n"
-    
+
                     case "5":
+                        cls.maze.theme = THEMES['artic']
+                        msg = "THEME set to 'ARTIC'\n"
+
+                    case "6":
                         cls.maze.theme = THEMES['volcanic']
                         msg = "THEME set to 'VOLCANIC'\n"
-    
-                    case "6":
+
+                    case "7":
                         cls.maze.theme = THEMES['cyberpunk']
                         msg = "THEME set to 'CYBERPUNK'\n"
-    
-                    case "7":
+
+                    case "8":
                         cls.maze.theme = THEMES['space']
                         msg = "THEME set to 'SPACE'\n"
-    
-                    case "8":
-                        cls.maze.theme = THEMES['colorblind_friendly']
-                        msg = "THEME set to 'COLORBLIND FRIENDLY :)'\n"
-    
+
                     case "9":
-                        cls.maze.theme = THEMES['colorblind_unfriendly']
-                        msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
-    
+                        cls.maze.theme = THEMES['freedom']
+                        msg = "THEME set to 'FREEDOM'\n"
+
                     case "0":
                         cls.maze.theme = random
                         msg = "THEME set to 'R4ND0M' (warning!)\n"
-    
+
                     case "m":
                         cls.maze.theme = THEMES['mauritius']
                         msg = "THEME set to 'MAURITIUS'\n"
-    
+
                     case "b":
                         cls.maze.theme = THEMES['baugigi']
                         msg = "THEME set to 'BAUGIGI'\n"
-    
+
+                    case "+":
+                        cls.more_color_menu()
+                        return
+
                     case "q":
                         seed(cls.maze.seed)
                         return
-    
+
+                    case _:
+                        msg = "error: invalid input\n"
+
+    @staticmethod
+    def display_more_color_menu() -> None:
+        """Display of the more color menu."""
+        print()
+        print()
+        print()
+        print("╔══════════════════════════════════════════╗")
+        print("║  1: MAURITIUS                            ║")
+        print("║  2: BAUGIGI                              ║")
+        print("║  3:                                      ║")
+        print("║  4:                                      ║")
+        print("║  5:                                      ║")
+        print("║  6:                                      ║")
+        print("║  7:                                      ║")
+        print("║  8: COLORBLIND FRIENDLY :)               ║")
+        print("║  9: COLORBLIND UN-FRIENDLY (:            ║")
+        print("║  0: CHOOSE YOUR COLOR!!!                 ║")
+        print("║                                          ║")
+        print("║  -: LESS COLORS!      q: Back to Menu    ║")
+        print("╚══════════════════════════════════════════╝")
+        print()
+
+    @classmethod
+    def more_color_menu(cls) -> None:
+        """Display the more color menu and wait for user input."""
+        seed()
+        msg = ''
+        while True:
+
+            random = {
+                "wall":
+                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
+                "path":
+                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
+                "ft":
+                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
+                "ft_wall":
+                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
+                "start":
+                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
+                "end":
+                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
+                "solved":
+                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m"
+            }
+            if cls.maze:
+
+                clear_screen()
+                cls.maze.print_maze()
+                cls.display_more_color_menu()
+                print(msg)
+                choice = input("choose your style: ")
+                match choice:
+
+                    case "1":
+                        cls.maze.theme = THEMES['mauritius']
+                        msg = "THEME set to 'MAURITIUS'\n"
+
+                    case "2":
+                        cls.maze.theme = THEMES['baugigi']
+                        msg = "THEME set to 'BAGIGI'\n"
+
+                    case "3":
+                        pass
+
+                    case "4":
+                        pass
+
+                    case "5":
+                        pass
+
+                    case "6":
+                        pass
+
+                    case "7":
+                        pass
+
+                    case "8":
+                        cls.maze.theme = THEMES['colorblind_friendly']
+                        msg = "THEME set to 'COLORBLIND FRIENDLY :)'\n"
+
+                    case "9":
+                        cls.maze.theme = THEMES['colorblind_unfriendly']
+                        msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
+
+                    case "0":
+                        cls.maze.theme = random
+                        msg = "THEME set to 'R4ND0M' (warning!)\n"
+
+                    case "-":
+                        cls.color_menu()
+                        return
+
+                    case "q":
+                        seed(cls.maze.seed)
+                        return
+
                     case _:
                         msg = "error: invalid input\n"

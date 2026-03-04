@@ -1,15 +1,13 @@
-from pydantic import BaseModel
+"""Module for parsing and validating the configuration file."""
+
 from pydantic import Field, field_validator, model_validator, ValidationError
+from typing import (Optional, Tuple, Any, Union)
+from pydantic import BaseModel
 from abc import ABC
-from typing import (
-    Optional,
-    Tuple,
-    Any,
-    Union
-)
 
 
 class MazeConfig(BaseModel):
+    """BaseModel class for data validation."""
 
     WIDTH: int = Field(ge=2, le=41)
     HEIGHT: int = Field(ge=2, le=21)
@@ -23,21 +21,24 @@ class MazeConfig(BaseModel):
     ALGORITHM: Optional[str] = None
     SEED: Optional[str] = None
 
-    @field_validator('ENTRY', 'EXIT', 'START', mode='before')
-    @classmethod
-    def parse_coordinates(cls, v: Union[str, tuple[int, int]]) -> Tuple[int, int]:
-        if isinstance(v, str):
-            parts = v.split(',')
-            if len(parts) != 2:
-                raise ValueError("Coordinates must be in 'x,y' format")
-            x, y = int(parts[0].strip()), int(parts[1].strip())
-            if x < 0 or y < 0:
-                raise ValueError("Coordinates must be greater than zero")
-            return x, y
-        return v
+    # @field_validator('ENTRY', 'EXIT', 'START', mode='before')
+    # @classmethod
+    # def parse_coordinates(cls,
+    #                       v: Union[str, tuple[int, int]]) -> Tuple[int, int]:
+    #     """Parse and validate coordinates types/format."""
+    #     if isinstance(v, str):
+    #         parts = v.split(',')
+    #         if len(parts) != 2:
+    #             raise ValueError("Coordinates must be in 'x,y' format")
+    #         x, y = int(parts[0].strip()), int(parts[1].strip())
+    #         if x < 0 or y < 0:
+    #             raise ValueError("Coordinates must be greater than zero")
+    #         return x, y
+    #     return v
 
     @model_validator(mode='after')
     def check_coordinates_in_bounds(self) -> 'MazeConfig':
+        """Parse and validate coordinates values."""
         if self.START is None:
             self.START = self.ENTRY
         for point_name, point in [('ENTRY', self.ENTRY),
@@ -52,6 +53,7 @@ class MazeConfig(BaseModel):
 
     @model_validator(mode='after')
     def check_coordinates_overlap(self) -> 'MazeConfig':
+        """Check if EntryPoint is the same as ExitPoint."""
         if self.ENTRY == self.EXIT:
             raise ValueError(f"ENTRY POINT {self.ENTRY} must be different "
                              f"from EXIT POINT {self.EXIT}")
@@ -60,16 +62,22 @@ class MazeConfig(BaseModel):
     @field_validator('PERFECT', mode='before')
     @classmethod
     def parse_bool(cls, v: Any) -> bool:
+        """Parse boolean value from configuration.
+
+        Returns:
+            v: boolean value
+        """
         if isinstance(v, str):
             return v.strip().lower() == 'true'
         return bool(v)
 
 
 class Parser(ABC):
+    """Abstract class for configuration parse."""
 
     @classmethod
     def parse_config(cls, file_name: str) -> MazeConfig:
-
+        """Parse and validate configuration file."""
         with open(file_name, 'r') as f:
             content = f.read()
 
@@ -85,7 +93,7 @@ class Parser(ABC):
 
     @staticmethod
     def config_validator(config: dict[str, str]) -> MazeConfig:
-
+        """Validate configuration."""
         mandatory_keys = [
             'WIDTH',
             'HEIGHT',
@@ -115,4 +123,3 @@ class Parser(ABC):
             return model
         except ValidationError as e:
             raise KeyError(f"Validation error: {str(e)}")
-

@@ -42,6 +42,16 @@ THEMES: dict[str, dict[str, str]] = {
         "solved":  "\033[48;2;255;220;120m  \033[0m",  # golden sun
     },
 
+    "arctic": {
+        "wall":    "\033[48;2;180;210;230m  \033[0m",   # pack ice
+        "path":    "\033[48;2;15;25;40m  \033[0m",      # polar night
+        "ft":      "\033[48;2;40;80;120m  \033[0m",     # deep glacier
+        "ft_wall": "\033[48;2;40;80;120m  \033[0m",     # deep glacier
+        "start":   "\033[48;2;80;230;200m  \033[0m",    # aurora teal
+        "end":     "\033[48;2;180;100;255m  \033[0m",   # aurora violet
+        "solved":  "\033[48;2;220;245;255m  \033[0m",   # fresh snow
+    },
+
     "volcanic": {
         "wall":    "\033[48;2;45;45;45m  \033[0m",     # cooled lava rock
         "path":    "\033[48;2;20;20;20m  \033[0m",     # obsidian
@@ -72,24 +82,34 @@ THEMES: dict[str, dict[str, str]] = {
         "solved":  "\033[48;2;255;240;180m  \033[0m",   # starlight
     },
 
+    "freedom": {
+        "wall":    "\033[48;2;20;20;20m  \033[0m",      # black
+        "path":    "\033[48;2;245;245;245m  \033[0m",   # white
+        "ft":      "\033[48;2;15;15;15m  \033[0m",      # deep black
+        "ft_wall": "\033[48;2;15;15;15m  \033[0m",      # deep black
+        "start":   "\033[48;2;0;122;61m  \033[0m",      # palestine green
+        "end":     "\033[48;2;206;17;38m  \033[0m",     # palestine red
+        "solved":  "\033[48;2;255;255;255m  \033[0m",   # bright white
+    },
+
     "mauritius": {
-        "wall":    "\033[48;2;230;166;55m  \033[0m",    # 
-        "path":    "\033[48;2;32;102;12m  \033[0m",     # 
-        "ft":      "\033[48;2;107;72;192m  \033[0m",    # 
-        "ft_wall": "\033[48;2;107;72;192m  \033[0m",    # 
-        "start":   "\033[48;2;5;111;223m  \033[0m",     # 
-        "end":     "\033[48;2;216;183;116m  \033[0m",   # 
-        "solved":  "\033[48;2;35;87;201m  \033[0m",     # 
+        "wall":    "\033[48;2;230;166;55m  \033[0m",    # amber gold
+        "path":    "\033[48;2;32;102;12m  \033[0m",     # jungle green
+        "ft":      "\033[48;2;107;72;192m  \033[0m",    # lavander purple
+        "ft_wall": "\033[48;2;107;72;192m  \033[0m",    # lavander purple
+        "start":   "\033[48;2;5;111;223m  \033[0m",     # ocean blue
+        "end":     "\033[48;2;216;183;116m  \033[0m",   # sandy beige
+        "solved":  "\033[48;2;35;87;201m  \033[0m",     # sapphire blue
     },
 
     "baugigi": {
-        "wall":    "\033[48;2;104;52;208m  \033[0m",    # 
-        "path":    "\033[48;2;208;52;104m  \033[0m",    # 
-        "ft":      "\033[48;2;104;208;52m  \033[0m",    # 
-        "ft_wall": "\033[48;2;104;208;52m  \033[0m",    # 
-        "start":   "\033[48;2;208;104;52m  \033[0m",    # 
-        "end":     "\033[48;2;52;104;208m  \033[0m",    # 
-        "solved":  "\033[48;2;52;208;104m  \033[0m",    # 
+        "wall":    "\033[48;2;104;52;208m  \033[0m",    # electric purple
+        "path":    "\033[48;2;208;52;104m  \033[0m",    # hot pink
+        "ft":      "\033[48;2;104;208;52m  \033[0m",    # lime green
+        "ft_wall": "\033[48;2;104;208;52m  \033[0m",    # lime green
+        "start":   "\033[48;2;208;104;52m  \033[0m",    # burnt orange
+        "end":     "\033[48;2;52;104;208m  \033[0m",    # royal blue
+        "solved":  "\033[48;2;52;208;104m  \033[0m",    # mint green
     },
 
     "colorblind_friendly": {

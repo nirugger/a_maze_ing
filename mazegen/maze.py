@@ -1,15 +1,14 @@
 """Module for manage the Maze and relative methods."""
 
-from mazegen.cell import Cell
-from mazegen.cell import Direction
 from mazegen.requirement_parser import MazeConfig
-import random
-import time
+from mazegen.cell import Cell, Direction
+from mazegen.themes import THEMES
+from collections import deque
+from typing import Optional
 import subprocess
 import platform
-from typing import Optional
-from collections import deque
-from mazegen.themes import THEMES
+import random
+import time
 
 
 def clear_screen() -> None:
@@ -157,6 +156,9 @@ class Maze:
             case "nirugger":
                 self.make_it_empty()
 
+            case "eller":
+                self.eller()
+
     def backtrack(self, col: int, row: int) -> None:
         """Backtrack algorithm for maze generation.
 
@@ -212,7 +214,10 @@ class Maze:
                         self.maze[row][col - 1].open_wall(Direction.east)
                         self.backtrack(row=row, col=(col - 1))
 
-    def prim(self, col: int, row: int, frontier: list[tuple[int, int]]) -> None:
+    def prim(self,
+             col: int,
+             row: int,
+             frontier: list[tuple[int, int]]) -> None:
         """Prim algorithm for maze generation.
 
         Args:
@@ -388,6 +393,41 @@ class Maze:
                         if flag:
                             break
 
+    def eller(self) -> None:
+        """Eller algorithm for maze generation."""
+        el_list: list[set[tuple[int, int]]] = []
+        for row in range(len(self.maze)):
+
+            # per ogni set prendere un elemento random e collegarlo con quello sotto
+            # trattare la bottom line come edge case
+            # fare controlli su celle adiacenti se visited
+
+            for col in range(len(self.maze[row])):
+                if not self.maze[row][col].visited:
+                    if ((not col or not random.randint(0, 1)) and not
+                            any((row, col) in coords for coords in el_list)):
+                        el_list.append({(row, col)})
+                    else:
+                        print(len(el_list))
+                        el_list[len(el_list) - 1].update({(row, col)})
+                        self.maze[row][col - 1].open_wall(Direction.east)
+                        self.maze[row][col].open_wall(Direction.west)
+                if self.animation:
+                    self.print_maze()
+
+            for col in range(len(self.maze[row])):
+                if not self.maze[row][col].visited:
+                    if row < self.height - 1 and random.randint(0, 1):
+                        for coords in el_list:
+                            if (row, col) in coords:
+                                coords.update({(row + 1, col)})
+                                self.maze[row + 1][col].open_wall(
+                                    Direction.north
+                                    )
+                                self.maze[row][col].open_wall(Direction.south)
+                if self.animation:
+                    self.print_maze()
+
     def make_it_empty(self) -> None:
         """Open all walls of the maze except boundaries and '42' walls."""
         directions = [
@@ -546,13 +586,16 @@ class Maze:
                         dir = random.choice(directions)
                         while dir == Direction.north:
                             dir = random.choice(directions)
-                        if dir == Direction.south and self.maze[row + 1][col].total_closed() <= 2:
+                        if dir == Direction.south and \
+                                self.maze[row + 1][col].total_closed() <= 2:
                             self.maze[row][col].close_wall(dir)
                             self.maze[row + 1][col].close_wall(Direction.north)
-                        if dir == Direction.east and col < self.width - 1 and self.maze[row][col + 1].total_closed() <= 2:
+                        if dir == Direction.east and col < self.width - 1 and \
+                                self.maze[row][col + 1].total_closed() <= 2:
                             self.maze[row][col].close_wall(dir)
                             self.maze[row][col + 1].close_wall(Direction.west)
-                        if dir == Direction.west and col > 0 and self.maze[row][col - 1].total_closed() <= 2:
+                        if dir == Direction.west and col > 0 and \
+                                self.maze[row][col - 1].total_closed() <= 2:
                             self.maze[row][col].close_wall(dir)
                             self.maze[row][col - 1].close_wall(Direction.east)
 
@@ -560,15 +603,18 @@ class Maze:
                         dir = random.choice(directions)
                         while dir == Direction.south:
                             dir = random.choice(directions)
-                        if dir == Direction.north and self.maze[row - 1][col].total_closed() <= 2:
+                        if dir == Direction.north and \
+                                self.maze[row - 1][col].total_closed() <= 2:
                             self.maze[row - 1][col].close_wall(Direction.south)
                             self.maze[row][col].close_wall(dir)
 
-                        if dir == Direction.east and col < self.width - 1 and self.maze[row][col + 1].total_closed() <= 2:
+                        if dir == Direction.east and col < self.width - 1 and \
+                                self.maze[row][col + 1].total_closed() <= 2:
                             self.maze[row][col + 1].close_wall(Direction.west)
                             self.maze[row][col].close_wall(dir)
-                        
-                        if dir == Direction.west and col > 0 and self.maze[row][col - 1].total_closed() <= 2:
+
+                        if dir == Direction.west and col > 0 and \
+                                self.maze[row][col - 1].total_closed() <= 2:
                             self.maze[row][col - 1].close_wall(Direction.east)
                             self.maze[row][col].close_wall(dir)
 
@@ -576,13 +622,17 @@ class Maze:
                         dir = random.choice(directions)
                         while dir == Direction.east:
                             dir = random.choice(directions)
-                        if dir == Direction.north and row > 0 and self.maze[row - 1][col].total_closed() <= 2:
+                        if dir == Direction.north and row > 0 and \
+                                self.maze[row - 1][col].total_closed() <= 2:
                             self.maze[row - 1][col].close_wall(Direction.south)
                             self.maze[row][col].close_wall(dir)
-                        if dir == Direction.south and row < self.height - 1 and self.maze[row + 1][col].total_closed() <= 2:
+                        if dir == Direction.south and \
+                                row < self.height - 1 and \
+                                self.maze[row + 1][col].total_closed() <= 2:
                             self.maze[row + 1][col].close_wall(Direction.north)
                             self.maze[row][col].close_wall(dir)
-                        if dir == Direction.west and self.maze[row][col - 1].total_closed() <= 2:
+                        if dir == Direction.west and \
+                                self.maze[row][col - 1].total_closed() <= 2:
                             self.maze[row][col - 1].close_wall(Direction.east)
                             self.maze[row][col].close_wall(dir)
 
@@ -590,13 +640,17 @@ class Maze:
                         dir = random.choice(directions)
                         while dir == Direction.west:
                             dir = random.choice(directions)
-                        if dir == Direction.north and row > 0 and self.maze[row - 1][col].total_closed() <= 2:
+                        if dir == Direction.north and row > 0 and \
+                                self.maze[row - 1][col].total_closed() <= 2:
                             self.maze[row - 1][col].close_wall(Direction.south)
                             self.maze[row][col].close_wall(dir)
-                        if dir == Direction.south and row < self.height - 1 and self.maze[row + 1][col].total_closed() <= 2:
+                        if dir == Direction.south and \
+                                row < self.height - 1 and \
+                                self.maze[row + 1][col].total_closed() <= 2:
                             self.maze[row + 1][col].close_wall(Direction.north)
                             self.maze[row][col].close_wall(dir)
-                        if dir == Direction.east and self.maze[row][col + 1].total_closed() <= 2:
+                        if dir == Direction.east and \
+                                self.maze[row][col + 1].total_closed() <= 2:
                             self.maze[row][col + 1].close_wall(Direction.west)
                             self.maze[row][col].close_wall(dir)
 
