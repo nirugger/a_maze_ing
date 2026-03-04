@@ -1,11 +1,11 @@
-from src.menu import Menu
+from mazegen.menu import Menu
 import sys
 
 
 def main():
 
     sys.setrecursionlimit(2000)
-    Menu.a_maze_init("src/config.txt")
+    Menu.a_maze_init("mazegen/config.txt")
     Menu.main_menu()
 
 

@@ -1,8 +1,8 @@
-from src.maze import Maze
-from src.maze import clear_screen
-from src.requirement_parser import Parser
-from src.requirement_parser import MazeConfig
-from src.themes import THEMES
+from mazegen.maze import Maze
+from mazegen.maze import clear_screen
+from mazegen.requirement_parser import Parser
+from mazegen.requirement_parser import MazeConfig
+from mazegen.themes import THEMES
 from typing import Optional, Any
 from random import randint as r
 from random import seed

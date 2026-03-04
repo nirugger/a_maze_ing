@@ -1,12 +1,12 @@
-from src.cell import Cell
-from src.cell import Direction
+from mazegen.cell import Cell
+from mazegen.cell import Direction
 import random
 import time
 import subprocess
 import platform
 from typing import Any, Optional
 from collections import deque
-from src.themes import THEMES
+from mazegen.themes import THEMES
 
 
 def clear_screen() -> None:
