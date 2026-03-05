@@ -104,16 +104,20 @@ class Maze:
 
                 if self.maze[self.start[1]][self.start[0]].visited == 42:
                     raise ValueError("[ERR] STARTING POINT inside the 42!\n")
+
         return maze
 
     def never_been_there(self) -> None:
         """Set all visitable cells to <visited = 0>."""
         for row in self.maze:
             for cell in row:
+
                 cell.is_solved = False
                 cell.steps = 0
+
                 if cell.visited != 42:
                     cell.visited = 0
+
         self.path = ""
 
     def forty_two(self) -> None:
@@ -153,11 +157,11 @@ class Maze:
             case "kruskal":
                 self.kruskal()
 
-            case "nirugger":
-                self.nirugger()
-
             case "eller":
                 self.eller()
+
+            case "nirugger":
+                self.nirugger()
 
     def backtrack(self, col: int, row: int) -> None:
         """Backtrack algorithm for maze generation.
@@ -166,18 +170,19 @@ class Maze:
             col: y-axis of the first cell.
             row: x-axis of the first cell.
         """
-        self.maze[row][col].visited = 1
         directions = [
             Direction.north,
             Direction.east,
             Direction.south,
             Direction.west
             ]
-        random.shuffle(directions)
+
         if (self.animation):
             self.print_maze()
 
         i = 0
+        random.shuffle(directions)
+        self.maze[row][col].visited = 1
         for direction in directions:
             match direction:
 
@@ -225,17 +230,18 @@ class Maze:
             row: x-axis of the first cell.
             frontier: list containing the coordinates of the first cell.
         """
-        self.maze[row][col].visited = True
         directions = [
             Direction.north,
             Direction.east,
             Direction.south,
             Direction.west
             ]
-        random.shuffle(directions)
+
         if (self.animation):
             self.print_maze()
 
+        random.shuffle(directions)
+        self.maze[row][col].visited = True
         for direction in directions:
             match direction:
 
@@ -245,7 +251,7 @@ class Maze:
 
                         self.maze[row][col].open_wall(Direction.north)
                         self.maze[row - 1][col].open_wall(Direction.south)
-                        frontier.append((col, row-1))
+                        frontier.append((col, row - 1))
 
                         self.maze[row - 1][col].visited = True
 
@@ -260,7 +266,7 @@ class Maze:
 
                         self.maze[row][col].open_wall(Direction.south)
                         self.maze[row + 1][col].open_wall(Direction.north)
-                        frontier.append((col, row+1))
+                        frontier.append((col, row + 1))
                         self.maze[row + 1][col].visited = True
 
                         item = random.choice(frontier)
@@ -277,7 +283,7 @@ class Maze:
                         self.maze[row][col + 1].open_wall(Direction.west)
                         self.maze[row][col + 1].visited = True
 
-                        frontier.append((col+1, row))
+                        frontier.append((col + 1, row))
                         item = random.choice(frontier)
 
                         self.prim(row=item[1],
@@ -290,8 +296,8 @@ class Maze:
 
                         self.maze[row][col].open_wall(Direction.west)
                         self.maze[row][col - 1].open_wall(Direction.east)
-                        frontier.append((col-1, row))
-                        self.maze[row][col-1].visited = True
+                        frontier.append((col - 1, row))
+                        self.maze[row][col - 1].visited = True
 
                         item = random.choice(frontier)
                         self.prim(row=item[1],
@@ -300,6 +306,7 @@ class Maze:
 
         if (col, row) in frontier:
             frontier.remove((col, row))
+
         if frontier:
             item = random.choice(frontier)
             self.prim(col=item[0],
@@ -322,13 +329,14 @@ class Maze:
                     krusk_list.append({(row, col)})
 
         while len(krusk_list) > 1:
-
             flag = False
+
             if (self.animation):
                 self.print_maze()
+
+            random.shuffle(directions)
             this_set = random.choice(krusk_list)
             row, col = random.choice(tuple(this_set))
-            random.shuffle(directions)
 
             for direction in directions:
                 match direction:
@@ -689,8 +697,10 @@ class Maze:
                         self.maze[r][c].open_wall(dir)
                         self.maze[r][c - 1].open_wall(Direction.east)
                         i += 1
+
             if self.animation:
                 self.print_maze()
+
         self.make_it_valid()
 
     def valid_helper(self, row: int, col: int) -> bool:
@@ -710,10 +720,13 @@ class Maze:
 
         walls_n = (cell_n.is_open(Direction.east) and
                    cell_n.is_open(Direction.west))
+
         walls_s = (cell_s.is_open(Direction.east) and
                    cell_s.is_open(Direction.west))
+
         walls_e = (cell_e.is_open(Direction.north) and
                    cell_e.is_open(Direction.south))
+
         walls_w = (cell_w.is_open(Direction.north) and
                    cell_w.is_open(Direction.south))
 
@@ -730,14 +743,18 @@ class Maze:
 
         for row in range(1, self.height - 1):
             for col in range(1, self.width - 1):
+
                 if self.maze[row][col].walls == 0:
                     if self.valid_helper(row, col):
+
                         dir_1 = random.choice(directions)
                         dir_2 = random.choice(directions)
                         while dir_1 == dir_2:
                             dir_2 = random.choice(directions)
+
                         self.maze[row][col].close_wall(dir_1)
                         self.maze[row][col].close_wall(dir_2)
+
                         match dir_1:
                             case Direction.north:
                                 self.maze[row - 1][col].close_wall(
@@ -755,6 +772,7 @@ class Maze:
                                 self.maze[row][col - 1].close_wall(
                                     Direction.east
                                     )
+
                         match dir_2:
                             case Direction.north:
                                 self.maze[row - 1][col].close_wall(
@@ -785,11 +803,6 @@ class Maze:
             path: a string with cardinal instructions (N,E,S,W) representing
                   the solution path.
         """
-        self.maze[row][col].visited = 1
-        if self.maze[row][col].is_exit:
-            self.path = path
-            return
-
         directions = [
             Direction.north,
             Direction.east,
@@ -797,12 +810,17 @@ class Maze:
             Direction.west
             ]
 
+        self.maze[row][col].visited = 1
+        if self.maze[row][col].is_exit:
+            self.path = path
+            return
+
         random.shuffle(directions)
         for direction in directions:
             if self.path:
                 break
-            match direction:
 
+            match direction:
                 case Direction.north:
                     if (row > 0 and not
                             self.maze[row - 1][col].visited and not
@@ -847,6 +865,7 @@ class Maze:
         r: int = 0
         if len(self.entry) == 2:
             c, r = self.entry
+
         queue: deque[tuple[int, int]] = deque([(r, c)])
         self.maze[r][c].visited = 1
         self.maze[r][c].steps = 0
@@ -920,23 +939,22 @@ class Maze:
         col: int = 0
         if len(self.entry) == 2:
             col, row = self.entry[0], self.entry[1]
+
         self.maze[row][col].is_solved = True
         path = self.path
 
         for char in path:
+
             if self.animation:
                 self.print_maze()
-            match char:
 
+            match char:
                 case 'N':
                     row = row - 1
-
                 case 'S':
                     row = row + 1
-
                 case 'E':
                     col = col + 1
-
                 case 'W':
                     col = col - 1
 
@@ -952,12 +970,16 @@ class Maze:
             1 (truthy) if all walls are open.
             0 (falsy) otherwise.
         """
-        if r >= len(self.maze) - 1 or c >= len(self.maze[0]) - 1:
+        if (r >= len(self.maze) - 1
+                or c >= len(self.maze[0]) - 1):
             return 0
+
         se: int = (self.maze[r][c].is_open(Direction.south) and
                    self.maze[r][c].is_open(Direction.east))
+
         nw: int = (self.maze[r + 1][c + 1].is_open(Direction.north) and
                    self.maze[r + 1][c + 1].is_open(Direction.west))
+
         return se and nw
 
     def print_maze(self) -> None:
@@ -965,10 +987,8 @@ class Maze:
         if not self or not self.maze:
             return
 
-        # maze_str = ""
         clear_screen()
         print(self.theme['wall'] * (len(self.maze[0]) * 2 + 1))
-        # maze_str += self.theme['wall'] * (len(self.maze[0]) * 2 + 1) + "\n"
 
         for row in range(len(self.maze)):
             line_str = self.theme['wall']
@@ -1013,11 +1033,10 @@ class Maze:
                     line_str += self.theme['path']
 
             print(line_str)
-            # maze_str += line_str + "\n"
 
             bottom_str = self.theme['wall']
-
             for col in range(len(self.maze[row])):
+
                 if (row < self.height - 1 and
                     (self.maze[row][col].visited == 42 and
                      self.maze[row + 1][col].visited == 42)):
@@ -1041,9 +1060,8 @@ class Maze:
                     bottom_str += self.theme['path']
                 else:
                     bottom_str += self.theme['wall']
+
             print(bottom_str)
-            # maze_str += bottom_str + "\n"
-        # print(maze_str)
         time.sleep(0.042)
 
     def __str__(self) -> str:
