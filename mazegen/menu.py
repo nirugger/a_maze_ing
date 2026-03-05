@@ -27,6 +27,7 @@ class Menu:
         """
         try:
             cls.model_config = Parser.parse_config(file)
+            cls.config = cls.model_config.model_dump()
             cls.maze = Maze(cls.model_config)
         except (EOFError, Exception) as e:
             print(repr(e))
@@ -310,52 +311,69 @@ class Menu:
                 match choice:
 
                     case "1":
-                        width = int(input("Choose the width of the maze "
-                                    "(>=2, <=41): "))
-                        if 1 < width < 42:
-                            mod_config['WIDTH'] = width
-                            msg = f"WIDTH value set to {width}\n"
-                        else:
-                            msg = ("WIDTH value unacceptable "
-                                   "(2 <= WIDTH <= 41)\n")
+                        try:
+                            width = int(input("Choose the width of the maze "
+                                        "(>=2, <=41): "))
+                            if 1 < width < 42:
+                                mod_config['WIDTH'] = width
+                                msg = f"WIDTH value set to {width}\n"
+                            else:
+                                msg = ("WIDTH value unacceptable "
+                                       "(2 <= WIDTH <= 41)\n")
+
+                        except Exception:
+                            msg = "[ERROR]: WIDTH has to be a valid number."
 
                     case "2":
-                        height = int(input("Choose the height of the maze "
-                                     "(>=2, <=21): "))
-                        if 1 < height < 22:
-                            mod_config['HEIGHT'] = height
-                            msg = f"HEIGHT value set to {height}\n"
-                        else:
-                            msg = ("HEIGHT value unacceptable "
-                                   "(2 <= HEIGHT <= 21)\n")
+                        try:
+                            height = int(input("Choose the height of the maze "
+                                         "(>=2, <=21): "))
+                            if 1 < height < 22:
+                                mod_config['HEIGHT'] = height
+                                msg = f"HEIGHT value set to {height}\n"
+                            else:
+                                msg = ("HEIGHT value unacceptable "
+                                       "(2 <= HEIGHT <= 21)\n")
+
+                        except Exception:
+                            msg = "[ERROR]: HEIGHT has to be a valid number."
 
                     case "3":
-                        x = int(input("Choose the x (>=0): "))
-                        y = int(input("Choose the y (>=0): "))
-                        if x >= 0 and y >= 0:
-                            mod_config['ENTRY'] = f"{x},{y}"
-                            msg = f"ENTRY set to ({x}, {y})\n"
-                        else:
-                            msg = "ENTRY value unacceptable (x,y >= 0)\n"
+                        try:
+                            x = int(input("Choose the x (>=0): "))
+                            y = int(input("Choose the y (>=0): "))
+                            if x >= 0 and y >= 0:
+                                mod_config['ENTRY'] = f"{x},{y}"
+                                msg = f"ENTRY set to ({x}, {y})\n"
+                            else:
+                                msg = "ENTRY value unacceptable (x,y >= 0)\n"
+                        except Exception:
+                            msg = "[ERROR]: HEIGHT has to be a valid number."
 
                     case "4":
-                        x = int(input("Choose the x (>=0): "))
-                        y = int(input("Choose the y (>=0): "))
-                        if x >= 0 and y >= 0:
-                            mod_config['EXIT'] = f"{x},{y}"
-                            msg = f"EXIT set to ({x}, {y})\n"
-                        else:
-                            msg = "EXIT value unacceptable (x,y >= 0)\n"
+                        try:
+                            x = int(input("Choose the x (>=0): "))
+                            y = int(input("Choose the y (>=0): "))
+                            if x >= 0 and y >= 0:
+                                mod_config['EXIT'] = f"{x},{y}"
+                                msg = f"EXIT set to ({x}, {y})\n"
+                            else:
+                                msg = "EXIT value unacceptable (x,y >= 0)\n"
+                        except Exception:
+                            msg = "[ERROR]: x and y have to be valid numbers."
 
                     case "5":
-                        x = int(input("Choose the x (>=0): "))
-                        y = int(input("Choose the y (>=0): "))
-                        if x >= 0 and y >= 0:
-                            mod_config['START'] = f"{x},{y}"
-                            msg = f"STARTING POINT set to ({x}, {y})\n"
-                        else:
-                            msg = ("STARTING POINT value unacceptable "
-                                   "(x,y >= 0)\n")
+                        try:
+                            x = int(input("Choose the x (>=0): "))
+                            y = int(input("Choose the y (>=0): "))
+                            if x >= 0 and y >= 0:
+                                mod_config['START'] = f"{x},{y}"
+                                msg = f"STARTING POINT set to ({x}, {y})\n"
+                            else:
+                                msg = ("STARTING POINT value unacceptable "
+                                       "(x,y >= 0)\n")
+                        except Exception:
+                            msg = "[ERROR]: x and y have to be valid numbers."
 
                     case "6":
                         choice = input("Must thy maze be PERFECT? [y/n]: ")
@@ -393,6 +411,7 @@ class Menu:
                             msg = "Configuration set to 'DEFAULT'\n"
                         else:
                             msg = "[ERROR] CONFIGURATION FILE not found"
+                            print(msg)
                             exit(1)
 
                     case "q":

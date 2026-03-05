@@ -415,21 +415,12 @@ class Maze:
         """Eller algorithm for maze generation."""
         self.start = (0, 0)
         el_list: list[set[tuple[int, int]]] = []
-        for col in range(len(self.maze[0])):
-            el_list.append({(0, col)})
 
         for row in range(len(self.maze)):
 
             # per ogni set prendere un elemento random e collegarloaquellosotto
             # trattare la bottom line come edge case
             # fare controlli su celle adiacenti se visited
-            for col in range(len(self.maze[row][col])):
-                if not self.maze[row][col].visited:
-                    if ((not col or not random.randint(0, 1)) and not
-                            any((row, col) in coords for coords in el_list)):
-                        continue
-                    else:
-                        pass
 
             for col in range(len(self.maze[row])):
                 if not self.maze[row][col].visited:
@@ -440,8 +431,34 @@ class Maze:
                         el_list[len(el_list) - 1].update({(row, col)})
                         self.maze[row][col - 1].open_wall(Direction.east)
                         self.maze[row][col].open_wall(Direction.west)
-                if self.animation:
-                    self.print_maze()
+
+            for s in el_list:
+                tup = random.choice(s)
+                if (tup[0] < self.height - 1):
+                    c = tup
+                    while (self.maze[c[0] + 1][c[1]].visited == 42 and not
+                            self.maze[c[0]][c[1] - 1].visited == 42):
+                        self.maze[c[0]][c[1]].open_wall(Direction.west)
+                        self.maze[c[0]][c[1] - 1].open_wall(Direction.east)
+                        s.update({(c[0], c[1] - 1)})
+                        c = (c[0], c[1] - 1)
+
+                    if (c != tup and self.maze[c[0]][c[1] - 1].visited == 42
+                            and self.maze[c[0] + 1][c[1]].visited == 42):
+                        c = tup
+
+                        while (self.maze[c[0] + 1][c[1]].visited == 42 and not
+                                self.maze[c[0]][c[1] + 1].visited == 42):
+                            self.maze[c[0]][c[1]].open_wall(Direction.east)
+                            self.maze[c[0]][c[1] + 1].open_wall(Direction.west)
+                            s.update({(c[0], c[1] + 1)})
+                            c = (c[0], c[1] - 1)
+
+                elif (tup[0] < self.height - 1
+                        or not self.maze[tup[0] + 1][tup[1]].visited == 42):
+                    self.maze[tup[0]][tup[1]].open_wall(Direction.south)
+                    self.maze[tup[0] + 1][tup[1]].open_wall(Direction.north)
+                    s.update({(tup[0], tup[1])})
 
             for col in range(len(self.maze[row])):
                 if not self.maze[row][col].visited:
@@ -453,8 +470,6 @@ class Maze:
                                     Direction.north
                                     )
                                 self.maze[row][col].open_wall(Direction.south)
-                if self.animation:
-                    self.print_maze()
 
     def aldous_broder(self, col: int, row: int) -> None:
         """Aldous-Broder algorithm for maze generation."""
