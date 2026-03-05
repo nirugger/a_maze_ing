@@ -27,6 +27,7 @@ class Cell:
         self.is_solved = False
         self.visited = 0
         self.steps = 0
+        self.target = False
 
     def is_closed(self, direction: Direction) -> int:
         """Check if a specific wall is closed.

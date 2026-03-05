@@ -46,7 +46,8 @@ class Menu:
                                 str(cls.maze.exit[1]) + "\n")
                         f.write(str(cls.maze.path) + "\n")
             else:
-                print("[ERROR] MAZE NOT INITIALIZED")
+                print("[ERROR] "
+                      "MAZE OBJ NOT INITIALIZED")
         except Exception as e:
             print(str(e))
 
@@ -57,7 +58,7 @@ class Menu:
             cls.maze.init_maze()
             cls.maze.create_maze()
             cls.maze.print_maze()
-            if not cls.maze.perfect:
+            if not cls.maze.perfect and cls.maze.algo != 'nirugger':
                 cls.maze.make_it_wrong()
             cls.maze.never_been_there()
             cls.maze.breadth_first_search_solver()
@@ -66,7 +67,8 @@ class Menu:
             if cls.maze.error_message:
                 print(cls.maze.error_message)
         else:
-            print("[ERROR] MAZE OBJ NOT INITIALIZED")
+            print("[ERROR] "
+                  "MAZE OBJ NOT INITIALIZED")
             exit(1)
 
     @classmethod
@@ -171,6 +173,7 @@ class Menu:
     def main_menu(cls) -> None:
         """Display the main menu and waits for user input."""
         msg = "\n"
+
         while True:
             if cls.first:
                 clear_screen()
@@ -180,6 +183,7 @@ class Menu:
                     cls.maze.print_maze()
                     print(cls.maze.error_message)
                     cls.display_maze_menu()
+
             print(msg)
             quest = "" if cls.first else "Re-"
             choice = input(f"{quest}Choose your path: ").strip().lower()
@@ -388,7 +392,7 @@ class Menu:
                             mod_config = copy.deepcopy(cls.config)
                             msg = "Configuration set to 'DEFAULT'\n"
                         else:
-                            msg = "[ERROR] CONFIGURATION FILE NOT FOUND"
+                            msg = "[ERROR] CONFIGURATION FILE not found"
                             exit(1)
 
                     case "q":
@@ -446,7 +450,8 @@ class Menu:
         print("    ║  2: PRIM                                 ║    ")
         print("    ║  3: KRUSKAL                              ║    ")
         print("    ║  4: ELLER                                ║    ")
-        print("    ║  5: BINARY TREE                          ║    ")
+        print("    ║  5: ALDOUS-BRODER                        ║    ")
+        print("    ║  6: BINARY TREE                          ║    ")
         print("    ║  9: NIRUGGER                             ║    ")
         print("    ║                                          ║    ")
         print("    ║  q: back to configuration menu           ║    ")
@@ -489,6 +494,11 @@ class Menu:
                         msg = "You choose 'ELLER'. IT WON'T WORK!!.\n"
 
                     case "5":
+                        MazeConfig.ALGORITHM = 'aldous_broder'
+                        cls.maze.algo = 'aldous_broder'
+                        msg = "You choose 'ALDOUS-BRODER'. Prepare to wait.\n"
+
+                    case "6":
                         MazeConfig.ALGORITHM = 'binary_tree'
                         cls.maze.algo = 'binary_tree'
                         msg = "You choose 'BINARY TREE'. Not that amazing.\n"
@@ -700,12 +710,12 @@ class Menu:
         print()
         print()
         print("╔══════════════════════════════════════════╗")
-        print("║  1: WALL               syntax: R;G;B     ║")
-        print("║  2: PATH               each value        ║")
-        print("║  3: FORTYTWO           has to be between ║")
-        print("║  4: ENTRY POINT        0 and 255         ║")
-        print("║  5: EXIT POINT                           ║")
-        print("║  6: SOLUTION                             ║")
+        print("║  1: WALL                                 ║")
+        print("║  2: PATH          [VALID SYNTAX]: R;G;B  ║")
+        print("║  3: FORTYTWO                             ║")
+        print("║  4: ENTRY POINT           0 <= R <= 255  ║")
+        print("║  5: EXIT POINT            0 <= G <= 255  ║")
+        print("║  6: SOLUTION              0 <= B <= 255  ║")
         print("║                                          ║")
         print("║  0: RESET                                ║")
         print("║  q: Back to Color Menu                   ║")
@@ -760,7 +770,8 @@ class Menu:
                         try:
                             cls.validate_color(path)
                             color_str = f"\033[48;2;{path}m  \033[0m"
-                            cls.maze.theme['path'] = color_str
+                            modified['path'] = color_str
+                            cls.maze.theme = modified
                             msg = "PATH color set'\n"
                         except Exception as e:
                             msg = str(e) + "\n"
@@ -770,9 +781,11 @@ class Menu:
                         try:
                             cls.validate_color(ft)
                             color_str = f"\033[48;2;{ft}m  \033[0m"
-                            cls.maze.theme['ft'] = color_str
-                            cls.maze.theme['ft_wall'] = color_str
+                            modified['ft'] = color_str
+                            modified['ft_wall'] = color_str
+                            cls.maze.theme = modified
                             msg = "FORTYTWO color set'\n"
+
                         except Exception as e:
                             msg = str(e) + "\n"
 
@@ -781,7 +794,8 @@ class Menu:
                         try:
                             cls.validate_color(entry)
                             color_str = f"\033[48;2;{entry}m  \033[0m"
-                            cls.maze.theme['entry'] = color_str
+                            modified['entry'] = color_str
+                            cls.maze.theme = modified
                             msg = "ENTRY color set'\n"
                         except Exception as e:
                             msg = str(e) + "\n"
@@ -791,7 +805,8 @@ class Menu:
                         try:
                             cls.validate_color(exit)
                             color_str = f"\033[48;2;{exit}m  \033[0m"
-                            cls.maze.theme['exit'] = color_str
+                            modified['exit'] = color_str
+                            cls.maze.theme = modified
                             msg = "EXIT color set'\n"
                         except Exception as e:
                             msg = str(e) + "\n"
@@ -801,7 +816,8 @@ class Menu:
                         try:
                             cls.validate_color(solution)
                             color_str = f"\033[48;2;{solution}m  \033[0m"
-                            cls.maze.theme['solved'] = color_str
+                            modified['solved'] = color_str
+                            cls.maze.theme = modified
                             msg = "SOLUTION color set'\n"
                         except Exception as e:
                             msg = str(e) + "\n"

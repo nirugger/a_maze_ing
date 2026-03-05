@@ -91,19 +91,23 @@ class Maze:
 
         if self.two_forty:
             if self.width < 9 or self.height < 7:
-                self.error_message = "Maze too small to contain '42'"
+                self.error_message = str("[SORRY]: "
+                                         "maze too small to contain '42'")
             else:
                 self.error_message = ""
                 self.forty_two()
 
                 if self.maze[self.entry[1]][self.entry[0]].visited == 42:
-                    raise ValueError("[ERR] ENTRY inside the 42!\n")
+                    raise ValueError("[ERROR]: "
+                                     "ENTRY inside the 42!\n")
 
                 if self.maze[self.exit[1]][self.exit[0]].visited == 42:
-                    raise ValueError("[ERR] EXIT inside the 42!\n")
+                    raise ValueError("[ERROR]: "
+                                     "EXIT inside the 42!\n")
 
                 if self.maze[self.start[1]][self.start[0]].visited == 42:
-                    raise ValueError("[ERR] STARTING POINT inside the 42!\n")
+                    raise ValueError("[ERROR]: "
+                                     "STARTING POINT inside the 42!\n")
 
         return maze
 
@@ -162,6 +166,9 @@ class Maze:
 
             case "binary_tree":
                 self.binary_tree()
+
+            case "aldous_broder":
+                self.aldous_broder(self.start[1], self.start[0])
 
             case "nirugger":
                 self.nirugger()
@@ -449,42 +456,128 @@ class Maze:
                 if self.animation:
                     self.print_maze()
 
-    def binary_tree(self) -> None:
-        """Binary Tree algorithm for maze generation."""
+    def aldous_broder(self, col: int, row: int) -> None:
+        """Aldous-Broder algorithm for maze generation."""
         directions = [
+            Direction.north,
             Direction.east,
-            Direction.south
+            Direction.south,
+            Direction.west
             ]
 
+        counter = 0
+        total_cells = 0
+
+        for r in self.maze:
+            for cell in r:
+                if cell.visited != 42:
+                    total_cells += 1
+
+        while counter < total_cells:
+            if self.maze[row][col].visited == 0:
+                self.maze[row][col].visited = 1
+                counter += 1
+            self.maze[row][col].target = True
+
+            if self.animation:
+                self.print_maze()
+
+            choice = random.choice(directions)
+            match choice:
+                case Direction.north:
+                    if (row == 0
+                            or self.maze[row - 1][col].visited == 42):
+                        continue
+
+                    if not self.maze[row - 1][col].visited:
+                        self.maze[row][col].open_wall(Direction.north)
+                        self.maze[row - 1][col].open_wall(Direction.south)
+
+                    self.maze[row][col].target = False
+                    row = row - 1
+
+                case Direction.south:
+                    if (row == self.height - 1
+                            or self.maze[row + 1][col].visited == 42):
+                        continue
+
+                    if not self.maze[row + 1][col].visited:
+                        self.maze[row][col].open_wall(Direction.south)
+                        self.maze[row + 1][col].open_wall(Direction.north)
+
+                    self.maze[row][col].target = False
+                    row = row + 1
+
+                case Direction.east:
+                    if (col == self.width - 1
+                            or self.maze[row][col + 1].visited == 42):
+                        continue
+
+                    if not self.maze[row][col + 1].visited:
+                        self.maze[row][col].open_wall(Direction.east)
+                        self.maze[row][col + 1].open_wall(Direction.west)
+
+                    self.maze[row][col].target = False
+                    col = col + 1
+
+                case Direction.west:
+                    if (col == 0
+                            or self.maze[row][col - 1].visited == 42):
+                        continue
+
+                    if not self.maze[row][col - 1].visited:
+                        self.maze[row][col].open_wall(Direction.west)
+                        self.maze[row][col - 1].open_wall(Direction.east)
+
+                    self.maze[row][col].target = False
+                    col = col - 1
+
+    def binary_tree(self) -> None:
+        """Binary Tree algorithm for maze generation."""
         i: int = 0
         j: int = 0
         for j in range(len(self.maze)):
             for i in range(len(self.maze[j])):
-
                 if (i == self.height - 1 and j == self.width - 1):
                     break
+
                 if i == self.height - 1:
-                    choice = Direction.east
+                    choice = 1
                 elif j == self.width - 1:
-                    choice = Direction.south
+                    choice = 0
+
                 elif (self.maze[i][j].visited == 42 or
                         (self.maze[i + 1][j].visited == 42 and
                          self.maze[i][j + 1].visited == 42)):
                     continue
+
+                elif (self.maze[i + 1][j + 1].visited == 42 and
+                      self.maze[i - 1][j + 1].visited == 42 and
+                      self.maze[i + 1][j - 1].visited == 42 and
+                      self.maze[i - 1][j - 1].visited != 42):
+                    choice = 2
+
                 elif self.maze[i][j + 1].visited == 42:
-                    choice = Direction.south
+                    choice = 0
                 elif self.maze[i + 1][j].visited == 42:
-                    choice = Direction.east
+                    choice = 1
                 else:
-                    choice = random.choice(directions)
+                    choice = random.randint(0, 1)
 
                 match choice:
-                    case Direction.east:
-                        self.maze[i][j].open_wall(choice)
+                    case 1:
+                        self.maze[i][j].open_wall(Direction.east)
                         self.maze[i][j + 1].open_wall(Direction.west)
-                    case Direction.south:
-                        self.maze[i][j].open_wall(choice)
+
+                    case 0:
+                        self.maze[i][j].open_wall(Direction.south)
                         self.maze[i + 1][j].open_wall(Direction.north)
+
+                    case 2:
+                        self.maze[i][j].open_wall(Direction.south)
+                        self.maze[i][j].open_wall(Direction.east)
+                        self.maze[i + 1][j].open_wall(Direction.north)
+                        self.maze[i][j + 1].open_wall(Direction.west)
 
             if self.animation:
                 self.print_maze()
@@ -1043,6 +1136,9 @@ class Maze:
 
                 elif self.maze[row][col].is_exit:
                     line_str += self.theme['exit']
+
+                elif self.maze[row][col].target:
+                    line_str += self.theme['ft']
 
                 elif self.maze[row][col].is_solved:
                     if self.solution:

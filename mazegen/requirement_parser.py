@@ -28,11 +28,17 @@ class MazeConfig(BaseModel):
         """Parse and validate coordinates types/format."""
         if isinstance(v, str):
             parts = v.split(',')
+
             if len(parts) != 2:
-                raise ValueError("Coordinates must be in 'x,y' format")
+                raise ValueError("[ERROR]: "
+                                 "COORDINATES must be in 'X,Y' format")
+
             x, y = int(parts[0].strip()), int(parts[1].strip())
             if x < 0 or y < 0:
-                raise ValueError("Coordinates must be greater than zero")
+                raise ValueError("[ERROR]: "
+                                 "COORDINATES must be greater than "
+                                 "or equal to ZERO (X,Y >= 0)")
+
             return x, y
         return v
 
@@ -46,7 +52,8 @@ class MazeConfig(BaseModel):
                                   ('START', self.START)]:
             x, y = point
             if x >= self.WIDTH or y >= self.HEIGHT:
-                raise ValueError(f"{point_name} {point} "
+                raise ValueError("[ERROR]: "
+                                 f"{point_name} {point} "
                                  "must be inside grid dimensions "
                                  f"({self.WIDTH - 1} x {self.HEIGHT - 1})")
         return self
@@ -55,8 +62,9 @@ class MazeConfig(BaseModel):
     def check_coordinates_overlap(self) -> 'MazeConfig':
         """Check if EntryPoint is the same as ExitPoint."""
         if self.ENTRY == self.EXIT:
-            raise ValueError(f"ENTRY POINT {self.ENTRY} must be different "
-                             f"from EXIT POINT {self.EXIT}")
+            raise ValueError("[ERROR]: "
+                             f"ENTRY POINT {self.ENTRY} must be"
+                             f"different from EXIT POINT {self.EXIT}")
         return self
 
     @field_validator('PERFECT', mode='before')
@@ -94,28 +102,66 @@ class Parser(ABC):
     @staticmethod
     def config_validator(config: dict[str, str]) -> MazeConfig:
         """Validate configuration."""
-        mandatory_keys = [
-            'WIDTH',
-            'HEIGHT',
-            'ENTRY',
-            'EXIT',
-            'OUTPUT_FILE',
-            'PERFECT'
-            ]
+        mandatory_keys = ['WIDTH',
+                          'HEIGHT',
+                          'ENTRY',
+                          'EXIT',
+                          'OUTPUT_FILE',
+                          'PERFECT']
 
         val_config: dict[str, Any] = {}
         if (not all(key in config.keys() for key in mandatory_keys)):
-            raise KeyError("one or more mandatory keys missing")
+            raise KeyError("[ERROR]: "
+                           "one or more MANDATORY KEYS missing - RTFM!")
+
         entry_point = config['ENTRY'].split(',')
         exit_point = config['EXIT'].split(',')
-        val_config['WIDTH'] = int(config['WIDTH'])
-        val_config['HEIGHT'] = int(config['HEIGHT'])
-        val_config['ENTRY'] = (int(entry_point[0]), int(entry_point[1]))
-        val_config['EXIT'] = (int(exit_point[0]), int(exit_point[1]))
+        starting_point = config['START'].split(',')
+
+        try:
+            val_config['WIDTH'] = int(config['WIDTH'])
+        except Exception:
+            raise ValueError("[ERROR]: "
+                             "invalid WIDTH - RTFM!")
+
+        try:
+            val_config['HEIGHT'] = int(config['HEIGHT'])
+        except Exception:
+            raise ValueError("[ERROR]: "
+                             "invalid HEIGHT - RTFM!")
+
+        try:
+            val_config['ENTRY'] = (int(entry_point[0]),
+                                   int(entry_point[1]))
+        except Exception:
+            raise ValueError("[ERROR]: "
+                             "invalid ENTRY POINT - RTFM!")
+
+        try:
+            val_config['EXIT'] = (int(exit_point[0]),
+                                  int(exit_point[1]))
+        except Exception:
+            raise ValueError("[ERROR]: "
+                             "invalid EXIT POINT - RTFM!")
+
+        try:
+            val_config['START'] = (int(starting_point[0]),
+                                   int(starting_point[1]))
+        except Exception:
+            raise ValueError("[ERROR]: "
+                             "invalid START POINT - RTFM!")
+
+        if config['OUTPUT_FILE'][-4:] != ".txt":
+            raise ValueError("[ERROR]: "
+                             "invalid OUTPUT FILE format - RTFM!")
         val_config['OUTPUT_FILE'] = config['OUTPUT_FILE']
+
         val_config['PERFECT'] = True \
             if config['PERFECT'].strip().lower() == 'true' else False
-        val_config['ALGORITHM'] = config['ALGORITHM']
+
+        val_config['ALGORITHM'] = config['ALGORITHM'] \
+            if config['ALGORITHM'] else 'backtrack'
+
         val_config['SEED'] = config['SEED']
 
         try:
