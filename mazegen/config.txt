@@ -6,7 +6,7 @@ OUTPUT_FILE=maze.txt
 PERFECT=true
 
 START=7
-ALGORITHM=backtrack
+ALGORITHM=binary_tree
 SEED=
 
 

@@ -160,6 +160,9 @@ class Maze:
             case "eller":
                 self.eller()
 
+            case "binary_tree":
+                self.binary_tree()
+
             case "nirugger":
                 self.nirugger()
 
@@ -445,6 +448,46 @@ class Maze:
                                 self.maze[row][col].open_wall(Direction.south)
                 if self.animation:
                     self.print_maze()
+
+    def binary_tree(self) -> None:
+        """Binary Tree algorithm for maze generation."""
+        directions = [
+            Direction.east,
+            Direction.south
+            ]
+
+        i: int = 0
+        j: int = 0
+        for j in range(len(self.maze)):
+            for i in range(len(self.maze[j])):
+
+                if (i == self.height - 1 and j == self.width - 1):
+                    break
+                if i == self.height - 1:
+                    choice = Direction.east
+                elif j == self.width - 1:
+                    choice = Direction.south
+                elif (self.maze[i][j].visited == 42 or
+                        (self.maze[i + 1][j].visited == 42 and
+                         self.maze[i][j + 1].visited == 42)):
+                    continue
+                elif self.maze[i][j + 1].visited == 42:
+                    choice = Direction.south
+                elif self.maze[i + 1][j].visited == 42:
+                    choice = Direction.east
+                else:
+                    choice = random.choice(directions)
+
+                match choice:
+                    case Direction.east:
+                        self.maze[i][j].open_wall(choice)
+                        self.maze[i][j + 1].open_wall(Direction.west)
+                    case Direction.south:
+                        self.maze[i][j].open_wall(choice)
+                        self.maze[i + 1][j].open_wall(Direction.north)
+
+            if self.animation:
+                self.print_maze()
 
     def nirugger(self) -> None:
         """nirugger algorithm for maze generation."""

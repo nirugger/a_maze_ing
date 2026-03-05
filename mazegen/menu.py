@@ -445,8 +445,9 @@ class Menu:
         print("    ║  1: BACKTRACK                            ║    ")
         print("    ║  2: PRIM                                 ║    ")
         print("    ║  3: KRUSKAL                              ║    ")
-        print("    ║  4: NIRUGGER                             ║    ")
-        print("    ║  5: ELLER                                ║    ")
+        print("    ║  4: ELLER                                ║    ")
+        print("    ║  5: BINARY TREE                          ║    ")
+        print("    ║  9: NIRUGGER                             ║    ")
         print("    ║                                          ║    ")
         print("    ║  q: back to configuration menu           ║    ")
         print("    ╚══════════════════════════════════════════╝    ")
@@ -483,14 +484,19 @@ class Menu:
                         msg = "You choose 'KRUSKAL'. Slow but steady.\n"
 
                     case "4":
-                        MazeConfig.ALGORITHM = 'nirugger'
-                        cls.maze.algo = 'nirugger'
-                        msg = "You choose 'NIRUGGER'. I'm flattered!.\n"
-
-                    case "5":
                         MazeConfig.ALGORITHM = 'eller'
                         cls.maze.algo = 'eller'
                         msg = "You choose 'ELLER'. IT WON'T WORK!!.\n"
+
+                    case "5":
+                        MazeConfig.ALGORITHM = 'binary_tree'
+                        cls.maze.algo = 'binary_tree'
+                        msg = "You choose 'BINARY TREE'. Not that amazing.\n"
+
+                    case "9":
+                        MazeConfig.ALGORITHM = 'nirugger'
+                        cls.maze.algo = 'nirugger'
+                        msg = "You choose 'NIRUGGER'. I'm flattered!.\n"
 
                     case "q":
                         return
