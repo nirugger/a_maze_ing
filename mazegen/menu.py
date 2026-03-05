@@ -231,7 +231,7 @@ class Menu:
                             msg = "\n"
 
                 case _:
-                    msg = "error: invalid input\n"
+                    msg = "\n"
 
     @staticmethod
     def closure() -> None:
@@ -290,7 +290,7 @@ class Menu:
                 "HEIGHT": cls.maze.height,
                 "ENTRY": cls.maze.entry,
                 "EXIT": cls.maze.exit,
-                "START": cls.maze.start,
+                "START": cls.maze.entry,
                 "PERFECT": cls.maze.perfect,
                 "ALGORITHM": cls.maze.algo,
                 "OUTPUT_FILE": cls.maze.output
@@ -363,7 +363,7 @@ class Menu:
                                 mod_config['PERFECT'] = "false"
                                 msg = "PERFECT set to 'FALSE'\n"
                             case _:
-                                msg = "error: invalid input\n"
+                                msg = "\n"
 
                     case "7":
                         cls.algorithm_menu()
@@ -432,10 +432,10 @@ class Menu:
 
                     case "42":
                         cls.maze.two_forty = not cls.maze.two_forty
-                        msg = "error: invalid input\n"
+                        msg = "\n"
 
                     case _:
-                        msg = "error: invalid input\n"
+                        msg = "\n"
 
     @staticmethod
     def display_algorithm_menu() -> None:
@@ -496,7 +496,7 @@ class Menu:
                         return
 
                     case _:
-                        msg = "error: invalid input\n"
+                        msg = "\n"
 
     @staticmethod
     def display_color_menu() -> None:
@@ -536,9 +536,9 @@ class Menu:
                     f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
                 "ft_wall":
                     f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
-                "start":
+                "entry":
                     f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
-                "end":
+                "exit":
                     f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
                 "solved":
                     f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m"
@@ -569,8 +569,8 @@ class Menu:
                         msg = "THEME set to 'DESERT'\n"
 
                     case "5":
-                        cls.maze.theme = THEMES['artic']
-                        msg = "THEME set to 'ARTIC'\n"
+                        cls.maze.theme = THEMES['arctic']
+                        msg = "THEME set to 'ARCTIC'\n"
 
                     case "6":
                         cls.maze.theme = THEMES['volcanic']
@@ -592,14 +592,6 @@ class Menu:
                         cls.maze.theme = random
                         msg = "THEME set to 'R4ND0M' (warning!)\n"
 
-                    case "m":
-                        cls.maze.theme = THEMES['mauritius']
-                        msg = "THEME set to 'MAURITIUS'\n"
-
-                    case "b":
-                        cls.maze.theme = THEMES['baugigi']
-                        msg = "THEME set to 'BAUGIGI'\n"
-
                     case "+":
                         cls.more_color_menu()
                         return
@@ -609,7 +601,7 @@ class Menu:
                         return
 
                     case _:
-                        msg = "error: invalid input\n"
+                        msg = "\n"
 
     @staticmethod
     def display_more_color_menu() -> None:
@@ -640,22 +632,6 @@ class Menu:
         msg = ''
         while True:
 
-            random = {
-                "wall":
-                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
-                "path":
-                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
-                "ft":
-                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
-                "ft_wall":
-                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
-                "start":
-                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
-                "end":
-                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m",
-                "solved":
-                    f"\033[48;2;{r(0, 255)};{r(0, 255)};{r(0, 255)}m  \033[0m"
-            }
             if cls.maze:
 
                 clear_screen()
@@ -697,8 +673,8 @@ class Menu:
                         msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
 
                     case "0":
-                        cls.maze.theme = random
-                        msg = "THEME set to 'R4ND0M' (warning!)\n"
+                        cls.personalized_color_menu()
+                        msg = "\n"
 
                     case "-":
                         cls.color_menu()
@@ -709,4 +685,127 @@ class Menu:
                         return
 
                     case _:
-                        msg = "error: invalid input\n"
+                        msg = "\n"
+
+    @staticmethod
+    def display_personalized_color_menu() -> None:
+        """Display of the personalized color menu."""
+        print()
+        print()
+        print()
+        print("╔══════════════════════════════════════════╗")
+        print("║  1: WALL               syntax: R;G;B     ║")
+        print("║  2: PATH               each value        ║")
+        print("║  3: FORTYTWO           has to be between ║")
+        print("║  4: ENTRY POINT        0 and 255         ║")
+        print("║  5: EXIT POINT                           ║")
+        print("║  6: SOLUTION                             ║")
+        print("║                                          ║")
+        print("║  0: RESET                                ║")
+        print("║  q: Back to Color Menu                   ║")
+        print("╚══════════════════════════════════════════╝")
+        print()
+
+    @staticmethod
+    def validate_color(color: str) -> None:
+        """Validate the color
+
+        Args:
+            color: the color to validate
+        """
+        parts = color.split(';')
+        if len(parts) != 3 or color[len(color) - 1] == ';':
+            raise ValueError("INVALID SYNTAX")
+        for part in parts:
+            value = int(part)
+            if not 0 <= value <= 255:
+                raise ValueError("COLOR VALUE must be between 0 and 255")
+
+    @classmethod
+    def personalized_color_menu(cls) -> None:
+        """Display the personalized color menu and wait for user input."""
+        msg = ''
+        default = cls.maze.theme
+        modified = copy.deepcopy(cls.maze.theme)
+        while True:
+
+            if cls.maze:
+
+                clear_screen()
+                cls.maze.print_maze()
+                cls.display_personalized_color_menu()
+                print(msg)
+                choice = input("choose the element you want to color: ")
+                match choice:
+
+                    case "1":
+                        wall = input("set WALL color: ")
+                        try:
+                            cls.validate_color(wall)
+                            color_str = f"\033[48;2;{wall}m  \033[0m"
+                            modified['wall'] = color_str
+                            cls.maze.theme = modified
+                            msg = "WALL color set'\n"
+                        except Exception as e:
+                            msg = str(e) + "\n"
+
+                    case "2":
+                        path = input("set PATH color: ")
+                        try:
+                            cls.validate_color(path)
+                            color_str = f"\033[48;2;{path}m  \033[0m"
+                            cls.maze.theme['path'] = color_str
+                            msg = "PATH color set'\n"
+                        except Exception as e:
+                            msg = str(e) + "\n"
+
+                    case "3":
+                        ft = input("set FORTYTWO color: ")
+                        try:
+                            cls.validate_color(ft)
+                            color_str = f"\033[48;2;{ft}m  \033[0m"
+                            cls.maze.theme['ft'] = color_str
+                            cls.maze.theme['ft_wall'] = color_str
+                            msg = "FORTYTWO color set'\n"
+                        except Exception as e:
+                            msg = str(e) + "\n"
+
+                    case "4":
+                        entry = input("set ENTRY color: ")
+                        try:
+                            cls.validate_color(entry)
+                            color_str = f"\033[48;2;{entry}m  \033[0m"
+                            cls.maze.theme['entry'] = color_str
+                            msg = "ENTRY color set'\n"
+                        except Exception as e:
+                            msg = str(e) + "\n"
+
+                    case "5":
+                        exit = input("set EXIT color: ")
+                        try:
+                            cls.validate_color(exit)
+                            color_str = f"\033[48;2;{exit}m  \033[0m"
+                            cls.maze.theme['exit'] = color_str
+                            msg = "EXIT color set'\n"
+                        except Exception as e:
+                            msg = str(e) + "\n"
+
+                    case "6":
+                        solution = input("set SOLUTION color: ")
+                        try:
+                            cls.validate_color(solution)
+                            color_str = f"\033[48;2;{solution}m  \033[0m"
+                            cls.maze.theme['solved'] = color_str
+                            msg = "SOLUTION color set'\n"
+                        except Exception as e:
+                            msg = str(e) + "\n"
+
+                    case "0":
+                        cls.maze.theme = default
+                        msg = "CHANGES UNDONE\n"
+
+                    case "q":
+                        return
+
+                    case _:
+                        msg = "\n"

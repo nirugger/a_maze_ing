@@ -21,20 +21,20 @@ class MazeConfig(BaseModel):
     ALGORITHM: Optional[str] = None
     SEED: Optional[str] = None
 
-    # @field_validator('ENTRY', 'EXIT', 'START', mode='before')
-    # @classmethod
-    # def parse_coordinates(cls,
-    #                       v: Union[str, tuple[int, int]]) -> Tuple[int, int]:
-    #     """Parse and validate coordinates types/format."""
-    #     if isinstance(v, str):
-    #         parts = v.split(',')
-    #         if len(parts) != 2:
-    #             raise ValueError("Coordinates must be in 'x,y' format")
-    #         x, y = int(parts[0].strip()), int(parts[1].strip())
-    #         if x < 0 or y < 0:
-    #             raise ValueError("Coordinates must be greater than zero")
-    #         return x, y
-    #     return v
+    @field_validator('ENTRY', 'EXIT', 'START', mode='before')
+    @classmethod
+    def parse_coordinates(cls,
+                          v: Union[str, tuple[int, int]]) -> Tuple[int, int]:
+        """Parse and validate coordinates types/format."""
+        if isinstance(v, str):
+            parts = v.split(',')
+            if len(parts) != 2:
+                raise ValueError("Coordinates must be in 'x,y' format")
+            x, y = int(parts[0].strip()), int(parts[1].strip())
+            if x < 0 or y < 0:
+                raise ValueError("Coordinates must be greater than zero")
+            return x, y
+        return v
 
     @model_validator(mode='after')
     def check_coordinates_in_bounds(self) -> 'MazeConfig':

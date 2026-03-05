@@ -395,12 +395,24 @@ class Maze:
 
     def eller(self) -> None:
         """Eller algorithm for maze generation."""
+        self.start = (0, 0)
         el_list: list[set[tuple[int, int]]] = []
+        for col in range(len(self.maze[0])):
+            el_list.append({(0, col)})
+
         for row in range(len(self.maze)):
 
             # per ogni set prendere un elemento random e collegarlo con quello sotto
             # trattare la bottom line come edge case
             # fare controlli su celle adiacenti se visited
+            for col in range(len(self.maze[row][col])):
+                if not self.maze[row][col].visited:
+                    if ((not col or not random.randint(0, 1)) and not
+                            any((row, col) in coords for coords in el_list)):
+                        continue
+                    else:
+                        pass
+
 
             for col in range(len(self.maze[row])):
                 if not self.maze[row][col].visited:
@@ -408,7 +420,6 @@ class Maze:
                             any((row, col) in coords for coords in el_list)):
                         el_list.append({(row, col)})
                     else:
-                        print(len(el_list))
                         el_list[len(el_list) - 1].update({(row, col)})
                         self.maze[row][col - 1].open_wall(Direction.east)
                         self.maze[row][col].open_wall(Direction.west)
@@ -480,7 +491,7 @@ class Maze:
             Direction.north,
             Direction.east,
             Direction.south,
-            Direction.west
+            Direction.west14,14
             ]
 
         open_walls = 0
@@ -900,10 +911,10 @@ class Maze:
             for col in range(len(self.maze[row])):
 
                 if self.maze[row][col].is_entry:
-                    line_str += self.theme['start']
+                    line_str += self.theme['entry']
 
                 elif self.maze[row][col].is_exit:
-                    line_str += self.theme['end']
+                    line_str += self.theme['exit']
 
                 elif self.maze[row][col].is_solved:
                     if self.solution:
