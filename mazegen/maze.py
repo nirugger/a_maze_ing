@@ -599,8 +599,8 @@ class Maze:
                         self.maze[i + 1][j].open_wall(Direction.north)
                         self.maze[i][j + 1].open_wall(Direction.west)
 
-            if self.animation:
-                self.print_maze()
+                if self.animation:
+                    self.print_maze()
 
     def hak_helper(self, row: int, col: int) -> int:
         """check if all neighbooring cells are visited
@@ -1322,7 +1322,7 @@ class Maze:
                     bottom_str += self.theme['wall']
 
             print(bottom_str)
-        time.sleep(0.02)
+        time.sleep(0.042)
 
     def __str__(self) -> str:
         """Readable representation of the maze.
