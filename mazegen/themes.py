@@ -75,8 +75,8 @@ THEMES: dict[str, dict[str, str]] = {
     "space": {
         "wall":    "\033[48;2;20;10;60m  \033[0m",       # deep space purple
         "path":    "\033[48;2;5;5;20m  \033[0m",         # void black
-        "ft":      "\033[48;2;111;111;111m  \033[0m",    # dark nebula
-        "ft_wall": "\033[48;2;111;111;111m  \033[0m",    # dark nebula
+        "ft":      "\033[48;2;100;110;120m  \033[0m",    # hull steel
+        "ft_wall": "\033[48;2;100;110;120m  \033[0m",    # hull steel
         "entry":   "\033[48;2;100;220;255m  \033[0m",    # pulsar blue
         "exit":     "\033[48;2;255;100;200m  \033[0m",   # nebula pink
         "solved":  "\033[48;2;255;240;180m  \033[0m",    # starlight
@@ -92,7 +92,17 @@ THEMES: dict[str, dict[str, str]] = {
         "solved":  "\033[48;2;206;17;38m  \033[0m",      # palestine red
     },
 
-    "mauritius": {
+    "colorblind_friendly": {
+        "wall":    "\033[48;2;0;114;178m  \033[0m",      # blue (safe anchor)
+        "path":    "\033[48;2;20;20;20m  \033[0m",       # near-black
+        "ft":      "\033[48;2;0;58;115m  \033[0m",       # dark blue
+        "ft_wall": "\033[48;2;0;58;115m  \033[0m",       # dark blue
+        "entry":   "\033[48;2;230;159;0m  \033[0m",      # amber/orange
+        "exit":     "\033[48;2;86;180;233m  \033[0m",    # sky blue
+        "solved":  "\033[48;2;240;228;66m  \033[0m",     # yellow
+    },
+
+    "iride": {
         "wall":    "\033[48;2;230;166;55m  \033[0m",     # amber gold
         "path":    "\033[48;2;32;102;12m  \033[0m",      # jungle green
         "ft":      "\033[48;2;107;72;192m  \033[0m",     # lavander purple
@@ -112,14 +122,54 @@ THEMES: dict[str, dict[str, str]] = {
         "solved":  "\033[48;2;52;208;104m  \033[0m",     # mint green
     },
 
-    "colorblind_friendly": {
-        "wall":    "\033[48;2;0;114;178m  \033[0m",      # blue (safe anchor)
-        "path":    "\033[48;2;20;20;20m  \033[0m",       # near-black
-        "ft":      "\033[48;2;0;58;115m  \033[0m",       # dark blue
-        "ft_wall": "\033[48;2;0;58;115m  \033[0m",       # dark blue
-        "entry":   "\033[48;2;230;159;0m  \033[0m",      # amber/orange
-        "exit":     "\033[48;2;86;180;233m  \033[0m",    # sky blue
-        "solved":  "\033[48;2;240;228;66m  \033[0m",     # yellow
+    "nicolas": {
+        "wall":    "\033[48;2;200;100;100m  \033[0m",    # dusty rose
+        "path":    "\033[48;2;210;150;150m  \033[0m",    # pale pink
+        "ft":      "\033[48;2;200;100;100m  \033[0m",    # dusty rose
+        "ft_wall": "\033[48;2;200;100;100m  \033[0m",    # dusty rose
+        "entry":   "\033[48;2;150;70;70m  \033[0m",      # brick red
+        "exit":     "\033[48;2;130;70;70m  \033[0m",     # dark red
+        "solved":  "\033[48;2;255;255;255m  \033[0m",    # pure white
+    },
+
+    "efaristo": {
+        "wall":    "\033[48;2;156;202;31m  \033[0m",     # lime green
+        "path":    "\033[48;2;1;0;253m  \033[0m",        # electric blue
+        "ft":      "\033[48;2;201;255;255m  \033[0m",    # ice cyan
+        "ft_wall": "\033[48;2;201;255;255m  \033[0m",    # ice cyan
+        "entry":   "\033[48;2;255;150;150m  \033[0m",    # salmon pink
+        "exit":     "\033[48;2;0;0;0m  \033[0m",         # purple black
+        "solved":  "\033[48;2;253;253;100m  \033[0m",    # canary yellow
+    },
+
+    "firenze": {
+        "wall":    "\033[48;2;255;255;255m  \033[0m",    # pure white
+        "path":    "\033[48;2;120;0;120m  \033[0m",      # purple
+        "ft":      "\033[48;2;170;0;0m  \033[0m",        # dark red
+        "ft_wall": "\033[48;2;170;0;0m  \033[0m",        # dark red
+        "entry":   "\033[48;2;120;0;120m  \033[0m",      # purple
+        "exit":     "\033[48;2;120;0;120m  \033[0m",     # purple
+        "solved":  "\033[48;2;130;0;130m  \033[0m",      # kinda lighter purple
+    },
+
+    "life_palette": {
+        "wall":    "\033[48;2;82;55;87m  \033[0m",       # dark plum
+        "path":    "\033[48;2;27;5;2m  \033[0m",         # near-black burgundy
+        "ft":      "\033[48;2;2;20;21m  \033[0m",        # near-black teal
+        "ft_wall": "\033[48;2;2;20;21m  \033[0m",        # near-black teal
+        "entry":   "\033[48;2;11;69;3m  \033[0m",        # deep moss green
+        "exit":     "\033[48;2;17;6;10m  \033[0m",       # near-black maroon
+        "solved":  "\033[48;2;8;7;27m  \033[0m",         # near-black navy
+    },
+
+    "lixi": {
+        "wall":    "\033[48;2;90;208;205m  \033[0m",     # turquoise
+        "path":    "\033[48;2;133;33;83m  \033[0m",      # dark magenta
+        "ft":      "\033[48;2;33;33;33m  \033[0m",       # charcoal
+        "ft_wall": "\033[48;2;33;33;33m  \033[0m",       # charcoal
+        "entry":   "\033[48;2;69;84;169m  \033[0m",      # periwinkle blue
+        "exit":     "\033[48;2;14;70;25m  \033[0m",      # dark forest green
+        "solved":  "\033[48;2;20;23;34m  \033[0m",       # near-black navy
     },
 
     "colorblind_unfriendly": {

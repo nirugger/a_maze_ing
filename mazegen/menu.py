@@ -17,7 +17,7 @@ class Menu:
     model_config: Optional[MazeConfig] = None
     config: Optional[Dict[str, Any]] = None
     first: bool = True
-    menu_chars: str = "╦ ╩╔ ╗═╚ ╝║╠ ╣╬"
+    menu_chars: str = " ╦ ╩ ╔ ╗ ═ ╚ ╝ ║ ╠ ╣ ╬ "
 
     @classmethod
     def a_maze_init(cls, file: str) -> None:
@@ -312,7 +312,7 @@ class Menu:
                 cls.display_config_menu()
                 print(msg, end='')
 
-                choice = input("choose an option: ")
+                choice = input("Choose an option: ")
                 match choice:
 
                     case "1":
@@ -420,25 +420,46 @@ class Menu:
                             cls.maze.exit = mod_config['EXIT']
                             cls.maze.start = mod_config['START']
                             cls.maze.perfect = mod_config['PERFECT']
+
+                            coord = cls.maze.entry
+                            if cls.maze.maze[coord[1]][coord[0]].visited == 42:
+                                raise ValueError("[ERROR]: "
+                                                 "ENTRY inside the 42!\n")
+
+                            coord = cls.maze.exit
+                            if cls.maze.maze[coord[1]][coord[0]].visited == 42:
+                                raise ValueError("[ERROR]: "
+                                                 "EXIT inside the 42!\n")
+
+                            coord = cls.maze.start
+                            if cls.maze.maze[coord[1]][coord[0]].visited == 42:
+                                raise ValueError("[ERROR]: "
+                                                 "STARTING POINT inside the "
+                                                 "42!\n")
+
                             msg = "\n"
                             return
 
-                        except ValidationError as e:
+                        except (ValidationError, ValueError) as e:
 
                             while True:
-
                                 clear_screen()
                                 cls.display_error_menu()
                                 print("The following error(s) "
                                       "have been detected:\n")
-                                i = 1
-                                for err in e.errors():
-                                    print(f"{i}) {err['msg']}")
-                                    i += 1
-                                    print()
 
-                                choice = input("1: to reconfigure\n"
-                                               "2: to go back to menu\n")
+                                if type(e).__name__ == 'ValueError':
+                                    print(str(e))
+
+                                else:
+                                    i = 1
+                                    for err in e.errors():
+                                        print(f"{i}) {err['msg']}")
+                                        i += 1
+                                        print()
+
+                                choice = input("1: Reconfigure\n"
+                                               "2: Go back to menu\n")
                                 match choice:
                                     case "1":
                                         msg = "\n"
@@ -485,7 +506,7 @@ class Menu:
             cls.display_algorithm_menu()
             print(msg)
 
-            choice = input("choose an option: ")
+            choice = input("Choose an option: ")
             if cls.maze:
 
                 match choice:
@@ -594,7 +615,7 @@ class Menu:
                 cls.maze.print_maze()
                 cls.display_color_menu()
                 print(msg)
-                choice = input("choose your style: ")
+                choice = input("Choose your style: ")
                 match choice:
 
                     case "1":
@@ -629,13 +650,13 @@ class Menu:
         """Display of the more color menu."""
         print()
         print("╔════════════════════════════╦═════════════════════╗")
-        print("║  1: MAURITIUS (mpagano)    ║  a: OCEAN           ║")
+        print("║  1: IRIDE     (mpagano)    ║  a: OCEAN           ║")
         print("║  2: BAUGIGI   (alfiorav)   ║  b: FOREST          ║")
-        print("║  3: NICOLAS                ║  c: DESERT          ║")
+        print("║  3: NICOLAS   (ndavidso)   ║  c: DESERT          ║")
         print("║  4: EFARISTO  (mcicconi)   ║  d: ARCTIC          ║")
-        print("║  5: ANDREA                 ║  e: VOLCANIC        ║")
-        print("║  6:                        ║  f: CYBERPUNK       ║")
-        print("║  7:                        ║  g: SPACE           ║")
+        print("║  5: FIRENZE   (acentron)   ║  e: VOLCANIC        ║")
+        print("║  6: LIFE      (gbotti)     ║  f: CYBERPUNK       ║")
+        print("║  7: LIXI      (lmongili)   ║  g: SPACE           ║")
         print("║  8:                        ║  h: FREEDOM         ║")
         print("║  9:                        ║  i:                 ║")
         print("║  0:                        ║  j: COLORBLIND      ║")
@@ -658,31 +679,36 @@ class Menu:
                 cls.maze.print_maze()
                 cls.display_more_color_menu()
                 print(msg)
-                choice = input("choose your style: ")
+                choice = input("Choose your style: ")
                 match choice:
 
                     case "1":
-                        cls.maze.theme = THEMES['mauritius']
-                        msg = "THEME set to 'MAURITIUS'\n"
+                        cls.maze.theme = THEMES['iride']
+                        msg = "THEME set to 'IRIDE'\n"
 
                     case "2":
                         cls.maze.theme = THEMES['baugigi']
-                        msg = "THEME set to 'BAGIGI'\n"
+                        msg = "THEME set to 'BAUGIGI'\n"
 
                     case "3":
-                        pass
+                        cls.maze.theme = THEMES['baugigi']
+                        msg = "THEME set to 'BAUGIGI'\n"
 
                     case "4":
-                        pass
+                        cls.maze.theme = THEMES['efaristo']
+                        msg = "THEME set to 'EFARISTO'\n"
 
                     case "5":
-                        pass
+                        cls.maze.theme = THEMES['firenze']
+                        msg = "THEME set to 'FIRENZE'\n"
 
                     case "6":
-                        pass
+                        cls.maze.theme = THEMES['life_palette']
+                        msg = "THEME set to 'LIFE'\n"
 
                     case "7":
-                        pass
+                        cls.maze.theme = THEMES['lixi']
+                        msg = "THEME set to 'LIXI'\n"
 
                     case "8":
                         pass
@@ -795,7 +821,7 @@ class Menu:
                 match choice:
 
                     case "1":
-                        wall = input("set WALL color: ")
+                        wall = input("Set WALL color: ")
                         try:
                             cls.validate_color(wall)
                             color_str = f"\033[48;2;{wall}m  \033[0m"
@@ -806,7 +832,7 @@ class Menu:
                             msg = str(e) + "\n"
 
                     case "2":
-                        path = input("set PATH color: ")
+                        path = input("Set PATH color: ")
                         try:
                             cls.validate_color(path)
                             color_str = f"\033[48;2;{path}m  \033[0m"
@@ -817,7 +843,7 @@ class Menu:
                             msg = str(e) + "\n"
 
                     case "3":
-                        ft = input("set FORTYTWO color: ")
+                        ft = input("Set FORTYTWO color: ")
                         try:
                             cls.validate_color(ft)
                             color_str = f"\033[48;2;{ft}m  \033[0m"
@@ -830,7 +856,7 @@ class Menu:
                             msg = str(e) + "\n"
 
                     case "4":
-                        entry = input("set ENTRY color: ")
+                        entry = input("Set ENTRY color: ")
                         try:
                             cls.validate_color(entry)
                             color_str = f"\033[48;2;{entry}m  \033[0m"
@@ -841,7 +867,7 @@ class Menu:
                             msg = str(e) + "\n"
 
                     case "5":
-                        exit = input("set EXIT color: ")
+                        exit = input("Set EXIT color: ")
                         try:
                             cls.validate_color(exit)
                             color_str = f"\033[48;2;{exit}m  \033[0m"
@@ -852,7 +878,7 @@ class Menu:
                             msg = str(e) + "\n"
 
                     case "6":
-                        solution = input("set SOLUTION color: ")
+                        solution = input("Set SOLUTION color: ")
                         try:
                             cls.validate_color(solution)
                             color_str = f"\033[48;2;{solution}m  \033[0m"
