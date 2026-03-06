@@ -556,8 +556,8 @@ class Maze:
         """Binary Tree algorithm for maze generation."""
         i: int = 0
         j: int = 0
-        for j in range(len(self.maze)):
-            for i in range(len(self.maze[j])):
+        for j in range(self.width):
+            for i in range(self.height):
                 if (i == self.height - 1 and j == self.width - 1):
                     break
 
@@ -567,8 +567,8 @@ class Maze:
                     choice = 0
 
                 elif (self.maze[i][j].visited == 42 or
-                        (self.maze[i + 1][j].visited == 42 and
-                         self.maze[i][j + 1].visited == 42)):
+                        (self.maze[i + 1][j].visited == 42) and
+                         (self.maze[i][j + 1].visited == 42)):
                     continue
 
                 elif (self.maze[i + 1][j + 1].visited == 42 and
@@ -1322,7 +1322,7 @@ class Maze:
                     bottom_str += self.theme['wall']
 
             print(bottom_str)
-        time.sleep(0.042)
+        time.sleep(0.02)
 
     def __str__(self) -> str:
         """Readable representation of the maze.

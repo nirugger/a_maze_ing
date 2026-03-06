@@ -266,7 +266,7 @@ class Menu:
         print("    ║  3: ENTRY                                ║    ")
         print("    ║  4: EXIT                                 ║    ")
         print("    ║  5: STARTING POINT                       ║    ")
-        print("    ║  6: PERFECT                              ║    ")
+        print("    ║  6: PERFECT [ON/OFF]                     ║    ")
         print("    ║  7:                                      ║    ")
         print("    ║  8: SEED                                 ║    ")
         print("    ║  9: RESET                                ║    ")
@@ -381,16 +381,8 @@ class Menu:
                             msg = "[ERROR]: x, y have to be valid numbers.\n"
 
                     case "6":
-                        choice = input("Must thy maze be PERFECT? [y/n]: ")
-                        match choice:
-                            case "y":
-                                mod_config['PERFECT'] = "true"
-                                msg = "PERFECT set to 'TRUE'\n"
-                            case "n":
-                                mod_config['PERFECT'] = "false"
-                                msg = "PERFECT set to 'FALSE'\n"
-                            case _:
-                                msg = "\n"
+                        mod_config['PERFECT'] = not mod_config['PERFECT']
+                        msg = f"PERFECT set to '{mod_config['PERFECT']}'\n"
 
                     case "7":
                         msg = "\n"
@@ -406,7 +398,7 @@ class Menu:
                                    f"for next run will be: << {new} >>'\n")
                         else:
                             cls.maze.random = False
-                            msg = f"SEED set to << {new} >>'\n"
+                            msg = f"SEED set to << {new} >>\n"
                         cls.maze.seed = new
 
                     case "9":
