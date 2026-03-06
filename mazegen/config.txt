@@ -6,7 +6,7 @@ OUTPUT_FILE=maze.txt
 PERFECT=true
 
 START=7,7
-ALGORITHM=
+ALGORITHM=hunt_and_kill
 SEED=
 
 

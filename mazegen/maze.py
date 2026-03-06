@@ -173,6 +173,9 @@ class Maze:
             case "nirugger":
                 self.nirugger()
 
+            case "hunt_and_kill":
+                self.hunt_and_kill()
+
     def backtrack(self, col: int, row: int) -> None:
         """Backtrack algorithm for maze generation.
 
@@ -251,7 +254,7 @@ class Maze:
             self.print_maze()
 
         random.shuffle(directions)
-        self.maze[row][col].visited = True
+        self.maze[row][col].visited = 1
         for direction in directions:
             match direction:
 
@@ -263,7 +266,7 @@ class Maze:
                         self.maze[row - 1][col].open_wall(Direction.south)
                         frontier.append((col, row - 1))
 
-                        self.maze[row - 1][col].visited = True
+                        self.maze[row - 1][col].visited = 1
 
                         item = random.choice(frontier)
                         self.prim(row=item[1],
@@ -277,7 +280,7 @@ class Maze:
                         self.maze[row][col].open_wall(Direction.south)
                         self.maze[row + 1][col].open_wall(Direction.north)
                         frontier.append((col, row + 1))
-                        self.maze[row + 1][col].visited = True
+                        self.maze[row + 1][col].visited = 1
 
                         item = random.choice(frontier)
 
@@ -291,7 +294,7 @@ class Maze:
 
                         self.maze[row][col].open_wall(Direction.east)
                         self.maze[row][col + 1].open_wall(Direction.west)
-                        self.maze[row][col + 1].visited = True
+                        self.maze[row][col + 1].visited = 1
 
                         frontier.append((col + 1, row))
                         item = random.choice(frontier)
@@ -307,7 +310,7 @@ class Maze:
                         self.maze[row][col].open_wall(Direction.west)
                         self.maze[row][col - 1].open_wall(Direction.east)
                         frontier.append((col - 1, row))
-                        self.maze[row][col - 1].visited = True
+                        self.maze[row][col - 1].visited = 1
 
                         item = random.choice(frontier)
                         self.prim(row=item[1],
@@ -740,6 +743,72 @@ class Maze:
 
             if self.animation:
                 self.print_maze()
+
+    def hunt_and_kill(self):
+
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+        start_col, start_row = 0, 0
+
+        for row in self.maze:
+            for cell in row:
+                r, c = start_row, start_col
+                while True:
+
+                    if ((r == 0 or self.maze[r - 1][c].visited)
+                            and (r == self.height - 1 or
+                                 self.maze[r + 1][c].visited)
+                            and (c == 0 or
+                                 self.maze[r - 1][c].visited)
+                            and (c == self.width or
+                                 self.maze[r - 1][c].visited)):
+                        break
+
+                    direction = random.choice(directions)
+
+                    match direction:
+
+                        case Direction.north:
+                            if (r > 0
+                                    and not self.maze[r - 1][c].visited):
+
+                                self.maze[r][c].open_wall(Direction.north)
+                                self.maze[r - 1][c].open_wall(Direction.south)
+                                self.maze[r - 1][c].visited = 1
+                                r = r - 1
+
+                        case Direction.south:
+                            if (r < self.height - 1
+                                    and not self.maze[r + 1][c].visited):
+
+                                self.maze[r][c].open_wall(Direction.south)
+                                self.maze[r + 1][c].open_wall(Direction.north)
+                                self.maze[r + 1][c].visited = 1
+                                r = r + 1
+
+                        case Direction.east:
+                            if (c < self.width - 1
+                                    and not self.maze[r][c + 1].visited):
+
+                                self.maze[r][c].open_wall(Direction.east)
+                                self.maze[r][c + 1].open_wall(Direction.west)
+                                self.maze[r][c + 1].visited = 1
+                                c = c + 1
+
+                        case Direction.west:
+                            if (c > 0
+                                    and not self.maze[r][c - 1].visited):
+
+                                self.maze[r][c].open_wall(Direction.west)
+                                self.maze[r][c - 1].open_wall(Direction.east)
+                                self.maze[r][c - 1].visited = 1
+                                c = c - 1
+                    if self.animation:
+                        self.print_maze()
 
     def make_it_empty(self) -> None:
         """Open all walls of the maze except boundaries and '42' walls."""

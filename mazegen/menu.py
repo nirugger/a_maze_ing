@@ -522,6 +522,11 @@ class Menu:
                         cls.maze.algo = 'binary_tree'
                         msg = "You choose 'BINARY TREE'. Not that amazing.\n"
 
+                    case "7":
+                        MazeConfig.ALGORITHM = 'hunt_and_kill'
+                        cls.maze.algo = 'hunt_and_kill'
+                        msg = "You choose 'hunt_and_kill'.\n"
+
                     case "9":
                         MazeConfig.ALGORITHM = 'nirugger'
                         cls.maze.algo = 'nirugger'
