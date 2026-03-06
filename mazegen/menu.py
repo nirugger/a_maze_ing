@@ -17,6 +17,7 @@ class Menu:
     model_config: Optional[MazeConfig] = None
     config: Optional[Dict[str, Any]] = None
     first: bool = True
+    menu_chars: str = "╦ ╩╔ ╗═╚ ╝║╠ ╣╬"
 
     @classmethod
     def a_maze_init(cls, file: str) -> None:
@@ -88,11 +89,12 @@ class Menu:
         print("                                                           ")
         print("                                                           ")
         print("    ╔══════════════════════════╗╔═════════════════════╗    ")
-        print("    ║  1: Generate Maze        ║║   coded by:         ║    ")
-        print("    ║  2: Configure Maze       ║║                     ║    ")
-        print("    ║  3: Colors!              ║║      tvanni &       ║    ")
-        print("    ║  4: Animation            ║║      nirugger       ║    ")
-        print("    ║  5: Solution             ║║                     ║    ")
+        print("    ║  1: Generate Maze        ║║                     ║    ")
+        print("    ║  2: Select Algorithm     ║║   coded by:         ║    ")
+        print("    ║  3: Configure Maze       ║║                     ║    ")
+        print("    ║  4: Colors!              ║║      tvanni &       ║    ")
+        print("    ║  5: Animation  [ON/OFF]  ║║      nirugger       ║    ")
+        print("    ║  6: Solution   [ON/OFF]  ║║                     ║    ")
         print("    ║                          ║║  &: special guests  ║    ")
         print("    ║  q: Exit                 ║║                     ║    ")
         print("    ╚══════════════════════════╝╚═════════════════════╝    ")
@@ -113,11 +115,12 @@ class Menu:
         print("                                                           ")
         print("                                                           ")
         print("    ╔══════════════════════════╗╔═════════════════════╗    ")
-        print("    ║  1: Re-Generate Maze     ║║   coded by:         ║    ")
-        print("    ║  2: Configure Maze       ║║                     ║    ")
-        print("    ║  3: Colors!              ║║      tvanni &       ║    ")
-        print("    ║  4: Animation            ║║      nirugger       ║    ")
-        print("    ║  5: Solution             ║║                     ║    ")
+        print("    ║  1: Generate Maze        ║║                     ║    ")
+        print("    ║  2: Select Algorithm     ║║   coded by:         ║    ")
+        print("    ║  3: Configure Maze       ║║                     ║    ")
+        print("    ║  4: Colors!              ║║      tvanni &       ║    ")
+        print("    ║  5: Animation  [ON/OFF]  ║║      nirugger       ║    ")
+        print("    ║  6: Solution   [ON/OFF]  ║║                     ║    ")
         print("    ║                          ║║  &: special guests  ║    ")
         print("    ║  q: Exit                 ║║                     ║    ")
         print("    ╚══════════════════════════╝╚═════════════════════╝    ")
@@ -199,6 +202,10 @@ class Menu:
                         msg = e.args[0]
 
                 case "2":
+                    cls.algorithm_menu()
+                    msg = "\n"
+
+                case "3":
                     try:
                         cls.config_menu()
                         msg = "\n"
@@ -206,22 +213,22 @@ class Menu:
                         for err in e.errors():
                             msg += err['msg'] + "\n"
 
-                case "3":
+                case "4":
                     cls.color_menu()
                     clear_screen()
                     msg = "\n"
 
-                case "4":
+                case "5":
                     if cls.maze:
                         cls.maze.animation = not cls.maze.animation
-                        msg = ("Maze animation changed to "
+                        msg = ("ANIMATION set to "
                                f"{cls.maze.animation}\n")
 
-                case "5":
+                case "6":
                     if cls.maze:
                         cls.maze.solution = not cls.maze.solution
                         state = "VISIBLE" if cls.maze.solution else "INVISIBLE"
-                        msg = f"Maze solution changed to '{state}'\n"
+                        msg = f"SOLUTION set to '{state}'\n"
 
                 case "&":
                     cls.display_guest_menu()
@@ -262,7 +269,7 @@ class Menu:
         print("    ║  4: EXIT                                 ║    ")
         print("    ║  5: STARTING POINT                       ║    ")
         print("    ║  6: PERFECT                              ║    ")
-        print("    ║  7: ALGORITHM                            ║    ")
+        print("    ║  7:                                      ║    ")
         print("    ║  8: SEED                                 ║    ")
         print("    ║  9: RESET                                ║    ")
         print("    ║                                          ║    ")
@@ -388,7 +395,6 @@ class Menu:
                                 msg = "\n"
 
                     case "7":
-                        cls.algorithm_menu()
                         msg = "\n"
 
                     case "8":
@@ -467,11 +473,14 @@ class Menu:
         print("    ╔══════════════════════════════════════════╗    ")
         print("    ║  1: BACKTRACK                            ║    ")
         print("    ║  2: PRIM                                 ║    ")
-        print("    ║  3: KRUSKAL                              ║    ")
-        print("    ║  4: ELLER                                ║    ")
+        print("    ║  3: ELLER                                ║    ")
+        print("    ║  4: KRUSKAL                              ║    ")
         print("    ║  5: ALDOUS-BRODER                        ║    ")
-        print("    ║  6: BINARY TREE                          ║    ")
-        print("    ║  9: NIRUGGER                             ║    ")
+        print("    ║  6: WILSON                               ║    ")
+        print("    ║  7: RECURSIVE DIVISION                   ║    ")
+        print("    ║  8: HUNT AND KILL                        ║    ")
+        print("    ║  9: BINARY TREE                          ║    ")
+        print("    ║  0: NIRUGGER                             ║    ")
         print("    ║                                          ║    ")
         print("    ║  q: back to configuration menu           ║    ")
         print("    ╚══════════════════════════════════════════╝    ")
@@ -503,6 +512,11 @@ class Menu:
                                "Overall, just another backtrack.\n")
 
                     case "3":
+                        MazeConfig.ALGORITHM = 'eller'
+                        cls.maze.algo = 'eller'
+                        msg = "You choose 'ELLER'. IT WON'T WORK!!.\n"
+
+                    case "4":
                         MazeConfig.ALGORITHM = 'kruskal'
                         cls.maze.algo = 'kruskal'
                         msg = "You choose 'KRUSKAL'. Slow but steady.\n"
@@ -518,19 +532,29 @@ class Menu:
                         msg = "You choose 'ALDOUS-BRODER'. Prepare to wait.\n"
 
                     case "6":
+                        MazeConfig.ALGORITHM = 'wilson'
+                        cls.maze.algo = 'wilson'
+                        msg = "You choose 'WILSON'. .\n"
+
+                    case "7":
+                        MazeConfig.ALGORITHM = 'recursive_division'
+                        cls.maze.algo = 'recursive_division'
+                        msg = "You choose 'RECURSIVE DIVISION'. EZ.\n"
+
+                    case "8":
+                        MazeConfig.ALGORITHM = 'hunt_and_kill'
+                        cls.maze.algo = 'hunt_and_kill'
+                        msg = "You choose 'HUNT AND KILL'. In progress.\n"
+
+                    case "9":
                         MazeConfig.ALGORITHM = 'binary_tree'
                         cls.maze.algo = 'binary_tree'
                         msg = "You choose 'BINARY TREE'. Not that amazing.\n"
 
-                    case "7":
-                        MazeConfig.ALGORITHM = 'hunt_and_kill'
-                        cls.maze.algo = 'hunt_and_kill'
-                        msg = "You choose 'hunt_and_kill'.\n"
-
-                    case "9":
+                    case "0":
                         MazeConfig.ALGORITHM = 'nirugger'
                         cls.maze.algo = 'nirugger'
-                        msg = "You choose 'NIRUGGER'. I'm flattered!.\n"
+                        msg = "You choose 'NIRUGGER'. I'm flattered!\n"
 
                     case "q":
                         return
@@ -541,24 +565,15 @@ class Menu:
     @staticmethod
     def display_color_menu() -> None:
         """Display of the color menu."""
-        print()
-        print()
-        print()
-        print("╔══════════════════════════════════════════╗")
-        print("║  1: DEFAULT                              ║")
-        print("║  2: OCEAN                                ║")
-        print("║  3: FOREST                               ║")
-        print("║  4: DESERT                               ║")
-        print("║  5: ARTIC                                ║")
-        print("║  6: VOLCANIC                             ║")
-        print("║  7: CYBERPUNK                            ║")
-        print("║  8: SPACE                                ║")
-        print("║  9: FREEDOM                              ║")
-        print("║  0: R4ND0M                               ║")
-        print("║                                          ║")
-        print("║  +: MORE COLORS!      q: Back to Menu    ║")
-        print("╚══════════════════════════════════════════╝")
-        print()
+        print("                                             ")
+        print("╔═════════════════════╦═════════════════════╗")
+        print("║  1: DEFAULT         ║  3: R4ND0M          ║")
+        print("║  2: COLORBLIND      ║  4: CHOOSE YOUR     ║")
+        print("║     FRIENDLY :)     ║     COLORS!!!       ║")
+        print("║                     ║                     ║")
+        print("╠═════════════════════╩═════════════════════╣")
+        print("║  +: MORE COLORS        q: Back to Menu    ║")
+        print("╚═══════════════════════════════════════════╝")
 
     @classmethod
     def color_menu(cls) -> None:
@@ -597,40 +612,16 @@ class Menu:
                         msg = "THEME set to 'DEFAULT'\n"
 
                     case "2":
-                        cls.maze.theme = THEMES['ocean']
-                        msg = "THEME set to 'OCEAN'\n"
+                        cls.maze.theme = THEMES['colorblind_friendly']
+                        msg = "THEME set to 'COLORBLIND :)'\n"
 
                     case "3":
-                        cls.maze.theme = THEMES['forest']
-                        msg = "THEME set to 'FOREST'\n"
+                        cls.maze.theme = random
+                        msg = "THEME set to 'R4ND0M'\n"
 
                     case "4":
-                        cls.maze.theme = THEMES['desert']
-                        msg = "THEME set to 'DESERT'\n"
-
-                    case "5":
-                        cls.maze.theme = THEMES['arctic']
-                        msg = "THEME set to 'ARCTIC'\n"
-
-                    case "6":
-                        cls.maze.theme = THEMES['volcanic']
-                        msg = "THEME set to 'VOLCANIC'\n"
-
-                    case "7":
-                        cls.maze.theme = THEMES['cyberpunk']
-                        msg = "THEME set to 'CYBERPUNK'\n"
-
-                    case "8":
-                        cls.maze.theme = THEMES['space']
-                        msg = "THEME set to 'SPACE'\n"
-
-                    case "9":
-                        cls.maze.theme = THEMES['freedom']
-                        msg = "THEME set to 'FREEDOM'\n"
-
-                    case "0":
-                        cls.maze.theme = random
-                        msg = "THEME set to 'R4ND0M' (warning!)\n"
+                        cls.personalized_color_menu()
+                        msg = "\n"
 
                     case "+":
                         cls.more_color_menu()
@@ -647,23 +638,22 @@ class Menu:
     def display_more_color_menu() -> None:
         """Display of the more color menu."""
         print()
-        print()
-        print()
-        print("╔══════════════════════════════════════════╗")
-        print("║  1: MAURITIUS                            ║")
-        print("║  2: BAUGIGI                              ║")
-        print("║  3:                                      ║")
-        print("║  4:                                      ║")
-        print("║  5:                                      ║")
-        print("║  6:                                      ║")
-        print("║  7:                                      ║")
-        print("║  8: COLORBLIND FRIENDLY :)               ║")
-        print("║  9: COLORBLIND UN-FRIENDLY (:            ║")
-        print("║  0: CHOOSE YOUR COLOR!!!                 ║")
-        print("║                                          ║")
-        print("║  -: LESS COLORS!      q: Back to Menu    ║")
-        print("╚══════════════════════════════════════════╝")
-        print()
+        print("╔════════════════════════════╦═════════════════════╗")
+        print("║  1: MAURITIUS              ║  a: OCEAN           ║")
+        print("║  2: BAUGIGI   (alfiorav)   ║  b: FOREST          ║")
+        print("║  3: NICOLAS                ║  c: DESERT          ║")
+        print("║  4: EFARISTO  (mcicconi)   ║  d: ARCTIC          ║")
+        print("║  5: ANDREA                 ║  e: VOLCANIC        ║")
+        print("║  6:                        ║  f: CYBERPUNK       ║")
+        print("║  7:                        ║  g: SPACE           ║")
+        print("║  8:                        ║  h: FREEDOM         ║")
+        print("║  9:                        ║  i:                 ║")
+        print("║  0:                        ║  j: COLORBLIND      ║")
+        print("║                            ║     UN-FRIENDLY (:  ║")
+        print("║                            ║                     ║")
+        print("╠════════════════════════════╩═════════════════════╣")
+        print("║  -: LESS COLORS               q: Back to Menu    ║")
+        print("╚══════════════════════════════════════════════════╝")
 
     @classmethod
     def more_color_menu(cls) -> None:
@@ -705,16 +695,52 @@ class Menu:
                         pass
 
                     case "8":
-                        cls.maze.theme = THEMES['colorblind_friendly']
-                        msg = "THEME set to 'COLORBLIND FRIENDLY :)'\n"
+                        pass
 
                     case "9":
-                        cls.maze.theme = THEMES['colorblind_unfriendly']
-                        msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
+                        pass
 
                     case "0":
-                        cls.personalized_color_menu()
-                        msg = "\n"
+                        pass
+
+                    case "a":
+                        cls.maze.theme = THEMES['ocean']
+                        msg = "THEME set to 'OCEAN'\n"
+
+                    case "b":
+                        cls.maze.theme = THEMES['forest']
+                        msg = "THEME set to 'FOREST'\n"
+
+                    case "c":
+                        cls.maze.theme = THEMES['desert']
+                        msg = "THEME set to 'DESERT'\n"
+
+                    case "d":
+                        cls.maze.theme = THEMES['arctic']
+                        msg = "THEME set to 'ARCTIC'\n"
+
+                    case "e":
+                        cls.maze.theme = THEMES['volcanic']
+                        msg = "THEME set to 'VOLCANIC'\n"
+
+                    case "f":
+                        cls.maze.theme = THEMES['cyberpunk']
+                        msg = "THEME set to 'CYBERPUNK'\n"
+
+                    case "g":
+                        cls.maze.theme = THEMES['space']
+                        msg = "THEME set to 'SPACE'\n"
+
+                    case "h":
+                        cls.maze.theme = THEMES['freedom']
+                        msg = "THEME set to 'FREEDOM'\n"
+
+                    case "i":
+                        pass
+
+                    case "j":
+                        cls.maze.theme = THEMES['colorblind_unfriendly']
+                        msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
 
                     case "-":
                         cls.color_menu()
@@ -730,8 +756,6 @@ class Menu:
     @staticmethod
     def display_personalized_color_menu() -> None:
         """Display of the personalized color menu."""
-        print()
-        print()
         print()
         print("╔══════════════════════════════════════════╗")
         print("║  1: WALL                                 ║")
@@ -755,11 +779,13 @@ class Menu:
         """
         parts = color.split(';')
         if len(parts) != 3 or color[len(color) - 1] == ';':
-            raise ValueError("INVALID SYNTAX")
+            raise ValueError("[ERROR]: "
+                             "invalid SYNTAX")
         for part in parts:
             value = int(part)
             if not 0 <= value <= 255:
-                raise ValueError("COLOR VALUE must be between 0 and 255")
+                raise ValueError("[ERROR]: "
+                                 "COLOR VALUE must be between 0 and 255")
 
     @classmethod
     def personalized_color_menu(cls) -> None:
@@ -775,7 +801,7 @@ class Menu:
                 cls.maze.print_maze()
                 cls.display_personalized_color_menu()
                 print(msg)
-                choice = input("choose the element you want to color: ")
+                choice = input("Choose the element you want to color: ")
                 match choice:
 
                     case "1":
