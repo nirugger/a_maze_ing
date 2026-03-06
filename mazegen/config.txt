@@ -3,10 +3,10 @@ HEIGHT=15
 ENTRY=0,0
 EXIT=14,14
 OUTPUT_FILE=maze.txt
-PERFECT=true
+PERFECT=false
 
 START=7,7
-ALGORITHM=hunt_and_kill
+ALGORITHM=binary_tree
 SEED=
 
 

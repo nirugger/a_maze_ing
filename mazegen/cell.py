@@ -82,7 +82,8 @@ class Cell:
 
         total: int = 0
         for direction in directions:
-            total += self.is_open(direction)
+            if self.is_open(direction):
+                total += 1
         return total
 
     def total_closed(self) -> int:
@@ -100,7 +101,8 @@ class Cell:
 
         total: int = 0
         for direction in directions:
-            total += int(bool(self.is_closed(direction)))
+            if self.is_open(direction):
+                total += 1
         return total
 
     def __repr__(self) -> str:

@@ -87,7 +87,6 @@ class Menu:
         print("    ║            a  wond_err_full  project            ║    ")
         print("    ╚═════════════════════════════════════════════════╝    ")
         print("                                                           ")
-        print("                                                           ")
         print("    ╔══════════════════════════╗╔═════════════════════╗    ")
         print("    ║  1: Generate Maze        ║║                     ║    ")
         print("    ║  2: Select Algorithm     ║║   coded by:         ║    ")
@@ -112,7 +111,6 @@ class Menu:
         print("    ║                                                 ║    ")
         print("    ║             HOW ABOUT ANOTHER TRY ?             ║    ")
         print("    ╚═════════════════════════════════════════════════╝    ")
-        print("                                                           ")
         print("                                                           ")
         print("    ╔══════════════════════════╗╔═════════════════════╗    ")
         print("    ║  1: Generate Maze        ║║                     ║    ")
@@ -188,7 +186,7 @@ class Menu:
                     print(cls.maze.error_message)
                     cls.display_maze_menu()
 
-            print(msg)
+            print(msg, end='')
             quest = "" if cls.first else "Re-"
             choice = input(f"{quest}Choose your path: ").strip().lower()
             match choice:
@@ -312,7 +310,7 @@ class Menu:
             while True:
                 clear_screen()
                 cls.display_config_menu()
-                print(msg)
+                print(msg, end='')
 
                 choice = input("choose an option: ")
                 match choice:
@@ -329,7 +327,7 @@ class Menu:
                                        "(2 <= WIDTH <= 41)\n")
 
                         except Exception:
-                            msg = "[ERROR]: WIDTH has to be a valid number."
+                            msg = "[ERROR]: WIDTH has to be a valid number.\n"
 
                     case "2":
                         try:
@@ -343,7 +341,7 @@ class Menu:
                                        "(2 <= HEIGHT <= 21)\n")
 
                         except Exception:
-                            msg = "[ERROR]: HEIGHT has to be a valid number."
+                            msg = "[ERROR]: HEIGHT has to be a valid number.\n"
 
                     case "3":
                         try:
@@ -355,7 +353,7 @@ class Menu:
                             else:
                                 msg = "ENTRY value unacceptable (x,y >= 0)\n"
                         except Exception:
-                            msg = "[ERROR]: HEIGHT has to be a valid number."
+                            msg = "[ERROR]: HEIGHT has to be a valid number.\n"
 
                     case "4":
                         try:
@@ -367,7 +365,7 @@ class Menu:
                             else:
                                 msg = "EXIT value unacceptable (x,y >= 0)\n"
                         except Exception:
-                            msg = "[ERROR]: x and y have to be valid numbers."
+                            msg = "[ERROR]: x, y have to be valid numbers.\n"
 
                     case "5":
                         try:
@@ -380,7 +378,7 @@ class Menu:
                                 msg = ("STARTING POINT value unacceptable "
                                        "(x,y >= 0)\n")
                         except Exception:
-                            msg = "[ERROR]: x and y have to be valid numbers."
+                            msg = "[ERROR]: x, y have to be valid numbers.\n"
 
                     case "6":
                         choice = input("Must thy maze be PERFECT? [y/n]: ")
@@ -416,7 +414,7 @@ class Menu:
                             mod_config = copy.deepcopy(cls.config)
                             msg = "Configuration set to 'DEFAULT'\n"
                         else:
-                            msg = "[ERROR] CONFIGURATION FILE not found"
+                            msg = "[ERROR] CONFIGURATION FILE not found\n"
                             print(msg)
                             exit(1)
 
@@ -639,7 +637,7 @@ class Menu:
         """Display of the more color menu."""
         print()
         print("╔════════════════════════════╦═════════════════════╗")
-        print("║  1: MAURITIUS              ║  a: OCEAN           ║")
+        print("║  1: MAURITIUS (mpagano)    ║  a: OCEAN           ║")
         print("║  2: BAUGIGI   (alfiorav)   ║  b: FOREST          ║")
         print("║  3: NICOLAS                ║  c: DESERT          ║")
         print("║  4: EFARISTO  (mcicconi)   ║  d: ARCTIC          ║")

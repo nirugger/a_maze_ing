@@ -14,9 +14,11 @@ import time
 def clear_screen() -> None:
     """Clear the shell window."""
     if platform.system() == "Windows":
-        print("\033[2J\033[H")
+        print("\033[3J\033[H")
     else:
-        subprocess.run("clear", shell=True)
+        # subprocess.run("clear", shell=True)
+        print("\033[2J\033[H")
+        print("\033[3J\033[H")
 
 
 class Maze:
@@ -600,6 +602,108 @@ class Maze:
             if self.animation:
                 self.print_maze()
 
+    def hak_helper(self, row: int, col: int) -> int:
+        """check if all neighbooring cells are visited
+
+        Args:
+            row (int): the row of the cell
+            col (int): the column of the cell
+        Returns:
+            int: 1 (truthy) if all cells are visited
+                 0 (false) otherwise
+        """
+        north = (row == 0 or self.maze[row - 1][col].visited)
+        south = (row == self.height - 1 or self.maze[row + 1][col].visited)
+        east = (col == self.width - 1 or self.maze[row][col + 1].visited)
+        west = (col == 0 or self.maze[row][col - 1].visited)
+
+        return north and south and east and west
+
+    def hunt_and_kill(self):
+
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+
+        for row in range(self.height):
+            for col in range(self.width):
+                r, c = row, col
+                if self.maze[row][col].visited:
+                    continue
+
+                if col > 0 and self.maze[row][col - 1].visited == 1:
+                    self.maze[r][c].open_wall(Direction.west)
+                    self.maze[r][c - 1].open_wall(Direction.east)
+
+                elif row > 0 and self.maze[row - 1][col].visited == 1:
+                    self.maze[r][c].open_wall(Direction.north)
+                    self.maze[r - 1][c].open_wall(Direction.south)
+
+                elif (row > 0 and self.maze[row - 1][col].visited == 42 and
+                      col > 0 and self.maze[row][col - 1].visited == 42):
+                    self.maze[r][c].open_wall(Direction.east)
+                    self.maze[r][c + 1].open_wall(Direction.west)
+                    self.maze[r][c + 1].open_wall(Direction.east)
+                    self.maze[r][c + 1].visited = 1
+                    self.maze[r][c + 2].open_wall(Direction.west)
+
+                self.maze[r][c].visited = 1
+                while True:
+
+                    if (self.hak_helper(r, c)):
+                        break
+
+                    random.shuffle(directions)
+
+                    for direction in directions:
+                        match direction:
+
+                            case Direction.north:
+                                if (r > 0
+                                        and not self.maze[r - 1][c].visited):
+
+                                    self.maze[r][c].open_wall(Direction.north)
+                                    self.maze[r - 1][c].open_wall(Direction.south)
+                                    self.maze[r - 1][c].visited = 1
+                                    r = r - 1
+                                    break
+
+                            case Direction.south:
+                                if (r < self.height - 1
+                                        and not self.maze[r + 1][c].visited):
+
+                                    self.maze[r][c].open_wall(Direction.south)
+                                    self.maze[r + 1][c].open_wall(Direction.north)
+                                    self.maze[r + 1][c].visited = 1
+                                    r = r + 1
+                                    break
+
+                            case Direction.east:
+                                if (c < self.width - 1
+                                        and not self.maze[r][c + 1].visited):
+
+                                    self.maze[r][c].open_wall(Direction.east)
+                                    self.maze[r][c + 1].open_wall(Direction.west)
+                                    self.maze[r][c + 1].visited = 1
+                                    c = c + 1
+                                    break
+
+                            case Direction.west:
+                                if (c > 0
+                                        and not self.maze[r][c - 1].visited):
+
+                                    self.maze[r][c].open_wall(Direction.west)
+                                    self.maze[r][c - 1].open_wall(Direction.east)
+                                    self.maze[r][c - 1].visited = 1
+                                    c = c - 1
+                                    break
+
+                    if self.animation:
+                        self.print_maze()
+
     def nirugger(self) -> None:
         """nirugger algorithm for maze generation."""
         self.make_it_empty()
@@ -744,72 +848,6 @@ class Maze:
             if self.animation:
                 self.print_maze()
 
-    def hunt_and_kill(self):
-
-        directions = [
-            Direction.north,
-            Direction.east,
-            Direction.south,
-            Direction.west
-            ]
-        start_col, start_row = 0, 0
-
-        for row in self.maze:
-            for cell in row:
-                r, c = start_row, start_col
-                while True:
-
-                    if ((r == 0 or self.maze[r - 1][c].visited)
-                            and (r == self.height - 1 or
-                                 self.maze[r + 1][c].visited)
-                            and (c == 0 or
-                                 self.maze[r - 1][c].visited)
-                            and (c == self.width or
-                                 self.maze[r - 1][c].visited)):
-                        break
-
-                    direction = random.choice(directions)
-
-                    match direction:
-
-                        case Direction.north:
-                            if (r > 0
-                                    and not self.maze[r - 1][c].visited):
-
-                                self.maze[r][c].open_wall(Direction.north)
-                                self.maze[r - 1][c].open_wall(Direction.south)
-                                self.maze[r - 1][c].visited = 1
-                                r = r - 1
-
-                        case Direction.south:
-                            if (r < self.height - 1
-                                    and not self.maze[r + 1][c].visited):
-
-                                self.maze[r][c].open_wall(Direction.south)
-                                self.maze[r + 1][c].open_wall(Direction.north)
-                                self.maze[r + 1][c].visited = 1
-                                r = r + 1
-
-                        case Direction.east:
-                            if (c < self.width - 1
-                                    and not self.maze[r][c + 1].visited):
-
-                                self.maze[r][c].open_wall(Direction.east)
-                                self.maze[r][c + 1].open_wall(Direction.west)
-                                self.maze[r][c + 1].visited = 1
-                                c = c + 1
-
-                        case Direction.west:
-                            if (c > 0
-                                    and not self.maze[r][c - 1].visited):
-
-                                self.maze[r][c].open_wall(Direction.west)
-                                self.maze[r][c - 1].open_wall(Direction.east)
-                                self.maze[r][c - 1].visited = 1
-                                c = c - 1
-                    if self.animation:
-                        self.print_maze()
-
     def make_it_empty(self) -> None:
         """Open all walls of the maze except boundaries and '42' walls."""
         directions = [
@@ -867,11 +905,10 @@ class Maze:
         open_walls = 0
         for row in self.maze:
             for cell in row:
-                for direction in directions:
-                    open_walls += cell.is_open(direction)
+                open_walls += cell.total_open()
 
         i = 0
-        while i < round(open_walls / 42):
+        while i < round(open_walls / 13.37):
 
             r = random.randint(0, self.height - 1)
             c = random.randint(0, self.width - 1)
@@ -1011,8 +1048,8 @@ class Maze:
                                     Direction.east
                                     )
 
-                if self.animation:
-                    self.print_maze()
+                    if self.animation:
+                        self.print_maze()
 
     def backtrack_solver(self, col: int, row: int, path: str) -> None:
         """Backtrack algorithm for maze resolution.
@@ -1165,7 +1202,7 @@ class Maze:
 
         for char in path:
 
-            if self.animation:
+            if self.animation and self.solution:
                 self.print_maze()
 
             match char:
