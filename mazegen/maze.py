@@ -14,6 +14,7 @@ import time
 def clear_screen() -> None:
     """Clear the shell window."""
     if platform.system() == "Windows":
+        print("\033[2J\033[H")
         print("\033[3J\033[H")
     else:
         # subprocess.run("clear", shell=True)
@@ -1461,7 +1462,7 @@ class Maze:
                     bottom_str += self.theme['wall']
 
             print(bottom_str)
-        # time.sleep(0.5)
+        time.sleep(0.2)
 
     def __str__(self) -> str:
         """Readable representation of the maze.

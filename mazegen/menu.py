@@ -2,6 +2,7 @@
 
 from mazegen.requirement_parser import Parser, MazeConfig
 from mazegen.maze import Maze, clear_screen
+from mazegen.game import Game
 from typing import Optional, Any, Dict
 from pydantic import ValidationError
 from mazegen.themes import THEMES
@@ -14,6 +15,7 @@ class Menu:
     """Class representing the menu."""
 
     maze: Optional[Maze] = None
+    game: Optional[Game] = None
     model_config: Optional[MazeConfig] = None
     config: Optional[Dict[str, Any]] = None
     first: bool = True
@@ -119,6 +121,7 @@ class Menu:
         print("    ║  4: Colors!              ║║      tvanni &       ║    ")
         print("    ║  5: Animation  [ON/OFF]  ║║      nirugger       ║    ")
         print("    ║  6: Solution   [ON/OFF]  ║║                     ║    ")
+        print("    ║  7: solve it!            ║║                     ║    ")
         print("    ║                          ║║  &: special guests  ║    ")
         print("    ║  q: Exit                 ║║                     ║    ")
         print("    ╚══════════════════════════╝╚═════════════════════╝    ")
@@ -227,6 +230,12 @@ class Menu:
                         cls.maze.solution = not cls.maze.solution
                         state = "VISIBLE" if cls.maze.solution else "INVISIBLE"
                         msg = f"SOLUTION set to '{state}'\n"
+
+                case "7":
+                    if cls.maze:
+                        cls.game = Game(cls.maze.entry[1], cls.maze.entry[0])
+                        cls.game.move_player(cls.maze)
+                        msg = f""
 
                 case "&":
                     cls.display_guest_menu()
