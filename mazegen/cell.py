@@ -101,7 +101,7 @@ class Cell:
 
         total: int = 0
         for direction in directions:
-            if self.is_open(direction):
+            if self.is_closed(direction):
                 total += 1
         return total
 

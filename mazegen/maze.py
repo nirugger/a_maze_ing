@@ -178,7 +178,6 @@ class Maze:
             case "recursive_division":
                 self.make_it_empty()
                 self.recursive_division(0, 0, self.width, self.height)
-                self.make_it_valid()
 
             case "hunt_and_kill":
                 self.hunt_and_kill()
@@ -625,7 +624,7 @@ class Maze:
         return north and south and east and west
 
     def hak_opener(self, r: int, c: int, dir: Direction) -> int:
-        """Helper method for hunt_and_kill.
+        """Match direction and open walls.
 
         Args:
             r: row of the maze.
@@ -745,67 +744,102 @@ class Maze:
                            width: int,
                            height: int) -> None:
 
-        axis = random.randint(0, 1)
-        side = [0, 1]
-        random.shuffle(side)
-        breakpoint()
-        if height - x < 2 or width - y < 2:
+        axis = random.randint(0, 1)  # per scegliere se chiudere il muro lungo row o col
+        # side = [0, 1]  # per scegliere quale lato del labirinto analizzare per primo
+        # random.shuffle(side)
+        # breakpoint()
+        if width < 2 or height < 2:
+            print("STO TORNANDO!")
             return
 
         if axis:  # orizzontale
-            row = random.randint(x, height - 1)
-            choice = random.randint(x, width - 1)
+            print(f"ENTER 0 ORIZZONTALE con valori x: {x}, y: {y}, width: {width}, height: {height}")
+            breakpoint()
 
-            while self.maze[row][choice].visited == 42:
-                choice = random.randint(x, width - 1)
+            if y == height - 1:
+                row = y + 1
+            else:
+                print(f"attenpting random {y} + 1, {height}")
+                breakpoint()
+                row = random.randrange(y + 1, height)
+                while self.maze[row][x].visited == 42:
+                    row = random.randrange(y + 1, height)
 
-            for col in range(width):
-                if col == choice:
+            open = random.randint(x, width - 1)
+
+            while self.maze[row][open].visited == 42:
+                open = random.randint(x, width - 1)
+            print(f"open: {open}, random {x}, {width} - 1")
+            breakpoint()
+            for col in range(x, width):
+                if col == open:
                     continue
 
-                if row == x:
-                    self.maze[row][col].close_wall(Direction.south)
-                    self.maze[row + 1][col].close_wall(Direction.north)
+                # if row == y:
+                #     self.maze[row][col].close_wall(Direction.south)
+                #     self.maze[row + 1][col].close_wall(Direction.north)
 
-                else:
-                    self.maze[row][col].close_wall(Direction.north)
-                    self.maze[row - 1][col].close_wall(Direction.south)
+                self.maze[row][col].close_wall(Direction.north)
+                self.maze[row - 1][col].close_wall(Direction.south)
 
                 if self.animation:
                     self.print_maze()
 
             # if side[0] == 0:
-            self.recursive_division(x, y, width, row)
-            self.recursive_division(row + 1, y, width, height)
+            print(f"ENTER 1 ORIZZONTALE con valori x: {x}, y: {y}, width: {width}, height: {row - y}")
+            breakpoint()
+            self.recursive_division(x, y, width, row - y)
+            print(f"EXIT 1 ORIZZONTALE con valori x: {x}, y: {y}, width: {width}, height: {row - y}")
+            breakpoint()
+
+            print(f"ENTER 2 orizzontale con valori x: {x}, y: {row}, width: {width}, height: {height - row}")
+            breakpoint()
+            self.recursive_division(x, row, width, height - row)
+            print(f"EXIT 2 orizzontale con valori x: {x}, y: {row}, width: {width}, height: {height - row}")
+            breakpoint()
 
             # else:
             #     self.recursive_division(row + 1, y, width, height)
             #     self.recursive_division(x, y, width, row)
-
         if not axis:  # verticale
-            col = random.randint(y, width - 1)
+            print(f"ENTER 0 VERTICALE con valori x: {x}, y: {y}, width: {width}, height: {height}")
+            
+            if x == width - 1:
+                col = x + 1
+            else:
+                print(f"attempting  random {x} + 1, {width}")
+                breakpoint()
+                col = random.randrange(x + 1, width)
+                while self.maze[y][col] == 42:
+                    col = random.randrange(x + 1, width)
 
-            choice = random.randint(y, height - 1)
-            while self.maze[choice][col].visited == 42:
-                choice = random.randint(y, height - 1)
+            open = random.randint(y, height - 1)
+            while self.maze[open][col].visited == 42:
+                open = random.randint(y, height - 1)
+            print(f"open: {open}, random {y}, {height}")
 
-            for row in range(height):
-                if row == choice:
+
+            for row in range(y, height):
+                if row == open:
                     continue
 
-                if col == y:
-                    self.maze[row][col].close_wall(Direction.east)
-                    self.maze[row][col + 1].close_wall(Direction.west)
-                else:
-                    self.maze[row][col].close_wall(Direction.west)
-                    self.maze[row][col - 1].close_wall(Direction.east)
+                # if col == x:
+                #     self.maze[row][col].close_wall(Direction.east)
+                #     self.maze[row][col + 1].close_wall(Direction.west)
+                # else:
+                self.maze[row][col].close_wall(Direction.west)
+                self.maze[row][col - 1].close_wall(Direction.east)
 
                 if self.animation:
                     self.print_maze()
 
             # if side[0] == 0:
-            self.recursive_division(x, y, col, height)
-            self.recursive_division(x, col + 1, width, height)
+            print(f"ENTER 1 verticale con valori x: {x}, y: {y}, width: {col - x}, height: {height}")
+            self.recursive_division(x, y, col - x, height)
+            print(f"EXIT 1 verticale con valori x: {x}, y: {y}, width: {col - x}, height: {height}")
+            print(f"ENTER 2 verticale con valori x: {col}, y: {y}, width: {width - col + x}, height: {height}")
+            self.recursive_division(col, y, width - col + x, height)
+            print(f"EXIT 2 verticale con valori x: {col}, y: {y}, width: {width - col + x}, height: {height}")
             # else:
             #     self.recursive_division(x, col + 1, width, height)
             #     self.recursive_division(x, y, col, height)
@@ -819,7 +853,6 @@ class Maze:
             Direction.south,
             Direction.west
             ]
-
         for row in range(0, self.height):
             for col in range(0, self.width):
 
@@ -1428,7 +1461,7 @@ class Maze:
                     bottom_str += self.theme['wall']
 
             print(bottom_str)
-        time.sleep(0.042)
+        # time.sleep(0.5)
 
     def __str__(self) -> str:
         """Readable representation of the maze.
