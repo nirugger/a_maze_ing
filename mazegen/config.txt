@@ -19,3 +19,4 @@ SEED=
 
 # opzione di configurazione per tempo di stampa
 # opzione play (extra flag player pos in Cell - abbiamo gia' cell.is_target volendo, la usiamo solo per la stampa di Aldous-Broder)
+#trovato problema in binary tree

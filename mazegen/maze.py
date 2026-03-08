@@ -1385,6 +1385,7 @@ class Maze:
             return
 
         clear_screen()
+        player  = "\033[48;2;255;255;255m  \033[0m"
         print(self.theme['wall'] * (len(self.maze[0]) * 2 + 1))
 
         for row in range(len(self.maze)):
@@ -1392,7 +1393,12 @@ class Maze:
 
             for col in range(len(self.maze[row])):
 
-                if self.maze[row][col].is_entry:
+                if (self.maze[row][col].is_player
+                        and not self.maze[row][col].x_sub
+                        and not self.maze[row][col].y_sub):
+                    line_str += player
+
+                elif self.maze[row][col].is_entry:
                     line_str += self.theme['entry']
 
                 elif self.maze[row][col].is_exit:
@@ -1413,7 +1419,12 @@ class Maze:
                 else:
                     line_str += self.theme['path']
 
-                if (col < self.width - 1 and
+                if (self.maze[row][col].is_player
+                        and self.maze[row][col].x_sub
+                        and not self.maze[row][col].y_sub):
+                    line_str += player
+
+                elif (col < self.width - 1 and
                     (self.maze[row][col].visited == 42 and
                      self.maze[row][col + 1].visited == 42)):
                     line_str += self.theme['ft_wall']
@@ -1437,7 +1448,12 @@ class Maze:
             bottom_str = self.theme['wall']
             for col in range(len(self.maze[row])):
 
-                if (row < self.height - 1 and
+                if (self.maze[row][col].is_player
+                        and not self.maze[row][col].x_sub
+                        and self.maze[row][col].y_sub):
+                    bottom_str += player
+
+                elif (row < self.height - 1 and
                     (self.maze[row][col].visited == 42 and
                      self.maze[row + 1][col].visited == 42)):
                     bottom_str += self.theme['ft_wall']
@@ -1456,7 +1472,12 @@ class Maze:
                 else:
                     bottom_str += self.theme['path']
 
-                if (self.hide_corner(row, col)):
+                if (self.maze[row][col].is_player
+                        and self.maze[row][col].x_sub
+                        and self.maze[row][col].y_sub):
+                    bottom_str += player
+
+                elif (self.hide_corner(row, col)):
                     bottom_str += self.theme['path']
                 else:
                     bottom_str += self.theme['wall']
