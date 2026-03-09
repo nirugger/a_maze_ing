@@ -121,7 +121,7 @@ class Menu:
         print("    ║  4: Colors!              ║║      tvanni &       ║    ")
         print("    ║  5: Animation  [ON/OFF]  ║║      nirugger       ║    ")
         print("    ║  6: Solution   [ON/OFF]  ║║                     ║    ")
-        print("    ║  7: solve it!            ║║                     ║    ")
+        print("    ║  7: Play it!             ║║                     ║    ")
         print("    ║                          ║║  &: special guests  ║    ")
         print("    ║  q: Exit                 ║║                     ║    ")
         print("    ╚══════════════════════════╝╚═════════════════════╝    ")
@@ -235,7 +235,7 @@ class Menu:
                     if cls.maze:
                         cls.game = Game(cls.maze.entry[1], cls.maze.entry[0])
                         cls.game.move_player(cls.maze)
-                        msg = f""
+                        msg = ""
 
                 case "&":
                     cls.display_guest_menu()
@@ -523,58 +523,54 @@ class Menu:
                     case "1":
                         MazeConfig.ALGORITHM = 'backtrack'
                         cls.maze.algo = 'backtrack'
-                        msg = "You choose 'BACKTRACK'. Truly original.\n"
+                        msg = "You choose BACKTRACK. Truly original.\n"
 
                     case "2":
                         MazeConfig.ALGORITHM = 'prim'
                         cls.maze.algo = 'prim'
-                        msg = ("You choose 'PRIM'. "
+                        msg = ("You choose PRIM. "
                                "Overall, just another backtrack.\n")
 
                     case "3":
                         MazeConfig.ALGORITHM = 'eller'
                         cls.maze.algo = 'eller'
-                        msg = "You choose 'ELLER'. IT WON'T WORK!!.\n"
+                        msg = "You choose ELLER. IT WON'T WORK!!.\n"
 
                     case "4":
                         MazeConfig.ALGORITHM = 'kruskal'
                         cls.maze.algo = 'kruskal'
-                        msg = "You choose 'KRUSKAL'. Slow but steady.\n"
-
-                    case "4":
-                        MazeConfig.ALGORITHM = 'eller'
-                        cls.maze.algo = 'eller'
-                        msg = "You choose 'ELLER'. IT WON'T WORK!!.\n"
+                        msg = "You choose KRUSKAL. Slow but steady.\n"
 
                     case "5":
                         MazeConfig.ALGORITHM = 'aldous_broder'
                         cls.maze.algo = 'aldous_broder'
-                        msg = "You choose 'ALDOUS-BRODER'. Prepare to wait.\n"
+                        msg = "You choose ALDOUS-BRODER. Prepare to wait.\n"
 
                     case "6":
                         MazeConfig.ALGORITHM = 'wilson'
                         cls.maze.algo = 'wilson'
-                        msg = "You choose 'WILSON'. .\n"
+                        msg = "You choose WILSON. .\n"
 
                     case "7":
                         MazeConfig.ALGORITHM = 'recursive_division'
                         cls.maze.algo = 'recursive_division'
-                        msg = "You choose 'RECURSIVE DIVISION'. EZ.\n"
+                        msg = "You choose RECURSIVE DIVISION. EZ.\n"
 
                     case "8":
                         MazeConfig.ALGORITHM = 'hunt_and_kill'
                         cls.maze.algo = 'hunt_and_kill'
-                        msg = "You choose 'HUNT AND KILL'. In progress.\n"
+                        msg = ("You choose HUNT AND KILL. "
+                               "The iterative recursion.\n")
 
                     case "9":
                         MazeConfig.ALGORITHM = 'binary_tree'
                         cls.maze.algo = 'binary_tree'
-                        msg = "You choose 'BINARY TREE'. Not that amazing.\n"
+                        msg = "You choose BINARY TREE. Not that amazing.\n"
 
                     case "0":
                         MazeConfig.ALGORITHM = 'nirugger'
                         cls.maze.algo = 'nirugger'
-                        msg = "You choose 'NIRUGGER'. I'm flattered!\n"
+                        msg = "You choose NIRUGGER. I'm flattered!\n"
 
                     case "q":
                         return
@@ -629,15 +625,15 @@ class Menu:
 
                     case "1":
                         cls.maze.theme = THEMES['default']
-                        msg = "THEME set to 'DEFAULT'\n"
+                        msg = "THEME set to DEFAULT\n"
 
                     case "2":
                         cls.maze.theme = THEMES['colorblind_friendly']
-                        msg = "THEME set to 'COLORBLIND :)'\n"
+                        msg = "THEME set to COLORBLIND :)\n"
 
                     case "3":
                         cls.maze.theme = random
-                        msg = "THEME set to 'R4ND0M'\n"
+                        msg = "THEME set to R4ND0M\n"
 
                     case "4":
                         cls.personalized_color_menu()
@@ -661,12 +657,12 @@ class Menu:
         print("╔════════════════════════════╦═════════════════════╗")
         print("║  1: IRIDE     (mpagano)    ║  a: OCEAN           ║")
         print("║  2: BAUGIGI   (alfiorav)   ║  b: FOREST          ║")
-        print("║  3: NICOLAS   (ndavidso)   ║  c: DESERT          ║")
+        print("║  3: NICOLA    (ndavidso)   ║  c: DESERT          ║")
         print("║  4: EFARISTO  (mcicconi)   ║  d: ARCTIC          ║")
         print("║  5: FIRENZE   (acentron)   ║  e: VOLCANIC        ║")
         print("║  6: LIFE      (gbotti)     ║  f: CYBERPUNK       ║")
         print("║  7: LIXI      (lmongili)   ║  g: SPACE           ║")
-        print("║  8:                        ║  h: FREEDOM         ║")
+        print("║  8: CARLO     (lesbrocc)   ║  h: FREEDOM         ║")
         print("║  9:                        ║  i:                 ║")
         print("║  0:                        ║  j: COLORBLIND      ║")
         print("║                            ║     UN-FRIENDLY (:  ║")
@@ -693,34 +689,35 @@ class Menu:
 
                     case "1":
                         cls.maze.theme = THEMES['iride']
-                        msg = "THEME set to 'IRIDE'\n"
+                        msg = "THEME set to IRIDE\n"
 
                     case "2":
                         cls.maze.theme = THEMES['baugigi']
-                        msg = "THEME set to 'BAUGIGI'\n"
+                        msg = "THEME set to BAUGIGI\n"
 
                     case "3":
-                        cls.maze.theme = THEMES['baugigi']
-                        msg = "THEME set to 'BAUGIGI'\n"
+                        cls.maze.theme = THEMES['nicola']
+                        msg = "THEME set to NICOLA\n"
 
                     case "4":
                         cls.maze.theme = THEMES['efaristo']
-                        msg = "THEME set to 'EFARISTO'\n"
+                        msg = "THEME set to EFARISTO\n"
 
                     case "5":
                         cls.maze.theme = THEMES['firenze']
-                        msg = "THEME set to 'FIRENZE'\n"
+                        msg = "THEME set to FIRENZE\n"
 
                     case "6":
                         cls.maze.theme = THEMES['life_palette']
-                        msg = "THEME set to 'LIFE'\n"
+                        msg = "THEME set to LIFE\n"
 
                     case "7":
                         cls.maze.theme = THEMES['lixi']
-                        msg = "THEME set to 'LIXI'\n"
+                        msg = "THEME set to LIXI\n"
 
                     case "8":
-                        pass
+                        cls.maze.theme = THEMES['carlo']
+                        msg = "THEME set to CARLO\n"
 
                     case "9":
                         pass
@@ -730,42 +727,42 @@ class Menu:
 
                     case "a":
                         cls.maze.theme = THEMES['ocean']
-                        msg = "THEME set to 'OCEAN'\n"
+                        msg = "THEME set to OCEAN\n"
 
                     case "b":
                         cls.maze.theme = THEMES['forest']
-                        msg = "THEME set to 'FOREST'\n"
+                        msg = "THEME set to FOREST\n"
 
                     case "c":
                         cls.maze.theme = THEMES['desert']
-                        msg = "THEME set to 'DESERT'\n"
+                        msg = "THEME set to DESERT\n"
 
                     case "d":
                         cls.maze.theme = THEMES['arctic']
-                        msg = "THEME set to 'ARCTIC'\n"
+                        msg = "THEME set to ARCTIC\n"
 
                     case "e":
                         cls.maze.theme = THEMES['volcanic']
-                        msg = "THEME set to 'VOLCANIC'\n"
+                        msg = "THEME set to VOLCANIC\n"
 
                     case "f":
                         cls.maze.theme = THEMES['cyberpunk']
-                        msg = "THEME set to 'CYBERPUNK'\n"
+                        msg = "THEME set to CYBERPUNK\n"
 
                     case "g":
                         cls.maze.theme = THEMES['space']
-                        msg = "THEME set to 'SPACE'\n"
+                        msg = "THEME set to SPACE\n"
 
                     case "h":
                         cls.maze.theme = THEMES['freedom']
-                        msg = "THEME set to 'FREEDOM'\n"
+                        msg = "THEME set to FREEDOM\n"
 
                     case "i":
                         pass
 
                     case "j":
                         cls.maze.theme = THEMES['colorblind_unfriendly']
-                        msg = "THEME set to 'COLORBLIND UN-FRIENDLY (:'\n"
+                        msg = "THEME set to COLORBLIND UN-FRIENDLY (:\n"
 
                     case "-":
                         cls.color_menu()

@@ -4,7 +4,7 @@ from mazegen.cell import Direction
 import sys
 
 
-def getchar_win() -> Direction | None:
+def getchar_windows() -> Direction | None:
     import msvcrt
 
     if msvcrt.kbhit():      # se è stato premuto un tasto
@@ -28,7 +28,7 @@ def getchar_win() -> Direction | None:
         sys.stdin.flush
 
 
-def getchar_linux() -> Direction | None:
+def getchar_linux() -> Direction | str | None:
     import termios
     import tty
 
@@ -57,6 +57,8 @@ def getchar_linux() -> Direction | None:
             return Direction.east
         elif key == 'a':
             return Direction.west
+        elif key == 'q' or key == 'e':
+            return key
         return None
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
@@ -64,7 +66,7 @@ def getchar_linux() -> Direction | None:
 
 def getchar():
     if sys.platform.startswith("win"):
-        return getchar_win()
+        return getchar_windows()
     else:
         return getchar_linux()
 
@@ -103,32 +105,41 @@ class Game:
 
                 else:
                     if not self.x_sub:
-                        if self.y > 0 and maze[self.y][self.x].is_open(direction):
+                        if self.y > 0 and maze[self.y][self.x].is_open(
+                                direction
+                                ):
                             self.y -= 1
                             self.y_sub = 1
                     else:
                         if (self.y > 0 and self.x < width - 1
-                                and maze[self.y][self.x].is_open(Direction.north)
-                                and maze[self.y - 1][self.x + 1].is_open(Direction.south)
-                                and maze[self.y - 1][self.x + 1].is_open(Direction.west)):
+                                and maze[self.y][self.x].is_open(
+                                    Direction.north)
+                                and maze[self.y - 1][self.x + 1].is_open(
+                                    Direction.south)
+                                and maze[self.y - 1][self.x + 1].is_open(
+                                    Direction.west)):
                             self.y -= 1
                             self.y_sub = 1
 
             case Direction.south:
                 if (not self.y_sub
-                        and maze[self.y][self.x].is_open(direction)):
+                        and maze[self.y][self.x].is_open(
+                            direction)):
                     if not self.x_sub:
                         self.y_sub = 1
                     else:
                         if (self.y < height - 1
                                 and self.x < width - 1
-                                and maze[self.y + 1][self.x + 1].is_open(Direction.north)
-                                and maze[self.y + 1][self.x + 1].is_open(Direction.west)):
+                                and maze[self.y + 1][self.x + 1].is_open(
+                                    Direction.north)
+                                and maze[self.y + 1][self.x + 1].is_open(
+                                    Direction.west)):
                             self.y_sub = 1
 
                 else:
                     if (self.y < height - 1
-                            and maze[self.y][self.x].is_open(direction)):
+                            and maze[self.y][self.x].is_open(
+                                direction)):
                         self.y += 1
                         self.y_sub = 0
 
@@ -138,29 +149,35 @@ class Game:
 
                 else:
                     if not self.y_sub:
-                        if self.x > 0 and maze[self.y][self.x].is_open(direction):
+                        if self.x > 0 and maze[self.y][self.x].is_open(
+                                direction):
                             self.x -= 1
                             self.x_sub = 1
                     else:
                         if (self.y < height - 1 and self.x > 0
-                                and maze[self.y][self.x - 1].is_open(Direction.south)
-                                and maze[self.y][self.x - 1].is_open(Direction.east)
-                                and maze[self.y + 1][self.x - 1].is_open(Direction.east)):
+                                and maze[self.y][self.x - 1].is_open(
+                                    Direction.south)
+                                and maze[self.y][self.x - 1].is_open(
+                                    Direction.east)
+                                and maze[self.y + 1][self.x - 1].is_open(
+                                    Direction.east)):
                             self.x -= 1
                             self.x_sub = 1
 
             case Direction.east:
                 if (not self.x_sub
-                        and maze[self.y][self.x].is_open(direction)):
+                        and maze[self.y][self.x].is_open(
+                            direction)):
                     if not self.y_sub:
                         self.x_sub = 1
                     else:
                         if (self.y < height - 1
                                 and self.x < width - 1
-                                and maze[self.y + 1][self.x + 1].is_open(Direction.north)
-                                and maze[self.y + 1][self.x + 1].is_open(Direction.west)):
+                                and maze[self.y + 1][self.x + 1].is_open(
+                                    Direction.north)
+                                and maze[self.y + 1][self.x + 1].is_open(
+                                    Direction.west)):
                             self.x_sub = 1
-
 
                 else:
                     if (self.x < width - 1
@@ -168,17 +185,37 @@ class Game:
                         self.x += 1
                         self.x_sub = 0
 
+    @staticmethod
+    def dis_play_menu() -> None:
+
+        print()
+        print("╔════════════════════════════════════════════════╗")
+        print("║        WELCOME TO A_MAZE_ING: THE GAME!        ║")
+        print("╠════════════════════════════════════════════════╣")
+        print("║                  MOVE AROUND:                  ║")
+        print("║   ↑  ←  ↓  →          or          w  a  s  d   ║")
+        print("╠════════════════════════════════════════════════╣")
+        print("║ e: toggle solution [ON/OFF]      q: quit game  ║")
+        print("╚════════════════════════════════════════════════╝")
+        print()
 
     def move_player(self, maze: Maze) -> None:
+        maze.solution = False
         while True:
+            maze.print_maze()
+            self.dis_play_menu()
 
             if (maze.maze[self.y][self.x].is_exit
                     and not self.x_sub and not self.y_sub):
                 break
 
-            direction = getchar()
-            if direction:
-                self.unset_pos(maze.maze)
-                self.set_player(maze.maze, direction)
-                self.set_pos(maze.maze)
-            maze.print_maze()
+            key = getchar()
+            if key:
+                if key == 'e':
+                    maze.solution = not maze.solution
+                elif key == 'q':
+                    break
+                else:
+                    self.unset_pos(maze.maze)
+                    self.set_player(maze.maze, key)
+                    self.set_pos(maze.maze)
