@@ -45,7 +45,7 @@ class Maze:
         self.random = False if config.get('SEED', None) else True
         self.path = ""
         self.error_message = ""
-        self.animation = False
+        self.animation = True
         self.solution = True
         self.two_forty = True
         self.maze = self.init_maze()
@@ -119,6 +119,7 @@ class Maze:
 
                 cell.is_solved = False
                 cell.steps = 0
+                cell.searched = 0
 
                 if cell.visited != 42:
                     cell.visited = 0
@@ -193,6 +194,9 @@ class Maze:
 
             case "hunt_and_kill":
                 self.hunt_and_kill()
+
+            case "wilson":
+                self.wilson()
 
     def backtrack(self, col: int, row: int) -> None:
         """Backtrack algorithm for maze generation.
@@ -751,7 +755,7 @@ class Maze:
                         self.print_maze()
 
     def ft_recursive_division(self):
-
+        """Recurisive division argorithm with '42' at the center."""
         center_x = int((self.width - 1) / 2)
         center_y = int((self.height - 1) / 2)
         offset_x = self.width % 2
@@ -855,7 +859,15 @@ class Maze:
                            width: int,
                            height: int,
                            axis: int) -> None:
+        """Recursive division algorithm for maze generation.
 
+        Args:
+            x: x coord of the sub-maze.
+            y: y coord of the sub-maze.
+            width: width of the sub-maze.
+            height: height of the sub-maze.
+            axis: 0 or 1, deciding wich axes is divided.
+        """
         axis = not axis
         if width < 2 or height < 2:
             return
@@ -906,6 +918,209 @@ class Maze:
                     self.print_maze()
             self.recursive_division(x, y, col - x, height, axis)
             self.recursive_division(col, y, width - col + x, height, axis)
+
+    def wil_opener(self, r: int, c: int, dir: Direction, steps: int) -> int:
+        """Match direction and open walls.
+
+        Args:
+            r: row of the maze.
+            c: column of the maze.
+            dir: direction chosen.
+        Returns:
+            int: 1 (truthy) if the wall are opened.
+                 0 (falsy) otherwise.
+        """
+
+        match dir:
+
+            case Direction.north:
+                if r > 0 and self.maze[r - 1][c].visited != 42:
+                    if not self.maze[r - 1][c].steps:
+                        self.maze[r][c].open_wall(Direction.north)
+                        self.maze[r - 1][c].open_wall(Direction.south)
+                    self.maze[r][c].steps = steps
+                    return 1
+
+            case Direction.south:
+                if r < self.height - 1 and self.maze[r + 1][c].visited != 42:
+                    if not self.maze[r + 1][c].steps:
+                        self.maze[r][c].open_wall(Direction.south)
+                        self.maze[r + 1][c].open_wall(Direction.north)
+                    self.maze[r][c].steps = steps
+                    return 1
+
+            case Direction.east:
+                if c < self.width - 1 and self.maze[r][c + 1].visited != 42:
+                    if not self.maze[r][c + 1].steps:
+                        self.maze[r][c].open_wall(Direction.east)
+                        self.maze[r][c + 1].open_wall(Direction.west)
+                    self.maze[r][c].steps = steps
+                    return 1
+
+            case Direction.west:
+                if c > 0 and self.maze[r][c - 1].visited != 42:
+                    if not self.maze[r][c - 1].steps:
+                        self.maze[r][c].open_wall(Direction.west)
+                        self.maze[r][c - 1].open_wall(Direction.east)
+                    self.maze[r][c].steps = steps
+                    return 1
+        return 0
+
+    def wilson_killer(self, r: int, c: int) -> None:
+
+        while True:
+
+            if (r > 0 and
+                    self.maze[r][c].is_open(Direction.north) and
+                    self.maze[r - 1][c].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].close_wall(Direction.north)
+                self.maze[r - 1][c].close_wall(Direction.south)
+                self.maze[r][c].steps = 0
+                r = r - 1
+                continue
+
+            elif (r < self.height - 1 and
+                  self.maze[r][c].is_open(Direction.south) and
+                  self.maze[r + 1][c].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].close_wall(Direction.south)
+                self.maze[r + 1][c].close_wall(Direction.north)
+                self.maze[r][c].steps = 0
+                r = r + 1
+                continue
+
+            elif (c < self.width - 1 and
+                  self.maze[r][c].is_open(Direction.east) and
+                  self.maze[r][c + 1].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].close_wall(Direction.east)
+                self.maze[r][c + 1].close_wall(Direction.west)
+                self.maze[r][c].steps = 0
+                c = c + 1
+                continue
+
+            elif (c > 0 and
+                  self.maze[r][c].is_open(Direction.west) and
+                  self.maze[r][c - 1].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].close_wall(Direction.west)
+                self.maze[r][c - 1].close_wall(Direction.east)
+                self.maze[r][c].steps = 0
+                c = c - 1
+                continue
+            break
+        if self.animation:
+            self.print_maze()
+        self.maze[r][c].steps = 0
+
+    def wilson_validator(self, start: tuple[int, int], end: list[tuple[int, int]], pool: list[tuple[int, int]]) -> None:
+
+        r, c = start[0], start[1]
+        while True:
+            # breakpoint()
+            if (r > 0 and
+                    self.maze[r][c].is_open(Direction.north) and
+                    self.maze[r - 1][c].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].steps = 0
+                self.maze[r][c].visited = 1
+                end.append((r, c))
+                pool.remove((r, c))
+                r = r - 1
+                continue
+
+            elif (r < self.height - 1 and
+                  self.maze[r][c].is_open(Direction.south) and
+                  self.maze[r + 1][c].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].steps = 0
+                self.maze[r][c].visited = 1
+                end.append((r, c))
+                pool.remove((r, c))
+                r = r + 1
+                continue
+
+            elif (c < self.width - 1 and
+                  self.maze[r][c].is_open(Direction.east) and
+                  self.maze[r][c + 1].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].steps = 0
+                self.maze[r][c].visited = 1
+                end.append((r, c))
+                pool.remove((r, c))
+                c = c + 1
+                continue
+
+            elif (c > 0 and
+                  self.maze[r][c].is_open(Direction.west) and
+                  self.maze[r][c - 1].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].steps = 0
+                self.maze[r][c].visited = 1
+                end.append((r, c))
+                pool.remove((r, c))
+                c = c - 1
+                continue
+            break
+        self.maze[r][c].steps = 0
+        self.maze[r][c].visited = 1
+        end.append((r, c))
+        pool.remove((r, c))
+
+    def wilson(self) -> None:
+        """Wilson algorithm for maze generation."""
+        directions = [
+            Direction.north,
+            Direction.east,
+            Direction.south,
+            Direction.west
+            ]
+
+        pool: list[tuple[int, int]] = []
+        for row in range(self.height):
+            for col in range(self.width):
+                if not self.maze[row][col].visited:
+                    pool.append((row, col))
+
+        end: list[tuple[int, int]] = []
+        end.append(random.choice(pool))
+        self.maze[end[0][0]][end[0][1]].is_entry = True
+        pool.remove(end[0])
+
+        while len(pool):
+            start = random.choice(pool)
+            r, c = start[0], start[1]
+            steps = 1
+            while not (r, c) in end:
+                if self.maze[r][c].steps:
+                    steps = self.maze[r][c].steps
+                    self.wilson_killer(r, c)
+                    self.maze[r][c].steps = steps
+                # breakpoint()
+                random.shuffle(directions)
+                for direction in directions:
+                    match direction:
+
+                        case Direction.north:
+                            if self.wil_opener(r, c, direction, steps):
+                                steps += 1
+                                r = r - 1
+                                break
+
+                        case Direction.south:
+                            if self.wil_opener(r, c, direction, steps):
+                                steps += 1
+                                r = r + 1
+                                break
+
+                        case Direction.east:
+                            if self.wil_opener(r, c, direction, steps):
+                                steps += 1
+                                c = c + 1
+                                break
+
+                        case Direction.west:
+                            if self.wil_opener(r, c, direction, steps):
+                                steps += 1
+                                c = c - 1
+                                break
+                if self.animation:
+                    self.print_maze()
+            self.wilson_validator(start, end, pool)
+            self.maze[end[0][0]][end[0][1]].is_entry = False
 
     def nirugger(self) -> None:
         """nirugger algorithm for maze generation."""
