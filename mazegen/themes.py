@@ -200,6 +200,17 @@ THEMES: dict[str, dict[str, str]] = {
         "solved":  "\033[48;2;200;100;0m  \033[0m",      # dark orange
     },
 
+    "nature": {
+        "wall":    "\033[48;2;232;165;152m  \033[0m",    # salmon pink
+        "path":    "\033[48;2;157;2;8m  \033[0m",        # blood red
+        "ft":      "\033[48;2;224;250;241m  \033[0m",    # mint white
+        "ft_wall": "\033[48;2;224;250;241m  \033[0m",    # mint white
+        "player":  "\033[48;2;32;178;170m  \033[0m",     # light sea green
+        "entry":   "\033[48;2;0;77;64m  \033[0m",        # dark emerald
+        "exit":    "\033[48;2;224;187;228m  \033[0m",    # soft lilac
+        "solved":  "\033[48;2;149;125;173m  \033[0m",    # lavender
+    },
+
     "colorblind_unfriendly": {
         "wall":    "\033[48;2;180;60;0m  \033[0m",       # red-brown
         "path":    "\033[48;2;60;130;0m  \033[0m",       # olive green

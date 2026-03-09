@@ -48,6 +48,7 @@ class Maze:
         self.animation = True
         self.solution = True
         self.two_forty = True
+        self.sleep_time = 0.042
         self.maze = self.init_maze()
 
     @staticmethod
@@ -173,7 +174,12 @@ class Maze:
                 self.aldous_broder(self.start[1], self.start[0])
 
             case "nirugger":
-                self.nirugger()
+                if not self.perfect:
+                    self.perfect = True
+                    self.nirugger()
+                    self.perfect = False
+                else:
+                    self.nirugger()
 
             case "recursive_division":
                 self.make_it_empty()
@@ -1010,11 +1016,13 @@ class Maze:
             self.print_maze()
         self.maze[r][c].steps = 0
 
-    def wilson_validator(self, start: tuple[int, int], end: list[tuple[int, int]], pool: list[tuple[int, int]]) -> None:
+    def wilson_validator(self,
+                         start: tuple[int, int],
+                         end: list[tuple[int, int]],
+                         pool: list[tuple[int, int]]) -> None:
 
         r, c = start[0], start[1]
         while True:
-            # breakpoint()
             if (r > 0 and
                     self.maze[r][c].is_open(Direction.north) and
                     self.maze[r - 1][c].steps == self.maze[r][c].steps + 1):
@@ -1089,7 +1097,6 @@ class Maze:
                     steps = self.maze[r][c].steps
                     self.wilson_killer(r, c)
                     self.maze[r][c].steps = steps
-                # breakpoint()
                 random.shuffle(directions)
                 for direction in directions:
                     match direction:
@@ -1760,7 +1767,7 @@ class Maze:
                     bottom_str += self.theme['wall']
 
             print(bottom_str)
-        time.sleep(0.042)
+        time.sleep(self.sleep_time)
 
     def __str__(self) -> str:
         """Readable representation of the maze.

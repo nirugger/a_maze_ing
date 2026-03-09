@@ -276,7 +276,7 @@ class Menu:
         print("    ║  4: EXIT                                 ║    ")
         print("    ║  5: STARTING POINT                       ║    ")
         print("    ║  6: PERFECT [ON/OFF]                     ║    ")
-        print("    ║  7:                                      ║    ")
+        print("    ║  7: ANIMATION SPEED                      ║    ")
         print("    ║  8: SEED                                 ║    ")
         print("    ║  9: RESET                                ║    ")
         print("    ║                                          ║    ")
@@ -394,7 +394,18 @@ class Menu:
                         msg = f"PERFECT set to '{mod_config['PERFECT']}'\n"
 
                     case "7":
-                        msg = "\n"
+                        try:
+                            time = float(input("Choose "
+                                               "animation speed (seconds): "))
+                            if time <= 0:
+                                raise ValueError("[ERROR]:"
+                                                 "ANIMATION SPEED cannot be "
+                                                 "less than zero.\n")
+                            cls.maze.sleep_time = time
+                            msg = f"ANIMATION SPEED set to {time} seconds.\n"
+                        except ValueError:
+                            msg = ("[ERROR]: ANIMATION SPEED must be "
+                                   "a positive number.\n")
 
                     case "8":
                         new = input("Choose the seed "
@@ -404,7 +415,7 @@ class Menu:
                             cls.maze.random = True
                             new = Maze.get_random_seed()
                             msg = ("SEED set to RANDOM\n"
-                                   f"for next run will be: << {new} >>'\n")
+                                   f"for next run will be: << {new} >>\n")
                         else:
                             cls.maze.random = False
                             msg = f"SEED set to << {new} >>\n"
@@ -544,12 +555,13 @@ class Menu:
                     case "5":
                         MazeConfig.ALGORITHM = 'aldous_broder'
                         cls.maze.algo = 'aldous_broder'
-                        msg = "You choose ALDOUS-BRODER. Prepare to wait.\n"
+                        msg = ("You choose ALDOUS-BRODER."
+                               "Different every time!.\n")
 
                     case "6":
                         MazeConfig.ALGORITHM = 'wilson'
                         cls.maze.algo = 'wilson'
-                        msg = "You choose WILSON. .\n"
+                        msg = "You choose WILSON. Prepare to wait.\n"
 
                     case "7":
                         MazeConfig.ALGORITHM = 'recursive_division'
@@ -663,7 +675,7 @@ class Menu:
         print("║  6: LIFE      (gbotti)     ║  f: CYBERPUNK       ║")
         print("║  7: LIXI      (lmongili)   ║  g: SPACE           ║")
         print("║  8: CARLO     (lesbrocc)   ║  h: FREEDOM         ║")
-        print("║  9:                        ║  i:                 ║")
+        print("║  9: NATURE    (mohfalla)   ║  i:                 ║")
         print("║  0:                        ║  j: COLORBLIND      ║")
         print("║                            ║     UN-FRIENDLY (:  ║")
         print("║                            ║                     ║")
@@ -720,7 +732,8 @@ class Menu:
                         msg = "THEME set to CARLO\n"
 
                     case "9":
-                        pass
+                        cls.maze.theme = THEMES['nature']
+                        msg = "THEME set to NATURE\n"
 
                     case "0":
                         pass
