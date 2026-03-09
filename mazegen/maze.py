@@ -165,7 +165,7 @@ class Maze:
                 self.kruskal()
 
             case "eller":
-                self.eller()
+                self.eller_test()
 
             case "binary_tree":
                 self.binary_tree()
@@ -501,6 +501,58 @@ class Maze:
                                     Direction.north
                                     )
                                 self.maze[row][col].open_wall(Direction.south)
+
+    def eller_test(self) -> None:
+
+        el_set: set[tuple[int, int]] = set()
+        unique_sets = 0
+
+        for cell in self.maze[0]:
+            el_set.add((0, unique_sets))
+            unique_sets += 1
+            cell.id = unique_sets
+
+        for row in range(self.height - 1):
+
+            for col in range(self.width):
+                if col == self.width - 1:
+                    continue
+                coin = random.randint(0, 1)
+                if coin and self.maze[row][col].id != self.maze[row][col + 1].id:
+                    self.maze[row][col].open_wall(Direction.east)
+                    self.maze[row][col + 1].open_wall(Direction.west)
+                    self.maze[row][col + 1].id = self.maze[row][col].id
+                    unique_sets -= 1
+
+            for i in range(unique_sets):
+                coords = []
+                for col in range(self.width):
+                    breakpoint()
+                    if self.maze[row][col].id == i + 1:
+                        coords.append((row, col))
+                if len(coords) == 1:
+                    self.maze[coords[0][0]][coords[0][1]].open_wall(Direction.south)
+                    self.maze[coords[0][0] + 1][coords[0][1]].open_wall(Direction.north)
+                    self.maze[coords[0][0] + 1][coords[0][1]].id = self.maze[coords[0][0]][coords[0]    [1]].id
+                    el_set.add((row + 1, col))
+                else:
+                    breakpoint()
+                    choices = random.randint(0, len(coords)) + 1
+                    for i in range(choices):
+                        print(coords)
+                        row_col = random.choice(coords)
+                        row, col = row_col[0], row_col[1]
+                        self.maze[row][col].open_wall(Direction.south)
+                        self.maze[row + 1][col].open_wall(Direction.north)
+                        self.maze[row + 1][col].id = self.maze[row][col].id
+                        el_set.add((row + 1, col))
+
+            for col in range(self.width):
+                if (row, col) not in el_set:
+                    el_set.add((row, col))
+
+            self.print_maze()
+
 
     def aldous_broder(self, col: int, row: int) -> None:
         """Aldous-Broder algorithm for maze generation."""

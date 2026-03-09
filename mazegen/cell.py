@@ -31,6 +31,7 @@ class Cell:
         self.is_player = False
         self.x_sub = 0
         self.y_sub = 0
+        self.id = 0
 
     def is_closed(self, direction: Direction) -> int:
         """Check if a specific wall is closed.
