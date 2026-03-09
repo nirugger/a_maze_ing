@@ -47,7 +47,7 @@ class Maze:
         self.random = False if config.get('SEED', None) else True
         self.path = ""
         self.error_message = ""
-        self.animation = True
+        self.animation = False
         self.solution = True
         self.two_forty = True
         self.maze = self.init_maze()

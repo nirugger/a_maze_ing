@@ -2,8 +2,8 @@
 
 WIDTH=15
 HEIGHT=15
-ENTRY=0,0
-EXIT=14,14
+ENTRY=14,14
+EXIT=0,0
 OUTPUT_FILE=maze.txt
 PERFECT=true
 
@@ -11,7 +11,7 @@ PERFECT=true
 
 START=7,7
 ALGORITHM=backtrack
-SEED=
+SEED=42
 
 
 

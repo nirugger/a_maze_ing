@@ -52,7 +52,7 @@ class Cell:
             1,2,4,8 based on direction (truthy) if the wall is open.
             0 (falsy) if the wall is closed.
         """
-        return ~ self.walls & direction.value
+        return (~ self.walls) & direction.value
 
     def open_wall(self, direction: Direction) -> None:
         """Open one wall of the cell.

@@ -4,7 +4,7 @@ from mazegen.cell import Direction
 import sys
 
 
-def getchar_win() -> int:
+def getchar_win() -> Direction | None:
     import msvcrt
 
     if msvcrt.kbhit():      # se è stato premuto un tasto
@@ -28,18 +28,38 @@ def getchar_win() -> int:
         sys.stdin.flush
 
 
-def getchar_linux():
+def getchar_linux() -> Direction | None:
     import termios
     import tty
- 
+
     fd = sys.stdin.fileno()
     old = termios.tcgetattr(fd)
+
     try:
         tty.setraw(fd)
-        ch = sys.stdin.read(1)  # legge 1 carattere
+        key = sys.stdin.read(1)
+        if key == '\x1b':
+            key += sys.stdin.read(2)
+            if key == '\x1b[A':
+                return Direction.north
+            elif key == '\x1b[B':
+                return Direction.south
+            elif key == '\x1b[C':
+                return Direction.east
+            elif key == '\x1b[D':
+                return Direction.west
+
+        elif key == 'w':
+            return Direction.north
+        elif key == 's':
+            return Direction.south
+        elif key == 'd':
+            return Direction.east
+        elif key == 'a':
+            return Direction.west
+        return None
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
-    return ch
 
 
 def getchar():
@@ -69,7 +89,7 @@ class Game:
         maze[self.y][self.x].x_sub = self.x_sub
         maze[self.y][self.x].y_sub = self.y_sub
 
-    def set_player(self, maze:list[list[Cell]], direction: Direction) -> None:
+    def set_player(self, maze: list[list[Cell]], direction: Direction) -> None:
         if not maze or not maze[0]:
             return
 
@@ -79,20 +99,20 @@ class Game:
         match direction:
             case Direction.north:
                 if self.y_sub:
-                    # if not self.x_sub:
-                    #     self.y_sub = 0
-                    # else:
-                    #     if (self.y > 0 and self.x > 0
-                    #             and maze[self.y - 1][self.x - 1].is_open(Direction.south)
-                    #             and maze[self.y - 1][self.x - 1].is_open(Direction.east)):
-                    #         self.y -= 1
-                    #         self.y_sub = 1
-                    pass
+                    self.y_sub = 0
 
                 else:
-                    if self.y > 0 and maze[self.y][self.x].is_open(direction):
-                        self.y -= 1
-                        self.y_sub = 1
+                    if not self.x_sub:
+                        if self.y > 0 and maze[self.y][self.x].is_open(direction):
+                            self.y -= 1
+                            self.y_sub = 1
+                    else:
+                        if (self.y > 0 and self.x < width - 1
+                                and maze[self.y][self.x].is_open(Direction.north)
+                                and maze[self.y - 1][self.x + 1].is_open(Direction.south)
+                                and maze[self.y - 1][self.x + 1].is_open(Direction.west)):
+                            self.y -= 1
+                            self.y_sub = 1
 
             case Direction.south:
                 if (not self.y_sub
@@ -104,8 +124,7 @@ class Game:
                                 and self.x < width - 1
                                 and maze[self.y + 1][self.x + 1].is_open(Direction.north)
                                 and maze[self.y + 1][self.x + 1].is_open(Direction.west)):
-                            self.y += 1
-                            self.y_sub = 0
+                            self.y_sub = 1
 
                 else:
                     if (self.y < height - 1
@@ -115,20 +134,20 @@ class Game:
 
             case Direction.west:
                 if self.x_sub:
-                    # if not self.y_sub:
-                    #     self.x_sub = 0
-                    # else:
-                    #     if (self.y > 0 and self.x > 0
-                    #             and maze[self.y - 1][self.x - 1].is_open(Direction.south)
-                    #             and maze[self.y - 1][self.x - 1].is_open(Direction.east)):
-                    #         self.x -= 1
-                    #         self.x_sub = 0
-                    pass
+                    self.x_sub = 0
 
                 else:
-                    if self.x > 0 and maze[self.y][self.x].is_open(direction):
-                        self.x -= 1
-                        self.x_sub = 1
+                    if not self.y_sub:
+                        if self.x > 0 and maze[self.y][self.x].is_open(direction):
+                            self.x -= 1
+                            self.x_sub = 1
+                    else:
+                        if (self.y < height - 1 and self.x > 0
+                                and maze[self.y][self.x - 1].is_open(Direction.south)
+                                and maze[self.y][self.x - 1].is_open(Direction.east)
+                                and maze[self.y + 1][self.x - 1].is_open(Direction.east)):
+                            self.x -= 1
+                            self.x_sub = 1
 
             case Direction.east:
                 if (not self.x_sub
@@ -140,8 +159,7 @@ class Game:
                                 and self.x < width - 1
                                 and maze[self.y + 1][self.x + 1].is_open(Direction.north)
                                 and maze[self.y + 1][self.x + 1].is_open(Direction.west)):
-                            self.x += 1
-                            self.x_sub = 0
+                            self.x_sub = 1
 
 
                 else:
@@ -164,4 +182,3 @@ class Game:
                 self.set_player(maze.maze, direction)
                 self.set_pos(maze.maze)
             maze.print_maze()
-
