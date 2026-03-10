@@ -120,7 +120,6 @@ class Maze:
 
                 cell.is_solved = False
                 cell.steps = 0
-                cell.searched = 0
 
                 if cell.visited != 42:
                     cell.visited = 0
@@ -464,7 +463,7 @@ class Maze:
                         self.maze[row][col].open_wall(Direction.west)
 
             for s in el_list:
-                tup = random.choice(s)
+                tup: tuple[int, int] = random.choice(s)
                 if (tup[0] < self.height - 1):
                     c = tup
                     while (self.maze[c[0] + 1][c[1]].visited == 42 and not
@@ -847,7 +846,7 @@ class Maze:
                     if self.animation:
                         self.print_maze()
 
-    def ft_recursive_division(self):
+    def ft_recursive_division(self) -> None:
         """Recurisive division argorithm with '42' at the center."""
         center_x = int((self.width - 1) / 2)
         center_y = int((self.height - 1) / 2)
@@ -993,7 +992,11 @@ class Maze:
                 col = x + 1
             else:
                 col = random.randrange(x + 1, x + width)
-                while self.maze[y][col] == 42:
+
+                # controllare il while perche la guardia non controllava
+                # self.maze[y][col].visited ma self.maze[y][col]
+
+                while self.maze[y][col].visited == 42:
                     col = random.randrange(x + 1, x + width)
 
             open = random.randint(y, y + height - 1)

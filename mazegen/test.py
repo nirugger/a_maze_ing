@@ -2,7 +2,7 @@ from mazegen.game import getchar
 from time import sleep
 
 
-def main():
+def main() -> None:
     while True:
         print(getchar())
         sleep(0.5)

@@ -471,7 +471,7 @@ class Menu:
                                 if type(e).__name__ == 'ValueError':
                                     print(str(e))
 
-                                else:
+                                elif isinstance(e, ValidationError):
                                     i = 1
                                     for err in e.errors():
                                         print(f"{i}) {err['msg']}")
@@ -826,8 +826,9 @@ class Menu:
     def personalized_color_menu(cls) -> None:
         """Display the personalized color menu and wait for user input."""
         msg = ''
-        default = cls.maze.theme
-        modified = copy.deepcopy(cls.maze.theme)
+        if cls.maze:
+            default = cls.maze.theme
+            modified = copy.deepcopy(cls.maze.theme)
         while True:
 
             if cls.maze:

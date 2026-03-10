@@ -5,27 +5,33 @@ import sys
 
 
 def getchar_windows() -> Direction | None:
-    import msvcrt
 
-    if msvcrt.kbhit():      # se è stato premuto un tasto
-        key = msvcrt.getch()  # legge il tasto
-        if key in (b'\xe0', b'\x00'):
-            key2 = msvcrt.getch()  # byte reale della freccia
-            while msvcrt.kbhit():
-                msvcrt.getch()
-            if key2 == b'H':       # ↑
-                sys.stdin.flush
-                return Direction.north
-            elif key2 == b'P':     # ↓
-                sys.stdin.flush
-                return Direction.south
-            elif key2 == b'K':     # ←
-                sys.stdin.flush
-                return Direction.west
-            elif key2 == b'M':     # →
-                sys.stdin.flush
-                return Direction.east
-        sys.stdin.flush
+    try:
+        import msvcrt
+
+        if msvcrt.kbhit():  # type: ignore[attr-defined]
+            key = msvcrt.getch()  # type: ignore[attr-defined]
+            if key in (b'\xe0', b'\x00'):
+                key2 = msvcrt.getch()  # type: ignore[attr-defined]
+                while msvcrt.kbhit():  # type: ignore[attr-defined]
+                    msvcrt.getch()  # type: ignore[attr-defined]
+                if key2 == b'H':       # ↑
+                    sys.stdin.flush
+                    return Direction.north
+                elif key2 == b'P':     # ↓
+                    sys.stdin.flush
+                    return Direction.south
+                elif key2 == b'K':     # ←
+                    sys.stdin.flush
+                    return Direction.west
+                elif key2 == b'M':     # →
+                    sys.stdin.flush
+                    return Direction.east
+            sys.stdin.flush
+    except Exception:
+        print("[ERROR]: "
+              "This is not windows!!!")
+    return None
 
 
 def getchar_linux() -> Direction | str | None:
@@ -64,7 +70,7 @@ def getchar_linux() -> Direction | str | None:
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 
-def getchar():
+def getchar() -> Direction | str | None:
     if sys.platform.startswith("win"):
         return getchar_windows()
     else:
@@ -81,13 +87,13 @@ class Game:
 
     def unset_pos(self, maze: list[list[Cell]]) -> None:
 
-        maze[self.y][self.x].is_player = 0
+        maze[self.y][self.x].is_player = False
         maze[self.y][self.x].x_sub = 0
         maze[self.y][self.x].y_sub = 0
 
     def set_pos(self, maze: list[list[Cell]]) -> None:
 
-        maze[self.y][self.x].is_player = 1
+        maze[self.y][self.x].is_player = True
         maze[self.y][self.x].x_sub = self.x_sub
         maze[self.y][self.x].y_sub = self.y_sub
 
@@ -215,7 +221,7 @@ class Game:
                     maze.solution = not maze.solution
                 elif key == 'q':
                     break
-                else:
+                elif isinstance(key, Direction):
                     self.unset_pos(maze.maze)
                     self.set_player(maze.maze, key)
                     self.set_pos(maze.maze)
