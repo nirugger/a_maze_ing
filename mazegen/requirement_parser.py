@@ -9,8 +9,8 @@ from abc import ABC
 class MazeConfig(BaseModel):
     """BaseModel class for data validation."""
 
-    WIDTH: int = Field(ge=2, le=41)
-    HEIGHT: int = Field(ge=2, le=21)
+    WIDTH: int = Field(ge=3, le=41)
+    HEIGHT: int = Field(ge=3, le=21)
     ENTRY: Tuple[int, int] = Field(min_length=2, max_length=2)
     EXIT: Tuple[int, int] = Field(min_length=2, max_length=2)
     START: Optional[Tuple[int, int]] = Field(default=None,

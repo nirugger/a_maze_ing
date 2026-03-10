@@ -281,7 +281,7 @@ class Menu:
         print("    ║  8: SEED                                 ║    ")
         print("    ║  9: RESET                                ║    ")
         print("    ║                                          ║    ")
-        print("    ║  q: back to Main Menu                    ║    ")
+        print("    ║  q: back to main menu                    ║    ")
         print("    ╚══════════════════════════════════════════╝    ")
         print()
 
@@ -479,8 +479,8 @@ class Menu:
                                         i += 1
                                         print()
 
-                                choice = input("1: Reconfigure\n"
-                                               "2: Go back to menu\n")
+                                choice = input("1: reconfigure\n"
+                                               "2: back to main menu\n")
                                 match choice:
                                     case "1":
                                         msg = "\n"
@@ -514,7 +514,7 @@ class Menu:
         print("    ║  9: BINARY TREE                          ║    ")
         print("    ║  0: NIRUGGER                             ║    ")
         print("    ║                                          ║    ")
-        print("    ║  q: back to configuration menu           ║    ")
+        print("    ║  q: back to main menu                    ║    ")
         print("    ╚══════════════════════════════════════════╝    ")
         print()
 
@@ -535,7 +535,8 @@ class Menu:
                     case "1":
                         MazeConfig.ALGORITHM = 'backtrack'
                         cls.maze.algo = 'backtrack'
-                        msg = "You choose BACKTRACK. Truly original.\n"
+                        msg = ("You choose BACKTRACK. "
+                               "The beginning of everything.\n")
 
                     case "2":
                         MazeConfig.ALGORITHM = 'prim'
@@ -546,28 +547,32 @@ class Menu:
                     case "3":
                         MazeConfig.ALGORITHM = 'eller'
                         cls.maze.algo = 'eller'
-                        msg = "You choose ELLER. IT WON'T WORK!!.\n"
+                        msg = ("You choose ELLER. "
+                               "Both hard and unsatisfying.\n")
 
                     case "4":
                         MazeConfig.ALGORITHM = 'kruskal'
                         cls.maze.algo = 'kruskal'
-                        msg = "You choose KRUSKAL. Slow but steady.\n"
+                        msg = ("You choose KRUSKAL. "
+                               "Slow but steady.\n")
 
                     case "5":
                         MazeConfig.ALGORITHM = 'aldous_broder'
                         cls.maze.algo = 'aldous_broder'
                         msg = ("You choose ALDOUS-BRODER."
-                               "Different every time!.\n")
+                               "Everything everywhere all in one!.\n")
 
                     case "6":
                         MazeConfig.ALGORITHM = 'wilson'
                         cls.maze.algo = 'wilson'
-                        msg = "You choose WILSON. Prepare to wait.\n"
+                        msg = ("You choose WILSON. "
+                               "Prepare to wait.\n")
 
                     case "7":
                         MazeConfig.ALGORITHM = 'recursive_division'
                         cls.maze.algo = 'recursive_division'
-                        msg = "You choose RECURSIVE DIVISION. EZ.\n"
+                        msg = ("You choose RECURSIVE DIVISION. "
+                               "Harder than it looks.\n")
 
                     case "8":
                         MazeConfig.ALGORITHM = 'hunt_and_kill'
@@ -578,12 +583,14 @@ class Menu:
                     case "9":
                         MazeConfig.ALGORITHM = 'binary_tree'
                         cls.maze.algo = 'binary_tree'
-                        msg = "You choose BINARY TREE. Not that amazing.\n"
+                        msg = ("You choose BINARY TREE. "
+                               "All in all, not that amazing.\n")
 
                     case "0":
                         MazeConfig.ALGORITHM = 'nirugger'
                         cls.maze.algo = 'nirugger'
-                        msg = "You choose NIRUGGER. I'm flattered!\n"
+                        msg = ("You choose NIRUGGER. "
+                               "I'm flattered!\n")
 
                     case "q":
                         return
@@ -594,15 +601,17 @@ class Menu:
     @staticmethod
     def display_color_menu() -> None:
         """Display of the color menu."""
-        print("                                             ")
-        print("╔═════════════════════╦═════════════════════╗")
-        print("║  1: DEFAULT         ║  3: R4ND0M          ║")
-        print("║  2: COLORBLIND      ║  4: CHOOSE YOUR     ║")
-        print("║     FRIENDLY :)     ║     COLORS!!!       ║")
-        print("║                     ║                     ║")
-        print("╠═════════════════════╩═════════════════════╣")
-        print("║  +: MORE COLORS        q: Back to Menu    ║")
-        print("╚═══════════════════════════════════════════╝")
+        print("                                                     ")
+        print("    ╔═════════════════════╦═════════════════════╗    ")
+        print("    ║                     ║                     ║    ")
+        print("    ║  1: DEFAULT         ║  3: R4ND0M          ║    ")
+        print("    ║                     ║                     ║    ")
+        print("    ║  2: COLORBLIND      ║  4: CHOOSE YOUR     ║    ")
+        print("    ║     FRIENDLY :)     ║     COLORS!!!       ║    ")
+        print("    ║                     ║                     ║    ")
+        print("    ╠═════════════════════╬═════════════════════╣    ")
+        print("    ║  +: MORE COLORS     ║  q: back to menu    ║    ")
+        print("    ╚═════════════════════╩═════════════════════╝    ")
 
     @classmethod
     def color_menu(cls) -> None:
@@ -666,23 +675,23 @@ class Menu:
     @staticmethod
     def display_more_color_menu() -> None:
         """Display of the more color menu."""
-        print()
-        print("╔════════════════════════════╦═════════════════════╗")
-        print("║  1: IRIDE     (mpagano)    ║  a: OCEAN           ║")
-        print("║  2: BAUGIGI   (alfiorav)   ║  b: FOREST          ║")
-        print("║  3: NICOLA    (ndavidso)   ║  c: DESERT          ║")
-        print("║  4: EFARISTO  (mcicconi)   ║  d: ARCTIC          ║")
-        print("║  5: FIRENZE   (acentron)   ║  e: VOLCANIC        ║")
-        print("║  6: LIFE      (gbotti)     ║  f: CYBERPUNK       ║")
-        print("║  7: LIXI      (lmongili)   ║  g: SPACE           ║")
-        print("║  8: CARLO     (lesbrocc)   ║  h: FREEDOM         ║")
-        print("║  9: NATURE    (mohfalla)   ║  i:                 ║")
-        print("║  0:                        ║  j: COLORBLIND      ║")
-        print("║                            ║     UN-FRIENDLY (:  ║")
-        print("║                            ║                     ║")
-        print("╠════════════════════════════╩═════════════════════╣")
-        print("║  -: LESS COLORS               q: Back to Menu    ║")
-        print("╚══════════════════════════════════════════════════╝")
+        print("                                                            ")
+        print("    ╔════════════════════════════╦═════════════════════╗    ")
+        print("    ║  1: IRIDE     (mpagano)    ║  a: OCEAN           ║    ")
+        print("    ║  2: BAUGIGI   (alfiorav)   ║  b: FOREST          ║    ")
+        print("    ║  3: NICOLA    (ndavidso)   ║  c: DESERT          ║    ")
+        print("    ║  4: EFARISTO  (mcicconi)   ║  d: ARCTIC          ║    ")
+        print("    ║  5: FIRENZE   (acentron)   ║  e: VOLCANIC        ║    ")
+        print("    ║  6: LIFE      (gbotti)     ║  f: CYBERPUNK       ║    ")
+        print("    ║  7: LIXI      (lmongili)   ║  g: SPACE           ║    ")
+        print("    ║  8: CARLO     (lesbrocc)   ║  h: FREEDOM         ║    ")
+        print("    ║  9: NATURE    (mohfalla)   ║  i:                 ║    ")
+        print("    ║  0:                        ║  j: COLORBLIND      ║    ")
+        print("    ║                            ║     UN-FRIENDLY (:  ║    ")
+        print("    ║                            ║                     ║    ")
+        print("    ╠════════════════════════════╬═════════════════════╣    ")
+        print("    ║  -: LESS COLORS            ║  q: back to menu    ║    ")
+        print("    ╚════════════════════════════╩═════════════════════╝    ")
 
     @classmethod
     def more_color_menu(cls) -> None:
@@ -802,7 +811,7 @@ class Menu:
         print("║  6: SOLUTION              0 <= B <= 255  ║")
         print("║                                          ║")
         print("║  0: RESET                                ║")
-        print("║  q: Back to Color Menu                   ║")
+        print("║  q: back to color menu                   ║")
         print("╚══════════════════════════════════════════╝")
         print()
 

@@ -55,15 +55,15 @@ def getchar_linux() -> Direction | str | None:
             elif key == '\x1b[D':
                 return Direction.west
 
-        elif key == 'w':
+        elif key == 'n' or key == 'N':
             return Direction.north
-        elif key == 's':
+        elif key == 's' or key == 'S':
             return Direction.south
-        elif key == 'd':
+        elif key == 'e' or key == 'E':
             return Direction.east
-        elif key == 'a':
+        elif key == 'w' or key == 'W':
             return Direction.west
-        elif key == 'q' or key == 'e':
+        elif key == 'q' or key == 'Q' or key == 'p' or key == 'P':
             return key
         return None
     finally:
@@ -199,9 +199,9 @@ class Game:
         print("║        WELCOME TO A_MAZE_ING: THE GAME!        ║")
         print("╠════════════════════════════════════════════════╣")
         print("║                  MOVE AROUND:                  ║")
-        print("║   ↑  ←  ↓  →          or          w  a  s  d   ║")
+        print("║   ↑  →  ↓  ←          or          N  E  S  W   ║")
         print("╠════════════════════════════════════════════════╣")
-        print("║ e: toggle solution [ON/OFF]      q: quit game  ║")
+        print("║ p: toggle solution [ON/OFF]      q: quit game  ║")
         print("╚════════════════════════════════════════════════╝")
         print()
 
@@ -217,7 +217,7 @@ class Game:
 
             key = getchar()
             if key:
-                if key == 'e':
+                if key == 'e' or key == 'E':
                     maze.solution = not maze.solution
                 elif key == 'q' or key == 'Q':
                     break

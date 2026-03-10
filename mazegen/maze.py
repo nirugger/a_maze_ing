@@ -60,7 +60,7 @@ class Maze:
         """
         alpha: str = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
         digit: str = "0123456789"
-        symbol: str = "?!@#$%^&*()_-+={}[]:;|/<>,.\\"
+        symbol: str = "?!@#$%^&*()_-+{}[]:;|/<>,.\\"
         pool: str = alpha + digit + symbol
         seed: str = "".join([random.choice(pool)
                              for _ in range(random.randint(21, 42))])
@@ -160,25 +160,17 @@ class Maze:
                 self.prim(self.start[1], self.start[0],
                           [(self.start[1], self.start[0])])
 
-            case "kruskal":
-                self.kruskal()
-
             case "eller":
                 self.eller()
 
-            case "binary_tree":
-                self.binary_tree()
+            case "kruskal":
+                self.kruskal()
 
             case "aldous_broder":
                 self.aldous_broder(self.start[1], self.start[0])
 
-            case "nirugger":
-                if not self.perfect:
-                    self.perfect = True
-                    self.nirugger()
-                    self.perfect = False
-                else:
-                    self.nirugger()
+            case "wilson":
+                self.wilson()
 
             case "recursive_division":
                 self.make_it_empty()
@@ -200,8 +192,19 @@ class Maze:
             case "hunt_and_kill":
                 self.hunt_and_kill()
 
-            case "wilson":
-                self.wilson()
+            case "sidewinder":
+                self.sidewinder()
+
+            case "binary_tree":
+                self.binary_tree()
+
+            case "nirugger":
+                if not self.perfect:
+                    self.perfect = True
+                    self.nirugger()
+                    self.perfect = False
+                else:
+                    self.nirugger()
 
     def backtrack(self, col: int, row: int) -> None:
         """Backtrack algorithm for maze generation.
@@ -353,6 +356,215 @@ class Maze:
                       row=item[1],
                       frontier=frontier)
 
+    def eller_stage_one(self,
+                        row: int,
+                        unique_sets: int) -> int:
+
+        for col in range(self.width):
+            if col == self.width - 1:
+                continue
+
+            coin = random.randint(0, 1)
+            if (self.maze[row + 1][col + 1].visited == 42 and
+                    self.maze[row - 1][col + 1].visited == 42 and
+                    self.maze[row + 1][col - 1].visited == 42 and
+                    self.maze[row - 1][col - 1].visited != 42):
+
+                self.maze[row][col].open_wall(Direction.east)
+                self.maze[row][col + 1].open_wall(Direction.west)
+                new_id = self.maze[row][col].id
+                old_id = self.maze[row][col + 1].id
+                self.maze[row][col + 1].open_wall(Direction.east)
+                self.maze[row][col + 2].open_wall(Direction.west)
+                new_id = self.maze[row][col + 1].id
+                old_id = self.maze[row][col + 2].id
+
+                for c in range(self.width):
+                    if self.maze[row][c].id == old_id:
+                        self.maze[row][c].id = new_id
+                unique_sets -= 1
+
+            elif (coin
+                    and self.maze[row][col].id != self.maze[row][col + 1].id
+                    and self.maze[row][col].visited != 42
+                    and self.maze[row][col + 1].visited != 42):
+
+                self.maze[row][col].open_wall(Direction.east)
+                self.maze[row][col + 1].open_wall(Direction.west)
+                old_id = self.maze[row][col + 1].id
+                new_id = self.maze[row][col].id
+
+                for c in range(self.width):
+                    if self.maze[row][c].id == old_id:
+                        self.maze[row][c].id = new_id
+                unique_sets -= 1
+
+            if self.animation:
+                self.print_maze()
+
+        return unique_sets
+
+    def eller_stage_two(self,
+                        row: int,
+                        unique_sets: int,
+                        el_set: set[tuple[int, int]]) -> int:
+
+        preset_id = set(self.maze[row][col].id
+                        for col in range(self.width))
+
+        for id in preset_id:
+            coords = []
+
+            for col in range(self.width):
+                if (self.maze[row][col].id == id
+                        and self.maze[row][col].visited != 42):
+                    coords.append((row, col))
+
+            if len(coords) == 1:
+                r, c = coords[0][0], coords[0][1]
+
+                if self.maze[r + 1][c].visited != 42:
+                    self.maze[r][c].open_wall(Direction.south)
+                    self.maze[r + 1][c].open_wall(Direction.north)
+                    self.maze[r + 1][c].id = self.maze[r][c].id
+                    el_set.add((r + 1, c))
+
+                else:
+                    i = c
+                    while self.maze[r + 1][i].visited == 42:
+
+                        if (self.maze[r][i].id != self.maze[r][i + 1].id
+                                and self.maze[r][i].visited != 42
+                                and self.maze[r][i + 1].visited != 42):
+
+                            self.maze[r][i].open_wall(Direction.east)
+                            self.maze[r][i + 1].open_wall(Direction.west)
+                            new_id = self.maze[r][i + 1].id
+                            old_id = self.maze[r][i].id
+
+                            for j in range(self.width):
+                                if self.maze[r][j].id == old_id:
+                                    self.maze[r][j].id = new_id
+                            unique_sets -= 1
+                        i += 1
+
+                    if (self.maze[r][i].id != self.maze[r + 1][i].id
+                            and self.maze[r][i].visited != 42):
+
+                        self.maze[r][i].open_wall(Direction.south)
+                        self.maze[r + 1][i].open_wall(Direction.north)
+                        self.maze[r + 1][i].id = self.maze[r][i].id
+                        el_set.add((r + 1, i))
+
+            else:
+                if not coords:
+                    continue
+
+                choices = random.randint(0, len(coords))
+                if not choices:
+                    choices = 1
+
+                for _ in range(choices):
+                    choosen = random.choice(coords)
+                    r, c = choosen[0], choosen[1]
+                    if (self.maze[r][c].id != self.maze[r + 1][c].id
+                            and self.maze[r + 1][c].visited != 42):
+
+                        self.maze[r][c].open_wall(Direction.south)
+                        self.maze[r + 1][c].open_wall(Direction.north)
+                        self.maze[r + 1][c].id = self.maze[r][c].id
+                        el_set.add((r + 1, c))
+
+                    else:
+                        i = c
+                        while self.maze[r + 1][i].visited == 42:
+                            if (self.maze[r][i].id
+                                    != self.maze[r][i + 1].id
+                                    and self.maze[r][i].visited != 42
+                                    and self.maze[r][i + 1].visited != 42):
+
+                                self.maze[r][i].open_wall(Direction.east)
+                                self.maze[r][i + 1].open_wall(Direction.west)
+                                old_id = self.maze[r][i + 1].id
+                                new_id = self.maze[r][i].id
+
+                                for j in range(self.width):
+                                    if self.maze[r][j].id == old_id:
+                                        self.maze[r][j].id = new_id
+                                unique_sets -= 1
+
+                                if (r, i + 1) in coords:
+                                    coords.remove((r, i + 1))
+                            i += 1
+
+                        if (self.maze[r][i].id != self.maze[r + 1][i].id
+                                and self.maze[r][i].visited != 42):
+
+                            self.maze[r][i].open_wall(Direction.south)
+                            self.maze[r + 1][i].open_wall(Direction.north)
+                            self.maze[r + 1][i].id = self.maze[r][i].id
+                            el_set.add((r + 1, i))
+                    coords.remove(choosen)
+
+            if self.animation:
+                self.print_maze()
+
+        return unique_sets
+
+    def eller_stage_three(self,
+                          row: int,
+                          unique_sets: int,
+                          el_set: set[tuple[int, int]]) -> int:
+
+        preset_id = set(self.maze[row][col].id
+                        for col in range(self.width))
+
+        next_id = max(preset_id) + 1
+        for col in range(self.width):
+            if ((row + 1, col) not in el_set
+                    and self.maze[row + 1][col].visited != 42):
+                el_set.add((row + 1, col))
+                self.maze[row + 1][col].id = next_id
+                unique_sets += 1
+                next_id += 1
+
+        return unique_sets
+
+    def eller(self) -> None:
+
+        el_set: set[tuple[int, int]] = set()
+        unique_sets = 0
+
+        for cell in self.maze[0]:
+            el_set.add((0, unique_sets))
+            unique_sets += 1
+            cell.id = unique_sets
+
+        for row in range(self.height - 1):
+
+            unique_sets = self.eller_stage_one(row, unique_sets)
+            unique_sets = self.eller_stage_two(row, unique_sets, el_set)
+            unique_sets = self.eller_stage_three(row, unique_sets, el_set)
+
+        row = self.height - 1
+        for col in range(self.width):
+            if col == self.width - 1:
+                continue
+
+            if self.maze[row][col].id != self.maze[row][col + 1].id:
+                self.maze[row][col].open_wall(Direction.east)
+                self.maze[row][col + 1].open_wall(Direction.west)
+                old_id = self.maze[row][col + 1].id
+                new_id = self.maze[row][col].id
+
+                for c in range(self.width):
+                    if self.maze[row][c].id == old_id:
+                        self.maze[row][c].id = new_id
+                unique_sets -= 1
+
+            if self.animation:
+                self.print_maze()
+
     def kruskal(self) -> None:
         """Kruskal algorithm for maze generation."""
         directions = [
@@ -441,176 +653,6 @@ class Maze:
                         if flag:
                             break
 
-    def eller(self) -> None:
-
-        el_set: set[tuple[int, int]] = set()
-        unique_sets = 0
-
-        for cell in self.maze[0]:
-            el_set.add((0, unique_sets))
-            unique_sets += 1
-            cell.id = unique_sets
-
-        for row in range(self.height - 1):
-
-            print(f"  IDs row={row} dopo assegnazione sud: {[self.maze[row][col].id for col in range(self.width)]}")
-
-            for col in range(self.width):
-                if col == self.width - 1:
-                    continue
-
-                coin = random.randint(0, 1)
-                if (self.maze[row + 1][col + 1].visited == 42 and
-                        self.maze[row - 1][col + 1].visited == 42 and
-                        self.maze[row + 1][col - 1].visited == 42 and
-                        self.maze[row - 1][col - 1].visited != 42):
-
-                    self.maze[row][col].open_wall(Direction.east)
-                    self.maze[row][col + 1].open_wall(Direction.west)
-                    new_id = self.maze[row][col].id
-                    old_id = self.maze[row][col + 1].id
-                    self.maze[row][col + 1].open_wall(Direction.east)
-                    self.maze[row][col + 2].open_wall(Direction.west)
-                    new_id = self.maze[row][col + 1].id
-                    old_id = self.maze[row][col + 2].id
-
-                    for c in range(self.width):
-                        if self.maze[row][c].id == old_id:
-                            self.maze[row][c].id = new_id
-                    unique_sets -= 1
-
-                elif (coin
-                      and self.maze[row][col].id != self.maze[row][col + 1].id
-                      and self.maze[row][col].visited != 42
-                      and self.maze[row][col + 1].visited != 42):
-
-                    self.maze[row][col].open_wall(Direction.east)
-                    self.maze[row][col + 1].open_wall(Direction.west)
-                    old_id = self.maze[row][col + 1].id
-                    new_id = self.maze[row][col].id
-
-                    for c in range(self.width):
-                        if self.maze[row][c].id == old_id:
-                            self.maze[row][c].id = new_id
-                    unique_sets -= 1
-
-                if self.animation:
-                    self.print_maze()
-
-            print(f"IDs nella riga: {[self.maze[row][col].id for col in range(self.width)]}")
-            print(f"unique_sets: {unique_sets}")
-            preset_id = set(self.maze[row][col].id
-                            for col in range(self.width))
-            for id in preset_id:
-                coords = []
-                for col in range(self.width):
-                    if self.maze[row][col].id == id and self.maze[row][col].visited != 42:
-                        coords.append((row, col))
-                if len(coords) == 1:
-
-                    r, c = coords[0][0], coords[0][1]
-                    if self.maze[r + 1][c].visited != 42:
-
-                        self.maze[r][c].open_wall(Direction.south)
-                        self.maze[r + 1][c].open_wall(Direction.north)
-                        self.maze[r + 1][c].id = self.maze[r][c].id
-                        print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
-                        el_set.add((r + 1, c))
-                    else:
-                        i = c
-                        while self.maze[r + 1][i].visited == 42:
-                            if self.maze[r][i].id != self.maze[r][i + 1].id and self.maze[r][i].visited != 42 and self.maze[r][i + 1].visited != 42:
-                                self.maze[r][i].open_wall(Direction.east)
-                                self.maze[r][i + 1].open_wall(Direction.west)
-                                new_id = self.maze[r][i + 1].id
-                                old_id = self.maze[r][i].id
-                                for j in range(self.width):
-                                    if self.maze[r][j].id == old_id:
-                                        self.maze[r][j].id = new_id
-                                unique_sets -= 1
-                            i += 1
-                        if self.maze[r][i].id != self.maze[r + 1][i].id and self.maze[r][i].visited != 42:
-                            self.maze[r][i].open_wall(Direction.south)
-                            self.maze[r + 1][i].open_wall(Direction.north)
-                            self.maze[r + 1][i].id = self.maze[r][i].id
-                            print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
-                            el_set.add((r + 1, i))
-
-                    # elif self.maze[r][c].id != self.maze[r][c + 1].id and self.maze[r][c].visited != 42 and self.maze[r][c + 1].visited != 42:
-                    #     self.maze[r][c].open_wall(Direction.east)
-                    #     self.maze[r][c + 1].open_wall(Direction.west)
-                    #     old_id = self.maze[r][c + 1].id
-                    #     new_id = self.maze[r][c].id
-                    #     for j in range(self.width):
-                    #         if self.maze[r][j].id == old_id:
-                    #             self.maze[r][j].id = new_id
-                    #     unique_sets -= 1
-
-                else:
-                    if not coords:
-                        continue
-                    choices = random.randint(0, len(coords))
-                    if not choices:
-                        choices = 1
-                    for _ in range(choices):
-                        choosen = random.choice(coords)
-                        r, c = choosen[0], choosen[1]
-                        if self.maze[r][c].id != self.maze[r + 1][c].id and self.maze[r + 1][c].visited != 42:
-                            self.maze[r][c].open_wall(Direction.south)
-                            self.maze[r + 1][c].open_wall(Direction.north)
-                            self.maze[r + 1][c].id = self.maze[r][c].id
-                            print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
-                            el_set.add((r + 1, c))
-                        else:
-                            i = c
-                            while self.maze[r + 1][i].visited == 42:
-                                if self.maze[r][i].id != self.maze[r][i + 1].id and self.maze[r][i].visited != 42 and self.maze[r][i + 1].visited != 42:
-                                    self.maze[r][i].open_wall(Direction.east)
-                                    self.maze[r][i + 1].open_wall(Direction.west)
-                                    old_id = self.maze[r][i + 1].id
-                                    new_id = self.maze[r][i].id
-                                    for j in range(self.width):
-                                        if self.maze[r][j].id == old_id:
-                                            self.maze[r][j].id = new_id
-                                    unique_sets -= 1
-                                    if (r, i + 1) in coords:
-                                        coords.remove((r, i + 1))
-                                i += 1
-                            if self.maze[r][i].id != self.maze[r + 1][i].id and self.maze[r][i].visited != 42:
-                                self.maze[r][i].open_wall(Direction.south)
-                                self.maze[r + 1][i].open_wall(Direction.north)
-                                self.maze[r + 1][i].id = self.maze[r][i].id
-                                print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
-                                el_set.add((r + 1, i))
-                            
-                        coords.remove(choosen)
-            next_id = max(preset_id) + 1
-            for col in range(self.width):
-                if (row + 1, col) not in el_set and self.maze[row + 1][col].visited != 42:
-                    print(f"  [ASSEGNO {next_id}] a ({row+1},{col}) che aveva id={self.maze[row+1][col].id}")
-                    el_set.add((row + 1, col))
-                    unique_sets += 1
-                    self.maze[row + 1][col].id = next_id
-                    print(f"  IDs row={row+1} dopo assegnazione sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
-                    next_id += 1
-
-
-        row = self.height - 1
-        for col in range(self.width):
-            if col == self.width - 1:
-                continue
-            if self.maze[row][col].id != self.maze[row][col + 1].id:
-                self.maze[row][col].open_wall(Direction.east)
-                self.maze[row][col + 1].open_wall(Direction.west)
-                old_id = self.maze[row][col + 1].id
-                new_id = self.maze[row][col].id
-                for c in range(self.width):
-                    if self.maze[row][c].id == old_id:
-                        self.maze[row][c].id = new_id
-                unique_sets -= 1
-
-
-
     def aldous_broder(self, col: int, row: int) -> None:
         """Aldous-Broder algorithm for maze generation."""
         directions = [
@@ -687,74 +729,7 @@ class Maze:
                     self.maze[row][col].target = False
                     col = col - 1
 
-    def binary_tree(self) -> None:
-        """Binary Tree algorithm for maze generation."""
-        i: int = 0
-        j: int = 0
-        for j in range(self.width):
-            for i in range(self.height):
-                if (i == self.height - 1 and j == self.width - 1):
-                    break
-
-                if i == self.height - 1:
-                    choice = 1
-                elif j == self.width - 1:
-                    choice = 0
-
-                elif (self.maze[i][j].visited == 42 or
-                        (self.maze[i + 1][j].visited == 42) and
-                        (self.maze[i][j + 1].visited == 42)):
-                    continue
-
-                elif (self.maze[i + 1][j + 1].visited == 42 and
-                      self.maze[i - 1][j + 1].visited == 42 and
-                      self.maze[i + 1][j - 1].visited == 42 and
-                      self.maze[i - 1][j - 1].visited != 42):
-                    choice = 2
-
-                elif self.maze[i][j + 1].visited == 42:
-                    choice = 0
-                elif self.maze[i + 1][j].visited == 42:
-                    choice = 1
-                else:
-                    choice = random.randint(0, 1)
-
-                match choice:
-                    case 1:
-                        self.maze[i][j].open_wall(Direction.east)
-                        self.maze[i][j + 1].open_wall(Direction.west)
-
-                    case 0:
-                        self.maze[i][j].open_wall(Direction.south)
-                        self.maze[i + 1][j].open_wall(Direction.north)
-
-                    case 2:
-                        self.maze[i][j].open_wall(Direction.south)
-                        self.maze[i][j].open_wall(Direction.east)
-                        self.maze[i + 1][j].open_wall(Direction.north)
-                        self.maze[i][j + 1].open_wall(Direction.west)
-
-                if self.animation:
-                    self.print_maze()
-
-    def hak_helper(self, row: int, col: int) -> int:
-        """Check if all neighbooring cells are visited.
-
-        Args:
-            row: the row of the cell.
-            col: the column of the cell.
-        Returns:
-            int: 1 (truthy) if all cells are visited.
-                 0 (false) otherwise.
-        """
-        north = (row == 0 or self.maze[row - 1][col].visited)
-        south = (row == self.height - 1 or self.maze[row + 1][col].visited)
-        east = (col == self.width - 1 or self.maze[row][col + 1].visited)
-        west = (col == 0 or self.maze[row][col - 1].visited)
-
-        return north and south and east and west
-
-    def hak_opener(self, r: int, c: int, dir: Direction) -> int:
+    def wilson_opener(self, r: int, c: int, dir: Direction, steps: int) -> int:
         """Match direction and open walls.
 
         Args:
@@ -765,47 +740,140 @@ class Maze:
             int: 1 (truthy) if the wall are opened.
                  0 (falsy) otherwise.
         """
+
         match dir:
 
             case Direction.north:
-                if (r > 0
-                        and not self.maze[r - 1][c].visited):
-
-                    self.maze[r][c].open_wall(Direction.north)
-                    self.maze[r - 1][c].open_wall(Direction.south)
-                    self.maze[r - 1][c].visited = 1
+                if r > 0 and self.maze[r - 1][c].visited != 42:
+                    if not self.maze[r - 1][c].steps:
+                        self.maze[r][c].open_wall(Direction.north)
+                        self.maze[r - 1][c].open_wall(Direction.south)
+                    self.maze[r][c].steps = steps
                     return 1
 
             case Direction.south:
-                if (r < self.height - 1
-                        and not self.maze[r + 1][c].visited):
-
-                    self.maze[r][c].open_wall(Direction.south)
-                    self.maze[r + 1][c].open_wall(Direction.north)
-                    self.maze[r + 1][c].visited = 1
+                if r < self.height - 1 and self.maze[r + 1][c].visited != 42:
+                    if not self.maze[r + 1][c].steps:
+                        self.maze[r][c].open_wall(Direction.south)
+                        self.maze[r + 1][c].open_wall(Direction.north)
+                    self.maze[r][c].steps = steps
                     return 1
 
             case Direction.east:
-                if (c < self.width - 1
-                        and not self.maze[r][c + 1].visited):
-
-                    self.maze[r][c].open_wall(Direction.east)
-                    self.maze[r][c + 1].open_wall(Direction.west)
-                    self.maze[r][c + 1].visited = 1
+                if c < self.width - 1 and self.maze[r][c + 1].visited != 42:
+                    if not self.maze[r][c + 1].steps:
+                        self.maze[r][c].open_wall(Direction.east)
+                        self.maze[r][c + 1].open_wall(Direction.west)
+                    self.maze[r][c].steps = steps
                     return 1
 
             case Direction.west:
-                if (c > 0
-                        and not self.maze[r][c - 1].visited):
-
-                    self.maze[r][c].open_wall(Direction.west)
-                    self.maze[r][c - 1].open_wall(Direction.east)
-                    self.maze[r][c - 1].visited = 1
+                if c > 0 and self.maze[r][c - 1].visited != 42:
+                    if not self.maze[r][c - 1].steps:
+                        self.maze[r][c].open_wall(Direction.west)
+                        self.maze[r][c - 1].open_wall(Direction.east)
+                    self.maze[r][c].steps = steps
                     return 1
         return 0
 
-    def hunt_and_kill(self) -> None:
-        """Hunt and Kill algorithm for maze generation."""
+    def wilson_killer(self, r: int, c: int) -> None:
+
+        while True:
+
+            if (r > 0 and
+                    self.maze[r][c].is_open(Direction.north) and
+                    self.maze[r - 1][c].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].close_wall(Direction.north)
+                self.maze[r - 1][c].close_wall(Direction.south)
+                self.maze[r][c].steps = 0
+                r = r - 1
+                continue
+
+            elif (r < self.height - 1 and
+                  self.maze[r][c].is_open(Direction.south) and
+                  self.maze[r + 1][c].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].close_wall(Direction.south)
+                self.maze[r + 1][c].close_wall(Direction.north)
+                self.maze[r][c].steps = 0
+                r = r + 1
+                continue
+
+            elif (c < self.width - 1 and
+                  self.maze[r][c].is_open(Direction.east) and
+                  self.maze[r][c + 1].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].close_wall(Direction.east)
+                self.maze[r][c + 1].close_wall(Direction.west)
+                self.maze[r][c].steps = 0
+                c = c + 1
+                continue
+
+            elif (c > 0 and
+                  self.maze[r][c].is_open(Direction.west) and
+                  self.maze[r][c - 1].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].close_wall(Direction.west)
+                self.maze[r][c - 1].close_wall(Direction.east)
+                self.maze[r][c].steps = 0
+                c = c - 1
+                continue
+            break
+        if self.animation:
+            self.print_maze()
+        self.maze[r][c].steps = 0
+
+    def wilson_validator(self,
+                         start: tuple[int, int],
+                         end: list[tuple[int, int]],
+                         pool: list[tuple[int, int]]) -> None:
+
+        r, c = start[0], start[1]
+        while True:
+            if (r > 0 and
+                    self.maze[r][c].is_open(Direction.north) and
+                    self.maze[r - 1][c].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].steps = 0
+                self.maze[r][c].visited = 1
+                end.append((r, c))
+                pool.remove((r, c))
+                r = r - 1
+                continue
+
+            elif (r < self.height - 1 and
+                  self.maze[r][c].is_open(Direction.south) and
+                  self.maze[r + 1][c].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].steps = 0
+                self.maze[r][c].visited = 1
+                end.append((r, c))
+                pool.remove((r, c))
+                r = r + 1
+                continue
+
+            elif (c < self.width - 1 and
+                  self.maze[r][c].is_open(Direction.east) and
+                  self.maze[r][c + 1].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].steps = 0
+                self.maze[r][c].visited = 1
+                end.append((r, c))
+                pool.remove((r, c))
+                c = c + 1
+                continue
+
+            elif (c > 0 and
+                  self.maze[r][c].is_open(Direction.west) and
+                  self.maze[r][c - 1].steps == self.maze[r][c].steps + 1):
+                self.maze[r][c].steps = 0
+                self.maze[r][c].visited = 1
+                end.append((r, c))
+                pool.remove((r, c))
+                c = c - 1
+                continue
+            break
+        self.maze[r][c].steps = 0
+        self.maze[r][c].visited = 1
+        end.append((r, c))
+        pool.remove((r, c))
+
+    def wilson(self) -> None:
+        """Wilson algorithm for maze generation."""
         directions = [
             Direction.north,
             Direction.east,
@@ -813,61 +881,57 @@ class Maze:
             Direction.west
             ]
 
+        pool: list[tuple[int, int]] = []
         for row in range(self.height):
             for col in range(self.width):
-                r, c = row, col
-                if self.maze[row][col].visited:
-                    continue
+                if not self.maze[row][col].visited:
+                    pool.append((row, col))
 
-                if col > 0 and self.maze[row][col - 1].visited == 1:
-                    self.maze[r][c].open_wall(Direction.west)
-                    self.maze[r][c - 1].open_wall(Direction.east)
+        end: list[tuple[int, int]] = []
+        end.append(random.choice(pool))
+        self.maze[end[0][0]][end[0][1]].is_player = True
+        pool.remove(end[0])
 
-                elif row > 0 and self.maze[row - 1][col].visited == 1:
-                    self.maze[r][c].open_wall(Direction.north)
-                    self.maze[r - 1][c].open_wall(Direction.south)
+        while len(pool):
+            start = random.choice(pool)
+            r, c = start[0], start[1]
+            steps = 1
+            while not (r, c) in end:
+                if self.maze[r][c].steps:
+                    steps = self.maze[r][c].steps
+                    self.wilson_killer(r, c)
+                    self.maze[r][c].steps = steps
+                random.shuffle(directions)
+                for direction in directions:
+                    match direction:
 
-                elif (row > 0 and self.maze[row - 1][col].visited == 42 and
-                      col > 0 and self.maze[row][col - 1].visited == 42):
-                    self.maze[r][c].open_wall(Direction.east)
-                    self.maze[r][c + 1].open_wall(Direction.west)
-                    self.maze[r][c + 1].open_wall(Direction.east)
-                    self.maze[r][c + 1].visited = 1
-                    self.maze[r][c + 2].open_wall(Direction.west)
+                        case Direction.north:
+                            if self.wilson_opener(r, c, direction, steps):
+                                steps += 1
+                                r = r - 1
+                                break
 
-                self.maze[r][c].visited = 1
-                while True:
+                        case Direction.south:
+                            if self.wilson_opener(r, c, direction, steps):
+                                steps += 1
+                                r = r + 1
+                                break
 
-                    if (self.hak_helper(r, c)):
-                        break
+                        case Direction.east:
+                            if self.wilson_opener(r, c, direction, steps):
+                                steps += 1
+                                c = c + 1
+                                break
 
-                    random.shuffle(directions)
-
-                    for direction in directions:
-                        match direction:
-
-                            case Direction.north:
-                                if self.hak_opener(r, c, direction):
-                                    r = r - 1
-                                    break
-
-                            case Direction.south:
-                                if self.hak_opener(r, c, direction):
-                                    r = r + 1
-                                    break
-
-                            case Direction.east:
-                                if self.hak_opener(r, c, direction):
-                                    c = c + 1
-                                    break
-
-                            case Direction.west:
-                                if self.hak_opener(r, c, direction):
-                                    c = c - 1
-                                    break
-
-                    if self.animation:
-                        self.print_maze()
+                        case Direction.west:
+                            if self.wilson_opener(r, c, direction, steps):
+                                steps += 1
+                                c = c - 1
+                                break
+                if self.animation:
+                    self.print_maze()
+            self.wilson_validator(start, end, pool)
+            self.maze[end[0][0]][end[0][1]].is_player = False
 
     def ft_recursive_division(self) -> None:
         """Recurisive division argorithm with '42' at the center."""
@@ -1038,7 +1102,24 @@ class Maze:
             self.recursive_division(x, y, col - x, height, axis)
             self.recursive_division(col, y, width - col + x, height, axis)
 
-    def wil_opener(self, r: int, c: int, dir: Direction, steps: int) -> int:
+    def hak_helper(self, row: int, col: int) -> int:
+        """Check if all neighbooring cells are visited.
+
+        Args:
+            row: the row of the cell.
+            col: the column of the cell.
+        Returns:
+            int: 1 (truthy) if all cells are visited.
+                 0 (false) otherwise.
+        """
+        north = (row == 0 or self.maze[row - 1][col].visited)
+        south = (row == self.height - 1 or self.maze[row + 1][col].visited)
+        east = (col == self.width - 1 or self.maze[row][col + 1].visited)
+        west = (col == 0 or self.maze[row][col - 1].visited)
+
+        return north and south and east and west
+
+    def hak_opener(self, r: int, c: int, dir: Direction) -> int:
         """Match direction and open walls.
 
         Args:
@@ -1049,140 +1130,47 @@ class Maze:
             int: 1 (truthy) if the wall are opened.
                  0 (falsy) otherwise.
         """
-
         match dir:
 
             case Direction.north:
-                if r > 0 and self.maze[r - 1][c].visited != 42:
-                    if not self.maze[r - 1][c].steps:
-                        self.maze[r][c].open_wall(Direction.north)
-                        self.maze[r - 1][c].open_wall(Direction.south)
-                    self.maze[r][c].steps = steps
+                if (r > 0
+                        and not self.maze[r - 1][c].visited):
+
+                    self.maze[r][c].open_wall(Direction.north)
+                    self.maze[r - 1][c].open_wall(Direction.south)
+                    self.maze[r - 1][c].visited = 1
                     return 1
 
             case Direction.south:
-                if r < self.height - 1 and self.maze[r + 1][c].visited != 42:
-                    if not self.maze[r + 1][c].steps:
-                        self.maze[r][c].open_wall(Direction.south)
-                        self.maze[r + 1][c].open_wall(Direction.north)
-                    self.maze[r][c].steps = steps
+                if (r < self.height - 1
+                        and not self.maze[r + 1][c].visited):
+
+                    self.maze[r][c].open_wall(Direction.south)
+                    self.maze[r + 1][c].open_wall(Direction.north)
+                    self.maze[r + 1][c].visited = 1
                     return 1
 
             case Direction.east:
-                if c < self.width - 1 and self.maze[r][c + 1].visited != 42:
-                    if not self.maze[r][c + 1].steps:
-                        self.maze[r][c].open_wall(Direction.east)
-                        self.maze[r][c + 1].open_wall(Direction.west)
-                    self.maze[r][c].steps = steps
+                if (c < self.width - 1
+                        and not self.maze[r][c + 1].visited):
+
+                    self.maze[r][c].open_wall(Direction.east)
+                    self.maze[r][c + 1].open_wall(Direction.west)
+                    self.maze[r][c + 1].visited = 1
                     return 1
 
             case Direction.west:
-                if c > 0 and self.maze[r][c - 1].visited != 42:
-                    if not self.maze[r][c - 1].steps:
-                        self.maze[r][c].open_wall(Direction.west)
-                        self.maze[r][c - 1].open_wall(Direction.east)
-                    self.maze[r][c].steps = steps
+                if (c > 0
+                        and not self.maze[r][c - 1].visited):
+
+                    self.maze[r][c].open_wall(Direction.west)
+                    self.maze[r][c - 1].open_wall(Direction.east)
+                    self.maze[r][c - 1].visited = 1
                     return 1
         return 0
 
-    def wilson_killer(self, r: int, c: int) -> None:
-
-        while True:
-
-            if (r > 0 and
-                    self.maze[r][c].is_open(Direction.north) and
-                    self.maze[r - 1][c].steps == self.maze[r][c].steps + 1):
-                self.maze[r][c].close_wall(Direction.north)
-                self.maze[r - 1][c].close_wall(Direction.south)
-                self.maze[r][c].steps = 0
-                r = r - 1
-                continue
-
-            elif (r < self.height - 1 and
-                  self.maze[r][c].is_open(Direction.south) and
-                  self.maze[r + 1][c].steps == self.maze[r][c].steps + 1):
-                self.maze[r][c].close_wall(Direction.south)
-                self.maze[r + 1][c].close_wall(Direction.north)
-                self.maze[r][c].steps = 0
-                r = r + 1
-                continue
-
-            elif (c < self.width - 1 and
-                  self.maze[r][c].is_open(Direction.east) and
-                  self.maze[r][c + 1].steps == self.maze[r][c].steps + 1):
-                self.maze[r][c].close_wall(Direction.east)
-                self.maze[r][c + 1].close_wall(Direction.west)
-                self.maze[r][c].steps = 0
-                c = c + 1
-                continue
-
-            elif (c > 0 and
-                  self.maze[r][c].is_open(Direction.west) and
-                  self.maze[r][c - 1].steps == self.maze[r][c].steps + 1):
-                self.maze[r][c].close_wall(Direction.west)
-                self.maze[r][c - 1].close_wall(Direction.east)
-                self.maze[r][c].steps = 0
-                c = c - 1
-                continue
-            break
-        if self.animation:
-            self.print_maze()
-        self.maze[r][c].steps = 0
-
-    def wilson_validator(self,
-                         start: tuple[int, int],
-                         end: list[tuple[int, int]],
-                         pool: list[tuple[int, int]]) -> None:
-
-        r, c = start[0], start[1]
-        while True:
-            if (r > 0 and
-                    self.maze[r][c].is_open(Direction.north) and
-                    self.maze[r - 1][c].steps == self.maze[r][c].steps + 1):
-                self.maze[r][c].steps = 0
-                self.maze[r][c].visited = 1
-                end.append((r, c))
-                pool.remove((r, c))
-                r = r - 1
-                continue
-
-            elif (r < self.height - 1 and
-                  self.maze[r][c].is_open(Direction.south) and
-                  self.maze[r + 1][c].steps == self.maze[r][c].steps + 1):
-                self.maze[r][c].steps = 0
-                self.maze[r][c].visited = 1
-                end.append((r, c))
-                pool.remove((r, c))
-                r = r + 1
-                continue
-
-            elif (c < self.width - 1 and
-                  self.maze[r][c].is_open(Direction.east) and
-                  self.maze[r][c + 1].steps == self.maze[r][c].steps + 1):
-                self.maze[r][c].steps = 0
-                self.maze[r][c].visited = 1
-                end.append((r, c))
-                pool.remove((r, c))
-                c = c + 1
-                continue
-
-            elif (c > 0 and
-                  self.maze[r][c].is_open(Direction.west) and
-                  self.maze[r][c - 1].steps == self.maze[r][c].steps + 1):
-                self.maze[r][c].steps = 0
-                self.maze[r][c].visited = 1
-                end.append((r, c))
-                pool.remove((r, c))
-                c = c - 1
-                continue
-            break
-        self.maze[r][c].steps = 0
-        self.maze[r][c].visited = 1
-        end.append((r, c))
-        pool.remove((r, c))
-
-    def wilson(self) -> None:
-        """Wilson algorithm for maze generation."""
+    def hunt_and_kill(self) -> None:
+        """Hunt and Kill algorithm for maze generation."""
         directions = [
             Direction.north,
             Direction.east,
@@ -1190,57 +1178,214 @@ class Maze:
             Direction.west
             ]
 
-        pool: list[tuple[int, int]] = []
         for row in range(self.height):
             for col in range(self.width):
-                if not self.maze[row][col].visited:
-                    pool.append((row, col))
+                r, c = row, col
+                if self.maze[row][col].visited:
+                    continue
 
-        end: list[tuple[int, int]] = []
-        end.append(random.choice(pool))
-        self.maze[end[0][0]][end[0][1]].is_entry = True
-        pool.remove(end[0])
+                if col > 0 and self.maze[row][col - 1].visited == 1:
+                    self.maze[r][c].open_wall(Direction.west)
+                    self.maze[r][c - 1].open_wall(Direction.east)
 
-        while len(pool):
-            start = random.choice(pool)
-            r, c = start[0], start[1]
-            steps = 1
-            while not (r, c) in end:
-                if self.maze[r][c].steps:
-                    steps = self.maze[r][c].steps
-                    self.wilson_killer(r, c)
-                    self.maze[r][c].steps = steps
-                random.shuffle(directions)
-                for direction in directions:
-                    match direction:
+                elif row > 0 and self.maze[row - 1][col].visited == 1:
+                    self.maze[r][c].open_wall(Direction.north)
+                    self.maze[r - 1][c].open_wall(Direction.south)
 
-                        case Direction.north:
-                            if self.wil_opener(r, c, direction, steps):
-                                steps += 1
-                                r = r - 1
-                                break
+                elif (row > 0 and self.maze[row - 1][col].visited == 42 and
+                      col > 0 and self.maze[row][col - 1].visited == 42):
+                    self.maze[r][c].open_wall(Direction.east)
+                    self.maze[r][c + 1].open_wall(Direction.west)
+                    self.maze[r][c + 1].open_wall(Direction.east)
+                    self.maze[r][c + 1].visited = 1
+                    self.maze[r][c + 2].open_wall(Direction.west)
 
-                        case Direction.south:
-                            if self.wil_opener(r, c, direction, steps):
-                                steps += 1
-                                r = r + 1
-                                break
+                self.maze[r][c].visited = 1
+                while True:
 
-                        case Direction.east:
-                            if self.wil_opener(r, c, direction, steps):
-                                steps += 1
-                                c = c + 1
-                                break
+                    if (self.hak_helper(r, c)):
+                        break
 
-                        case Direction.west:
-                            if self.wil_opener(r, c, direction, steps):
-                                steps += 1
-                                c = c - 1
-                                break
+                    random.shuffle(directions)
+
+                    for direction in directions:
+                        match direction:
+
+                            case Direction.north:
+                                if self.hak_opener(r, c, direction):
+                                    r = r - 1
+                                    break
+
+                            case Direction.south:
+                                if self.hak_opener(r, c, direction):
+                                    r = r + 1
+                                    break
+
+                            case Direction.east:
+                                if self.hak_opener(r, c, direction):
+                                    c = c + 1
+                                    break
+
+                            case Direction.west:
+                                if self.hak_opener(r, c, direction):
+                                    c = c - 1
+                                    break
+
+                    if self.animation:
+                        self.print_maze()
+
+    def side_neighbors(self,
+                       current_set: set[tuple[int, int]],
+                       side: str) -> int:
+
+        if side == "top":
+            for item in current_set:
+                r, c = item[0], item[1]
+                if self.maze[r - 1][c].visited != 42:
+                    return 1
+            return 0
+
+    def side_edger(self,
+                   universe: set[tuple[int, int]],
+                   current_set: set[tuple[int, int]]) -> None:
+
+        edge_case = False
+        choosen = random.choice(list(current_set))
+        r, c = choosen[0], choosen[1]
+
+        while self.maze[r - 1][c].visited == 42:
+            if not self.side_neighbors(current_set, "top"):
+                edge_case = True
+
+                min_item = min(list(current_set),
+                               key=lambda x: x[1])
+                max_item = max(list(current_set),
+                               key=lambda x: x[1])
+
+                min_r, min_c = min_item[0], min_item[1]
+                max_r, max_c = max_item[0], max_item[1]
+
+                if not self.maze[min_r][min_c - 1].visited == 42:
+                    self.maze[min_r][min_c].open_wall(Direction.west)
+                    self.maze[min_r][min_c - 1].open_wall(Direction.east)
+                    current_set.add((min_r, min_c - 1))
+
+                elif not self.maze[max_r][max_c + 1].visited == 42:
+                    self.maze[max_r][max_c].open_wall(Direction.east)
+                    self.maze[max_r][max_c + 1].open_wall(Direction.west)
+                    current_set.add((max_r, max_c + 1))
+
                 if self.animation:
                     self.print_maze()
-            self.wilson_validator(start, end, pool)
-            self.maze[end[0][0]][end[0][1]].is_entry = False
+
+            else:
+                choosen = random.choice(list(current_set))
+                r, c = choosen[0], choosen[1]
+
+        if not edge_case:
+            self.maze[r][c].open_wall(Direction.north)
+            self.maze[r - 1][c].open_wall(Direction.south)
+
+        for item in current_set:
+            universe.add(item)
+        current_set.clear()
+
+    def sidewinder(self) -> None:
+
+        universe: set[tuple[int, int]] = set()
+        for col in range(self.width):
+            if col == 0:
+                continue
+            else:
+                self.maze[0][col].open_wall(Direction.west)
+                self.maze[0][col - 1].open_wall(Direction.east)
+
+            if self.animation:
+                self.print_maze()
+
+        for row in range(1, self.height):
+            current_set: set[tuple[int, int]] = set(())
+            for col in range(self.width):
+                if self.maze[row][col].visited == 42:
+                    continue
+
+                coin = random.randint(0, 1)
+                current_set.add((row, col))
+
+                if (coin
+                        and col < self.width - 1
+                        and self.maze[row][col + 1].visited != 42
+                        and self.maze[row][col].is_closed(Direction.north)):
+                    self.maze[row][col].open_wall(Direction.east)
+                    self.maze[row][col + 1].open_wall(Direction.west)
+
+                    if self.animation:
+                        self.print_maze()
+
+                if (coin
+                        and col < self.width - 1
+                        and self.maze[row][col + 1].visited == 42):
+                    coin = not coin
+
+                if (not coin
+                        or col == self.width - 1):
+                    self.side_edger(universe, current_set)
+
+                for item in current_set:
+                    universe.add(item)
+
+            if self.animation:
+                self.print_maze()
+
+    def binary_tree(self) -> None:
+        """Binary Tree algorithm for maze generation."""
+        i: int = 0
+        j: int = 0
+        for j in range(self.width):
+            for i in range(self.height):
+                if (i == self.height - 1 and j == self.width - 1):
+                    break
+
+                if i == self.height - 1:
+                    choice = 1
+                elif j == self.width - 1:
+                    choice = 0
+
+                elif (self.maze[i][j].visited == 42 or
+                        (self.maze[i + 1][j].visited == 42) and
+                        (self.maze[i][j + 1].visited == 42)):
+                    continue
+
+                elif (self.maze[i + 1][j + 1].visited == 42 and
+                      self.maze[i - 1][j + 1].visited == 42 and
+                      self.maze[i + 1][j - 1].visited == 42 and
+                      self.maze[i - 1][j - 1].visited != 42):
+                    choice = 2
+
+                elif self.maze[i][j + 1].visited == 42:
+                    choice = 0
+                elif self.maze[i + 1][j].visited == 42:
+                    choice = 1
+                else:
+                    choice = random.randint(0, 1)
+
+                match choice:
+                    case 1:
+                        self.maze[i][j].open_wall(Direction.east)
+                        self.maze[i][j + 1].open_wall(Direction.west)
+
+                    case 0:
+                        self.maze[i][j].open_wall(Direction.south)
+                        self.maze[i + 1][j].open_wall(Direction.north)
+
+                    case 2:
+                        self.maze[i][j].open_wall(Direction.south)
+                        self.maze[i][j].open_wall(Direction.east)
+                        self.maze[i + 1][j].open_wall(Direction.north)
+                        self.maze[i][j + 1].open_wall(Direction.west)
+
+                if self.animation:
+                    self.print_maze()
 
     def nirugger(self) -> None:
         """nirugger algorithm for maze generation."""
