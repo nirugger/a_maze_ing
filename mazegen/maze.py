@@ -521,37 +521,72 @@ class Maze:
                 if coin and self.maze[row][col].id != self.maze[row][col + 1].id:
                     self.maze[row][col].open_wall(Direction.east)
                     self.maze[row][col + 1].open_wall(Direction.west)
-                    self.maze[row][col + 1].id = self.maze[row][col].id
+                    old_id = self.maze[row][col + 1].id
+                    new_id = self.maze[row][col].id
+                    for c in range(self.width):
+                        if self.maze[row][c].id == old_id:
+                            self.maze[row][c].id = new_id
                     unique_sets -= 1
 
-            for i in range(unique_sets):
+            print(f"IDs nella riga: {[self.maze[row][col].id for col in range(self.width)]}")
+            print(f"unique_sets: {unique_sets}")
+            preset_id = set(self.maze[row][col].id for col in range(self.width))
+            for id in preset_id:
                 coords = []
                 for col in range(self.width):
-                    breakpoint()
-                    if self.maze[row][col].id == i + 1:
+                    if self.maze[row][col].id == id:
                         coords.append((row, col))
                 if len(coords) == 1:
-                    self.maze[coords[0][0]][coords[0][1]].open_wall(Direction.south)
-                    self.maze[coords[0][0] + 1][coords[0][1]].open_wall(Direction.north)
-                    self.maze[coords[0][0] + 1][coords[0][1]].id = self.maze[coords[0][0]][coords[0]    [1]].id
-                    el_set.add((row + 1, col))
-                else:
-                    breakpoint()
-                    choices = random.randint(0, len(coords)) + 1
-                    for i in range(choices):
-                        print(coords)
-                        row_col = random.choice(coords)
-                        row, col = row_col[0], row_col[1]
-                        self.maze[row][col].open_wall(Direction.south)
-                        self.maze[row + 1][col].open_wall(Direction.north)
-                        self.maze[row + 1][col].id = self.maze[row][col].id
-                        el_set.add((row + 1, col))
+                    r, c = coords[0][0], coords[0][1]
+                    self.maze[r][c].open_wall(Direction.south)
+                    self.maze[r + 1][c].open_wall(Direction.north)
+                    self.maze[r + 1][c].id = self.maze[r][c].id
+                    print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
+                    el_set.add((r + 1, c))
 
+                else:
+                    if not coords:
+                        continue
+                    choices = random.randint(0, len(coords))
+                    if not choices:
+                        choices = 1
+                    for _ in range(choices):
+                        choosen = random.choice(coords)
+                        r, c = choosen[0], choosen[1]
+                        if self.maze[r][c].id != self.maze[r + 1][c].id:
+                            self.maze[r][c].open_wall(Direction.south)
+                            self.maze[r + 1][c].open_wall(Direction.north)  
+                            self.maze[r + 1][c].id = self.maze[r][c].id
+                            print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
+                            el_set.add((r + 1, c))
+                        coords.remove(choosen)
+
+            next_id = max(preset_id) + 1
             for col in range(self.width):
-                if (row, col) not in el_set:
-                    el_set.add((row, col))
+                if (row + 1, col) not in el_set:
+                    print(f"  [ASSEGNO {next_id}] a ({row+1},{col}) che aveva id={self.maze[row+1][col].id}")
+                    el_set.add((row + 1, col))
+                    unique_sets += 1
+                    self.maze[row + 1][col].id = next_id
+                    print(f"  IDs row={row+1} dopo assegnazione sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
+                    next_id += 1
 
             self.print_maze()
+
+        row = self.height - 1
+        for col in range(self.width):
+            if col == self.width - 1:
+                continue
+            if self.maze[row][col].id != self.maze[row][col + 1].id:
+                self.maze[row][col].open_wall(Direction.east)
+                self.maze[row][col + 1].open_wall(Direction.west)
+                old_id = self.maze[row][col + 1].id
+                new_id = self.maze[row][col].id
+                for c in range(self.width):
+                    if self.maze[row][c].id == old_id:
+                        self.maze[row][c].id = new_id
+                unique_sets -= 1
+
 
 
     def aldous_broder(self, col: int, row: int) -> None:

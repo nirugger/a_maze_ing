@@ -11,7 +11,7 @@ PERFECT=true
 
 START=7,7
 ALGORITHM=eller
-SEED=
+SEED=42
 
 
 
