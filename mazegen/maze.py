@@ -164,7 +164,7 @@ class Maze:
                 self.kruskal()
 
             case "eller":
-                self.eller_test()
+                self.eller()
 
             case "binary_tree":
                 self.binary_tree()
@@ -442,66 +442,6 @@ class Maze:
                             break
 
     def eller(self) -> None:
-        """Eller algorithm for maze generation."""
-        self.start = (0, 0)
-        el_list: list[set[tuple[int, int]]] = []
-
-        for row in range(len(self.maze)):
-
-            # per ogni set prendere un elemento random e collegarloaquellosotto
-            # trattare la bottom line come edge case
-            # fare controlli su celle adiacenti se visited
-
-            for col in range(len(self.maze[row])):
-                if not self.maze[row][col].visited:
-                    if ((not col or not random.randint(0, 1)) and not
-                            any((row, col) in coords for coords in el_list)):
-                        el_list.append({(row, col)})
-                    else:
-                        el_list[len(el_list) - 1].update({(row, col)})
-                        self.maze[row][col - 1].open_wall(Direction.east)
-                        self.maze[row][col].open_wall(Direction.west)
-
-            for s in el_list:
-                tup: tuple[int, int] = random.choice(s)
-                if (tup[0] < self.height - 1):
-                    c = tup
-                    while (self.maze[c[0] + 1][c[1]].visited == 42 and not
-                            self.maze[c[0]][c[1] - 1].visited == 42):
-                        self.maze[c[0]][c[1]].open_wall(Direction.west)
-                        self.maze[c[0]][c[1] - 1].open_wall(Direction.east)
-                        s.update({(c[0], c[1] - 1)})
-                        c = (c[0], c[1] - 1)
-
-                    if (c != tup and self.maze[c[0]][c[1] - 1].visited == 42
-                            and self.maze[c[0] + 1][c[1]].visited == 42):
-                        c = tup
-
-                        while (self.maze[c[0] + 1][c[1]].visited == 42 and not
-                                self.maze[c[0]][c[1] + 1].visited == 42):
-                            self.maze[c[0]][c[1]].open_wall(Direction.east)
-                            self.maze[c[0]][c[1] + 1].open_wall(Direction.west)
-                            s.update({(c[0], c[1] + 1)})
-                            c = (c[0], c[1] - 1)
-
-                elif (tup[0] < self.height - 1
-                        or not self.maze[tup[0] + 1][tup[1]].visited == 42):
-                    self.maze[tup[0]][tup[1]].open_wall(Direction.south)
-                    self.maze[tup[0] + 1][tup[1]].open_wall(Direction.north)
-                    s.update({(tup[0], tup[1])})
-
-            for col in range(len(self.maze[row])):
-                if not self.maze[row][col].visited:
-                    if row < self.height - 1 and random.randint(0, 1):
-                        for coords in el_list:
-                            if (row, col) in coords:
-                                coords.update({(row + 1, col)})
-                                self.maze[row + 1][col].open_wall(
-                                    Direction.north
-                                    )
-                                self.maze[row][col].open_wall(Direction.south)
-
-    def eller_test(self) -> None:
 
         el_set: set[tuple[int, int]] = set()
         unique_sets = 0
@@ -513,35 +453,98 @@ class Maze:
 
         for row in range(self.height - 1):
 
+            print(f"  IDs row={row} dopo assegnazione sud: {[self.maze[row][col].id for col in range(self.width)]}")
+
             for col in range(self.width):
                 if col == self.width - 1:
                     continue
+
                 coin = random.randint(0, 1)
-                if coin and self.maze[row][col].id != self.maze[row][col + 1].id:
+                if (self.maze[row + 1][col + 1].visited == 42 and
+                        self.maze[row - 1][col + 1].visited == 42 and
+                        self.maze[row + 1][col - 1].visited == 42 and
+                        self.maze[row - 1][col - 1].visited != 42):
+
                     self.maze[row][col].open_wall(Direction.east)
                     self.maze[row][col + 1].open_wall(Direction.west)
-                    old_id = self.maze[row][col + 1].id
                     new_id = self.maze[row][col].id
+                    old_id = self.maze[row][col + 1].id
+                    self.maze[row][col + 1].open_wall(Direction.east)
+                    self.maze[row][col + 2].open_wall(Direction.west)
+                    new_id = self.maze[row][col + 1].id
+                    old_id = self.maze[row][col + 2].id
+
                     for c in range(self.width):
                         if self.maze[row][c].id == old_id:
                             self.maze[row][c].id = new_id
                     unique_sets -= 1
 
+                elif (coin
+                      and self.maze[row][col].id != self.maze[row][col + 1].id
+                      and self.maze[row][col].visited != 42
+                      and self.maze[row][col + 1].visited != 42):
+
+                    self.maze[row][col].open_wall(Direction.east)
+                    self.maze[row][col + 1].open_wall(Direction.west)
+                    old_id = self.maze[row][col + 1].id
+                    new_id = self.maze[row][col].id
+
+                    for c in range(self.width):
+                        if self.maze[row][c].id == old_id:
+                            self.maze[row][c].id = new_id
+                    unique_sets -= 1
+
+                if self.animation:
+                    self.print_maze()
+
             print(f"IDs nella riga: {[self.maze[row][col].id for col in range(self.width)]}")
             print(f"unique_sets: {unique_sets}")
-            preset_id = set(self.maze[row][col].id for col in range(self.width))
+            preset_id = set(self.maze[row][col].id
+                            for col in range(self.width))
             for id in preset_id:
                 coords = []
                 for col in range(self.width):
-                    if self.maze[row][col].id == id:
+                    if self.maze[row][col].id == id and self.maze[row][col].visited != 42:
                         coords.append((row, col))
                 if len(coords) == 1:
+
                     r, c = coords[0][0], coords[0][1]
-                    self.maze[r][c].open_wall(Direction.south)
-                    self.maze[r + 1][c].open_wall(Direction.north)
-                    self.maze[r + 1][c].id = self.maze[r][c].id
-                    print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
-                    el_set.add((r + 1, c))
+                    if self.maze[r + 1][c].visited != 42:
+
+                        self.maze[r][c].open_wall(Direction.south)
+                        self.maze[r + 1][c].open_wall(Direction.north)
+                        self.maze[r + 1][c].id = self.maze[r][c].id
+                        print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
+                        el_set.add((r + 1, c))
+                    else:
+                        i = c
+                        while self.maze[r + 1][i].visited == 42:
+                            if self.maze[r][i].id != self.maze[r][i + 1].id and self.maze[r][i].visited != 42 and self.maze[r][i + 1].visited != 42:
+                                self.maze[r][i].open_wall(Direction.east)
+                                self.maze[r][i + 1].open_wall(Direction.west)
+                                new_id = self.maze[r][i + 1].id
+                                old_id = self.maze[r][i].id
+                                for j in range(self.width):
+                                    if self.maze[r][j].id == old_id:
+                                        self.maze[r][j].id = new_id
+                                unique_sets -= 1
+                            i += 1
+                        if self.maze[r][i].id != self.maze[r + 1][i].id and self.maze[r][i].visited != 42:
+                            self.maze[r][i].open_wall(Direction.south)
+                            self.maze[r + 1][i].open_wall(Direction.north)
+                            self.maze[r + 1][i].id = self.maze[r][i].id
+                            print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
+                            el_set.add((r + 1, i))
+
+                    # elif self.maze[r][c].id != self.maze[r][c + 1].id and self.maze[r][c].visited != 42 and self.maze[r][c + 1].visited != 42:
+                    #     self.maze[r][c].open_wall(Direction.east)
+                    #     self.maze[r][c + 1].open_wall(Direction.west)
+                    #     old_id = self.maze[r][c + 1].id
+                    #     new_id = self.maze[r][c].id
+                    #     for j in range(self.width):
+                    #         if self.maze[r][j].id == old_id:
+                    #             self.maze[r][j].id = new_id
+                    #     unique_sets -= 1
 
                 else:
                     if not coords:
@@ -552,17 +555,38 @@ class Maze:
                     for _ in range(choices):
                         choosen = random.choice(coords)
                         r, c = choosen[0], choosen[1]
-                        if self.maze[r][c].id != self.maze[r + 1][c].id:
+                        if self.maze[r][c].id != self.maze[r + 1][c].id and self.maze[r + 1][c].visited != 42:
                             self.maze[r][c].open_wall(Direction.south)
-                            self.maze[r + 1][c].open_wall(Direction.north)  
+                            self.maze[r + 1][c].open_wall(Direction.north)
                             self.maze[r + 1][c].id = self.maze[r][c].id
                             print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
                             el_set.add((r + 1, c))
+                        else:
+                            i = c
+                            while self.maze[r + 1][i].visited == 42:
+                                if self.maze[r][i].id != self.maze[r][i + 1].id and self.maze[r][i].visited != 42 and self.maze[r][i + 1].visited != 42:
+                                    self.maze[r][i].open_wall(Direction.east)
+                                    self.maze[r][i + 1].open_wall(Direction.west)
+                                    old_id = self.maze[r][i + 1].id
+                                    new_id = self.maze[r][i].id
+                                    for j in range(self.width):
+                                        if self.maze[r][j].id == old_id:
+                                            self.maze[r][j].id = new_id
+                                    unique_sets -= 1
+                                    if (r, i + 1) in coords:
+                                        coords.remove((r, i + 1))
+                                i += 1
+                            if self.maze[r][i].id != self.maze[r + 1][i].id and self.maze[r][i].visited != 42:
+                                self.maze[r][i].open_wall(Direction.south)
+                                self.maze[r + 1][i].open_wall(Direction.north)
+                                self.maze[r + 1][i].id = self.maze[r][i].id
+                                print(f"  IDs row={row+1} dopo apertura sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
+                                el_set.add((r + 1, i))
+                            
                         coords.remove(choosen)
-
             next_id = max(preset_id) + 1
             for col in range(self.width):
-                if (row + 1, col) not in el_set:
+                if (row + 1, col) not in el_set and self.maze[row + 1][col].visited != 42:
                     print(f"  [ASSEGNO {next_id}] a ({row+1},{col}) che aveva id={self.maze[row+1][col].id}")
                     el_set.add((row + 1, col))
                     unique_sets += 1
@@ -570,7 +594,6 @@ class Maze:
                     print(f"  IDs row={row+1} dopo assegnazione sud: {[self.maze[row+1][col].id for col in range(self.width)]}")
                     next_id += 1
 
-            self.print_maze()
 
         row = self.height - 1
         for col in range(self.width):

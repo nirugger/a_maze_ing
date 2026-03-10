@@ -219,9 +219,11 @@ class Game:
             if key:
                 if key == 'e':
                     maze.solution = not maze.solution
-                elif key == 'q':
+                elif key == 'q' or key == 'Q':
                     break
                 elif isinstance(key, Direction):
                     self.unset_pos(maze.maze)
                     self.set_player(maze.maze, key)
                     self.set_pos(maze.maze)
+
+        self.unset_pos(maze.maze)

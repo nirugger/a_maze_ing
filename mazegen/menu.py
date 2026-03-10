@@ -49,6 +49,7 @@ class Menu:
                         f.write(str(cls.maze.exit[0]) + "," +
                                 str(cls.maze.exit[1]) + "\n")
                         f.write(str(cls.maze.path) + "\n")
+                        f.write("SEED: " + str(cls.maze.seed) + "\n")
             else:
                 print("[ERROR] "
                       "MAZE OBJ NOT INITIALIZED")
